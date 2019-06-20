@@ -12,6 +12,8 @@ export class ProfilePictureResolver {
     createReadStream,
     filename
   }: Upload): Promise<boolean> {
+    console.log("file upload!!!!!!!!!!!!!!");
+    console.log(JSON.stringify(filename));
     return new Promise((resolve, reject) => {
       createReadStream()
         .pipe(createWriteStream(__dirname + `/../../../images/${filename}`))

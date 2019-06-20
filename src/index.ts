@@ -76,13 +76,43 @@ const main = async () => {
     ]
   });
 
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "http://localhost:4000",
+    "http://192.168.1.8:3000",
+    "http://192.168.1.8:4000",
+    "ws://192.168.1.40:4000",
+    "ws://192.168.1.8:4000"
+  ];
+
+  const corsOptions = {
+    credentials: true,
+    origin: function(origin: any, callback: any) {
+      console.log("VIEW ORIGIN");
+      console.log(origin);
+
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        console.log("CORS IS GOOD");
+        callback(null, true);
+      } else {
+        console.error("origin ", origin);
+        console.error("Not allowd by CORS");
+        callback(new Error("Not allowed by CORS"));
+      }
+    }
+  };
+
   const app = Express.default();
 
   app.use(
-    cors({
-      credentials: true,
-      origin: "http://localhost:3000"
-    })
+    cors(
+      corsOptions
+
+      //   {
+      //   credentials: true,
+      //   origin: "http://localhost:3000"
+      // }
+    )
   );
 
   app.use(

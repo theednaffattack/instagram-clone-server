@@ -17,4 +17,10 @@ export class RegisterInput extends PasswordInput {
   @IsEmail()
   @IsEmailAlreadyExist({ message: "email already in use" })
   email: string;
+
+  @Field()
+  termsAndConditions: boolean;
+
+  @Field()
+  keepMeSignedIn: boolean;
 }
