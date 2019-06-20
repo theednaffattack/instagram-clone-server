@@ -26,7 +26,12 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req, res }: any) => ({ req, res }),
+    context: ({ req, res }: any) => {
+      // const { userId } = req.session;
+      console.log("req.session".toUpperCase());
+      console.log(req.session);
+      return { req, res };
+    },
     // custom error handling from: https://github.com/19majkel94/type-graphql/issues/258
     formatError: (error: GraphQLError): GraphQLFormattedError => {
       if (error.originalError instanceof ApolloError) {

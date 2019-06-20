@@ -12,12 +12,14 @@ import {
   CreateProductResolver
 } from "../modules/user/CreateUser";
 import { ProfilePictureResolver } from "../modules/user/ProfilePictureUpload";
+import { CreatePostResolver } from "../modules/user/CreatePostResolver";
 
 export const createSchema = () =>
   buildSchema({
     resolvers: [
       ChangePasswordResolver,
       ConfirmUserResolver,
+      CreatePostResolver,
       CreateProductResolver,
       CreateUserResolver,
       ForgotPasswordResolver,

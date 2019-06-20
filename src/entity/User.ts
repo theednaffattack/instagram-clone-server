@@ -1,5 +1,14 @@
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import {
+  BaseEntity,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  // ManyToOne,
+  OneToMany
+} from "typeorm";
 import { Field, ID, ObjectType, Root } from "type-graphql";
+import { Post } from "./Post";
+import { Image } from "./Image";
 
 @ObjectType()
 @Entity()
@@ -28,6 +37,23 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
+  // @ts-ignore
+  @Field(type => Boolean)
   @Column("bool", { default: false })
   confirmed: boolean;
+
+  // @ts-ignore
+  @Field(type => Post, { nullable: true })
+  @OneToMany(() => Post, post => post.user)
+  posts?: Post[];
+
+  // // @ts-ignore
+  // @Field(type => [Image], { nullable: true })
+  // @ManyToOne(() => Image, image => image.user)
+  // images: Image[];
+
+  // @ts-ignore
+  @Field(type => Image, { nullable: true })
+  @OneToMany(() => Image, image => image.user)
+  images?: Image[];
 }

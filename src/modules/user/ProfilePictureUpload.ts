@@ -14,6 +14,7 @@ export class ProfilePictureResolver {
   }: Upload): Promise<boolean> {
     console.log("file upload!!!!!!!!!!!!!!");
     console.log(JSON.stringify(filename));
+
     return new Promise((resolve, reject) => {
       createReadStream()
         .pipe(
@@ -24,5 +25,9 @@ export class ProfilePictureResolver {
         .on("finish", () => resolve(true))
         .on("error", () => reject(false));
     });
+    // if(fileIsUploaded) {
+
+    // }
+    true;
   }
 }
