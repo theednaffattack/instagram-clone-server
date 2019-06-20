@@ -13,38 +13,41 @@ export class CreatePostResolver {
   @UseMiddleware(isAuth, logger)
   @Mutation(() => Post, { name: `createPost` })
   async create(@Arg("data", () => PostInput) data: any) {
-    console.log("INSIDE CREATE POST RESOLVER");
     let newImage = new Image();
-
-    let user = await User.findOne(data.user);
-    console.log("user".toUpperCase());
-    console.log(user);
-
-    newImage.uri = data.images[0];
-    newImage.user = user ? user : data.user;
-
     let newPost = new Post();
+    let user = await User.findOne(data.user, {
+      relations: ["images", "posts"]
+    });
+    if (user) {
+      // add new image
+      newImage.uri = data.images[0];
+      newImage.user = data.user;
+      await newImage.save();
 
-    newPost.text = data.text;
-    newPost.title = data.title;
+      // save the images to the user.images
+      // field / column
+      user.images = [newImage];
+      await user!.save();
 
-    newPost.user = user!;
+      // create a new post
+      newPost.text = data.text;
+      newPost.title = data.title;
+      newPost.user = user!;
+      newPost.images = [newImage];
 
-    console.log("view new post");
-    console.log(newPost);
-    newPost.images = [newImage];
-    console.log("view new post again");
-    console.log(newPost);
+      // associate the post w/ the image
+      newImage.post = newPost;
 
-    // this double save is garbage
-    // may have to turn on cascades
-    newPost.save();
-    newImage.post = newPost;
-    newImage.save();
-    // @ts-ignore
-    user!.posts = [newPost];
-    user!.save();
+      // associate the user w/ the posts
+      // because user posts is pre-existing
+      // I can't risk replacing previous posts
+      user.posts =
+        user.posts && Array.isArray(user.posts)
+          ? [...user.posts, newPost]
+          : [newPost];
 
-    return newPost.save();
+      return await newPost.save();
+    }
+    throw Error("the logged in user could not be found in the database");
   }
 }
