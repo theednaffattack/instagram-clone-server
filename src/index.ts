@@ -7,6 +7,7 @@ import { GraphQLFormattedError, GraphQLError } from "graphql";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
+// import path from "path";
 
 import { redis } from "./redis";
 import { redisSessionPrefix } from "./constants";
@@ -77,8 +78,8 @@ const main = async () => {
     "http://localhost:4000",
     "http://192.168.1.8:3000",
     "http://192.168.1.8:4000",
-    "ws://192.168.1.40:4000",
-    "ws://192.168.1.8:4000"
+    "ws://192.168.1.8:4000",
+    "ws://0.0.0.0:4000"
   ];
 
   const corsOptions = {
@@ -119,6 +120,10 @@ const main = async () => {
       }
     })
   );
+
+  // app.use(Express.static(path.join(__dirname, "public")));
+  app.use("*/images", Express.static("public/images"));
+  app.use("*/temp", Express.static("public/tmp/images"));
 
   apolloServer.applyMiddleware({ app, cors: false });
 
