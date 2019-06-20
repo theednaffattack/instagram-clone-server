@@ -16,7 +16,11 @@ export class ProfilePictureResolver {
     console.log(JSON.stringify(filename));
     return new Promise((resolve, reject) => {
       createReadStream()
-        .pipe(createWriteStream(__dirname + `/../../../images/${filename}`))
+        .pipe(
+          createWriteStream(
+            __dirname + `/../../../public/tmp/images/${filename}`
+          )
+        )
         .on("finish", () => resolve(true))
         .on("error", () => reject(false));
     });
