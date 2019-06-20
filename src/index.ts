@@ -15,10 +15,6 @@ import { createSchema } from "./global-utils/createSchema";
 //   fieldConfigEstimator,
 //   simpleEstimator
 // } from "graphql-query-complexity";
-// import { RegisterResolver } from "./modules/user/Register";
-// import { LoginResolver } from "./modules/user/Login";
-// import { MeResolver } from "./modules/user/Me";
-// import { ConfirmUserResolver } from "./modules/user/ConfirmUser";
 
 const RedisStore = connectRedis(session);
 
@@ -104,16 +100,7 @@ const main = async () => {
 
   const app = Express.default();
 
-  app.use(
-    cors(
-      corsOptions
-
-      //   {
-      //   credentials: true,
-      //   origin: "http://localhost:3000"
-      // }
-    )
-  );
+  app.use(cors(corsOptions));
 
   app.use(
     session({
