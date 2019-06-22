@@ -1,3 +1,4 @@
+import { createWriteStream } from "fs";
 // import { createBaseResolver } from "../type-graphql/CreateBaseResolver";
 import { Post } from "../../entity/Post";
 import { PostInput } from "./createPost/CreatePostInput";
@@ -12,16 +13,41 @@ import { User } from "../../entity/User";
 export class CreatePostResolver {
   @UseMiddleware(isAuth, logger)
   @Mutation(() => Post, { name: `createPost` })
-  async create(@Arg("data", () => PostInput) data: any) {
+  async create(@Arg("data", () => PostInput)
+  {
+    text,
+    title,
+    images,
+    user: userId,
+    picture
+  }: PostInput) {
     let newImage = new Image();
     let newPost = new Post();
-    let user = await User.findOne(data.user, {
+    let user = await User.findOne(userId, {
       relations: ["images", "posts"]
     });
     if (user) {
+      const { filename, createReadStream } = await picture;
+
+      let imageUrl = `/../../../public/tmp/images/${filename}`;
+
+      let savedFile = await new Promise((resolve, reject) => {
+        createReadStream()
+          .pipe(createWriteStream(__dirname + imageUrl))
+          .on("finish", () => {
+            resolve(true);
+          })
+          .on("error", () => {
+            reject(false);
+          });
+      });
+      console.log("FILE SAVED? ", savedFile);
+
       // add new image
-      newImage.uri = data.images[0];
-      newImage.user = data.user;
+      newImage.uri = images[0];
+      console.log("IS THIS THE ERROR?");
+      console.log(images[0]);
+      newImage.user = user;
       await newImage.save();
 
       // save the images to the user.images
@@ -30,9 +56,9 @@ export class CreatePostResolver {
       await user!.save();
 
       // create a new post
-      newPost.text = data.text;
-      newPost.title = data.title;
-      newPost.user = user!;
+      newPost.text = text;
+      newPost.title = title ? title : "";
+      newPost.user = user;
       newPost.images = [newImage];
 
       // associate the post w/ the image
