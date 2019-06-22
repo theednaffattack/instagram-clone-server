@@ -53,7 +53,7 @@ export class User extends BaseEntity {
   // images: Image[];
 
   // @ts-ignore
-  @Field(type => Image, { nullable: true })
+  @Field(type => Image)
   @OneToMany(() => Image, image => image.user)
-  images?: Image[];
+  images: Image[];
 }
