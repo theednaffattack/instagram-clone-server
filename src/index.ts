@@ -7,7 +7,7 @@ import { GraphQLFormattedError, GraphQLError } from "graphql";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
-// import morgan from "morgan";
+import { createServer } from "http";
 
 import { redis } from "./redis";
 import { redisSessionPrefix } from "./constants";
@@ -20,6 +20,41 @@ import { logger } from "./modules/middleware/logger/logger";
 // } from "graphql-query-complexity";
 
 const RedisStore = connectRedis(session);
+
+const PORT = process.env.PORT || 7777;
+
+const sessionMiddleware = session({
+  name: "qid",
+  secret: process.env.SESSION_SECRET as string,
+  store: new RedisStore({
+    client: redis as any,
+    prefix: redisSessionPrefix
+  }),
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+  }
+});
+
+const getContextFromHttpRequest = (req: any, res: any) => {
+  // const { userId } = req.session;
+  // console.log(Object.keys(req));
+  const { userId } = req.session;
+  // console.log("LET'S VIEW THE SESSION INFO");
+  // console.log(req.session);
+  // console.log("new Context object");
+  // console.log({ userId, req });
+  return { userId, req, res };
+};
+
+const getContextFromSubscription = (connection: any) => {
+  // const { userId } = connection.context;
+  const { userId } = connection.context.req.session;
+  return { userId, req: connection.context.req };
+};
 
 // const morganFormat = process.env.NODE_ENV !== "production" ? "dev" : "combined";
 
@@ -36,9 +71,37 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req, res }: any) => {
-      // const { userId } = req.session;
-      return { req, res };
+    tracing: true,
+    subscriptions: {
+      path: "/subscriptions",
+      onConnect: (_, webSocket: any) => {
+        return new Promise(resolve =>
+          sessionMiddleware(webSocket.upgradeReq, {} as any, () => {
+            if (!webSocket.upgradeReq.session.userId) {
+              throw new Error("Not authenticated");
+            }
+            resolve({
+              req: webSocket.upgradeReq
+              // userId: webSocket.upgradeReq.session.userId
+            });
+          })
+        );
+      },
+
+      onDisconnect: () => {
+        // ...
+        // console.log(webSocket);
+        // console.log(context);
+      }
+    },
+    context: ({ req, res, connection }: any) => {
+      if (connection) {
+        return getContextFromSubscription(connection);
+      }
+
+      return getContextFromHttpRequest(req, res);
+
+      // return { req, res, connection };
     },
     // custom error handling from: https://github.com/19majkel94/type-graphql/issues/258
     formatError: (error: GraphQLError): GraphQLFormattedError => {
@@ -112,23 +175,29 @@ const main = async () => {
 
   app.use(cors(corsOptions));
 
-  app.use(
-    session({
-      name: "qid",
-      secret: process.env.SESSION_SECRET as string,
-      store: new RedisStore({
-        client: redis as any,
-        prefix: redisSessionPrefix
-      }),
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
-      }
-    })
-  );
+  const wsServer = createServer(app);
+
+  apolloServer.installSubscriptionHandlers(wsServer);
+
+  app.use(sessionMiddleware);
+
+  // app.use(
+  //   session({
+  //     name: "qid",
+  //     secret: process.env.SESSION_SECRET as string,
+  //     store: new RedisStore({
+  //       client: redis as any,
+  //       prefix: redisSessionPrefix
+  //     }),
+  //     resave: false,
+  //     saveUninitialized: false,
+  //     cookie: {
+  //       httpOnly: true,
+  //       secure: process.env.NODE_ENV === "production",
+  //       maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+  //     }
+  //   })
+  // );
 
   app.use("/graphql", (req, res, next) => {
     const startHrTime = process.hrtime();
@@ -155,11 +224,26 @@ const main = async () => {
   app.use("*/images", Express.static("public/images"));
   app.use("*/temp", Express.static("public/tmp/images"));
 
-  apolloServer.applyMiddleware({ app, cors: false });
+  apolloServer.applyMiddleware({ app, cors: corsOptions });
 
-  app.listen(4000, () => {
+  // app.listen(4000, () => {
+  //   console.log(
+  //     "server started! GraphQL Playground available at:\nhttp://localhost:4000/graphql"
+  //   );
+  // });
+
+  wsServer.listen(4000, () => {
+    console.log("\n\n");
     console.log(
-      "server started! GraphQL Playground available at:\nhttp://localhost:4000/graphql"
+      `🚀  Server started! GraphQL Playground ready at:\nhttp://localhost:${PORT}${
+        apolloServer.graphqlPath
+      }`
+    );
+    console.log("\n\n");
+    console.log(
+      `🚀 Subscriptions ready at:\nws://localhost:${PORT}${
+        apolloServer.subscriptionsPath
+      }`
     );
   });
 };
