@@ -98,11 +98,7 @@ const main = async () => {
   const corsOptions = {
     credentials: true,
     origin: function(origin: any, callback: any) {
-      console.log("VIEW ORIGIN");
-      console.log(origin);
-
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        console.log("CORS IS GOOD");
         callback(null, true);
       } else {
         console.error("origin ", origin);
@@ -133,15 +129,6 @@ const main = async () => {
       }
     })
   );
-
-  // app.use(
-  //   morgan(morganFormat, {
-  //     skip: function(req, res) {
-  //       return res.statusCode < 400;
-  //     },
-  //     stream: process.stderr
-  //   })
-  // );
 
   app.use("/graphql", (req, res, next) => {
     const startHrTime = process.hrtime();

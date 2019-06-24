@@ -32,10 +32,13 @@ export class GetAllMyImagesResolver {
 }
 
 @Resolver()
-export class GetAllMyFollowedImagesResolver {
+export class GetThoseIFollowAndTheirPostsResolver {
   @UseMiddleware(isAuth, logger)
-  @Query(() => User, { name: "getAllMyFollowedImages", nullable: true })
-  async getAllMyImages(
+  @Query(() => User, {
+    name: "getThoseIFollowAndTheirPostsResolver",
+    nullable: true
+  })
+  async getThoseIFollowAndTheirPostsResolver(
     // @Arg("data") { me }: MyImagesInput,
     @Ctx() ctx: MyContext
   ): Promise<any> {

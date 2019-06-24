@@ -16,8 +16,8 @@ import { CreatePostResolver } from "../modules/user/CreatePostResolver";
 // import { GetAllMyImagesResolver } from "../modules/user/GetMyImages";
 import {
   GetAllMyImagesResolver,
-  GetAllMyFollowedImagesResolver
-} from "../modules/user/GetMyImagesResolver_too";
+  GetThoseIFollowAndTheirPostsResolver
+} from "../modules/user/GetMyImagesResolver";
 import { FollowUser } from "../modules/user/FollowUser";
 
 export const createSchema = () =>
@@ -31,7 +31,7 @@ export const createSchema = () =>
       FollowUser,
       ForgotPasswordResolver,
       GetAllMyImagesResolver,
-      GetAllMyFollowedImagesResolver,
+      GetThoseIFollowAndTheirPostsResolver,
       LoginResolver,
       LogoutResolver,
       MeResolver,

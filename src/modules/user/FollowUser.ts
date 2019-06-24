@@ -2,7 +2,7 @@ import { Resolver, Mutation, Ctx, InputType, Arg, Field } from "type-graphql";
 
 import { User } from "../../entity/User";
 import { MyContext } from "../../types/MyContext";
-import { Follower } from "../../entity/Follower";
+// import { Follower } from "../../entity/Follower";
 
 @InputType()
 export class FollowUserInput {
@@ -12,7 +12,7 @@ export class FollowUserInput {
 
 @Resolver()
 export class FollowUser {
-  @Mutation(() => Follower, { nullable: true })
+  @Mutation(() => User, { nullable: true })
   async followUser(
     @Arg("data", { nullable: false })
     { userIDToFollow }: FollowUserInput,
