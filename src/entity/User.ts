@@ -10,6 +10,7 @@ import { Field, ID, ObjectType, Root } from "type-graphql";
 
 import { Post } from "./Post";
 import { Image } from "./Image";
+import { Message } from "./Message";
 // import { Follower } from "./Follower";
 
 @ObjectType()
@@ -54,15 +55,10 @@ export class User extends BaseEntity {
   @OneToMany(() => Image, image => image.user, { nullable: true })
   images: Image[];
 
-  // // @ts-ignore
-  // @Field(type => Follower)
-  // @OneToMany(() => Follower, follower => follower.am_follower)
-  // following: Follower[];
-
-  // // @ts-ignore
-  // @Field(type => Follower)
-  // @OneToMany(() => Follower, follower => follower.followed_by)
-  // followers: Follower[];
+  // @ts-ignore
+  @Field(type => [Message], { nullable: true })
+  @OneToMany(() => Message, message => message.user)
+  messages?: Message[];
 
   // @ts-ignore
   @Field(type => User)

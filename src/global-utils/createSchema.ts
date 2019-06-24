@@ -19,6 +19,8 @@ import {
   GetThoseIFollowAndTheirPostsResolver
 } from "../modules/user/GetMyImagesResolver";
 import { FollowUser } from "../modules/user/FollowUser";
+import { GetMyMessagesResolver } from "../modules/messages/GetMyMessages";
+import { SendMessageResolver } from "../modules/messages/SendMessages";
 
 export const createSchema = () =>
   buildSchema({
@@ -30,13 +32,15 @@ export const createSchema = () =>
       CreateUserResolver,
       FollowUser,
       ForgotPasswordResolver,
+      GetMyMessagesResolver,
       GetAllMyImagesResolver,
       GetThoseIFollowAndTheirPostsResolver,
       LoginResolver,
       LogoutResolver,
       MeResolver,
       ProfilePictureResolver,
-      RegisterResolver
+      RegisterResolver,
+      SendMessageResolver
     ],
     authChecker: ({ context: { req } }) => {
       // I can read context here
