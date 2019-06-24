@@ -1,6 +1,6 @@
 import { MiddlewareFn } from "type-graphql";
-import { MyContext } from "../../types/MyContext";
 
+import { MyContext } from "../../types/MyContext";
 const { log } = console;
 
 export const logger: MiddlewareFn<MyContext> = async ({ args }, next) => {

@@ -13,6 +13,12 @@ import {
 } from "../modules/user/CreateUser";
 import { ProfilePictureResolver } from "../modules/user/ProfilePictureUpload";
 import { CreatePostResolver } from "../modules/user/CreatePostResolver";
+// import { GetAllMyImagesResolver } from "../modules/user/GetMyImages";
+import {
+  GetAllMyImagesResolver,
+  GetAllMyFollowedImagesResolver
+} from "../modules/user/GetMyImagesResolver_too";
+import { FollowUser } from "../modules/user/FollowUser";
 
 export const createSchema = () =>
   buildSchema({
@@ -22,7 +28,10 @@ export const createSchema = () =>
       CreatePostResolver,
       CreateProductResolver,
       CreateUserResolver,
+      FollowUser,
       ForgotPasswordResolver,
+      GetAllMyImagesResolver,
+      GetAllMyFollowedImagesResolver,
       LoginResolver,
       LogoutResolver,
       MeResolver,

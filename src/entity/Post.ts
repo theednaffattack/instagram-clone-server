@@ -25,6 +25,7 @@ export class Post extends BaseEntity {
   @Column()
   text: string;
 
+  @Field(() => [Image], { nullable: true })
   @OneToMany(() => Image, image => image.post)
   images: Image[];
 

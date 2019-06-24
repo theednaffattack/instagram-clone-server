@@ -7,11 +7,13 @@ import { GraphQLFormattedError, GraphQLError } from "graphql";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
-// import path from "path";
+// import morgan from "morgan";
 
 import { redis } from "./redis";
 import { redisSessionPrefix } from "./constants";
 import { createSchema } from "./global-utils/createSchema";
+import { logger } from "./modules/middleware/logger/logger";
+
 // import queryComplexity, {
 //   fieldConfigEstimator,
 //   simpleEstimator
@@ -19,17 +21,23 @@ import { createSchema } from "./global-utils/createSchema";
 
 const RedisStore = connectRedis(session);
 
+// const morganFormat = process.env.NODE_ENV !== "production" ? "dev" : "combined";
+
 const main = async () => {
   await createConnection();
 
-  const schema = await createSchema();
+  let schema;
+
+  try {
+    schema = await createSchema();
+  } catch (error) {
+    console.error(error);
+  }
 
   const apolloServer = new ApolloServer({
     schema,
     context: ({ req, res }: any) => {
       // const { userId } = req.session;
-      console.log("req.session".toUpperCase());
-      console.log(req.session);
       return { req, res };
     },
     // custom error handling from: https://github.com/19majkel94/type-graphql/issues/258
@@ -125,6 +133,36 @@ const main = async () => {
       }
     })
   );
+
+  // app.use(
+  //   morgan(morganFormat, {
+  //     skip: function(req, res) {
+  //       return res.statusCode < 400;
+  //     },
+  //     stream: process.stderr
+  //   })
+  // );
+
+  app.use("/graphql", (req, res, next) => {
+    const startHrTime = process.hrtime();
+
+    res.on("finish", () => {
+      if (req.body && req.body.operationName) {
+        const elapsedHrTime = process.hrtime(startHrTime);
+        const elapsedTimeInMs =
+          elapsedHrTime[0] * 1000 + elapsedHrTime[1] / 1e6;
+        logger.info(
+          `${req.body.operationName} ${elapsedTimeInMs} ms`
+          // {
+          //   type: "timing",
+          //   name: req.body.operationName,
+          //   ms: elapsedTimeInMs
+          // }
+        );
+      }
+    });
+    next();
+  });
 
   // app.use(Express.static(path.join(__dirname, "public")));
   app.use("*/images", Express.static("public/images"));
