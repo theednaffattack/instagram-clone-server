@@ -48,22 +48,10 @@ export class GetThoseIFollowAndTheirPostsResolver {
       where: { id: userId },
       relations: [
         "am_follower",
-        // "followed_by",
-
-        // "am_follower.images",
         "am_follower.posts",
-        // "followed_by.images",
-
         "am_follower.posts.images"
-
-        // "am_follower.images.post"
-        // "followed_by.images.post",
       ]
     });
-
-    // console.log(`qbldrMyFllowerAndTheirPosts`, qbldrMyFllowerAndTheirPosts);
-    console.log("myFollowersAndTheirPosts".toUpperCase());
-    console.log(JSON.stringify(thoseIFollowAndTheirPosts, null, 2));
 
     if (thoseIFollowAndTheirPosts) {
       return thoseIFollowAndTheirPosts;

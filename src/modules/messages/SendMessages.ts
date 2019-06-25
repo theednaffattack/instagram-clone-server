@@ -48,7 +48,7 @@ export class SendMessageResolver {
     @Root() messagePayload: MessagePayload,
     // @ts-ignore
     @Args(type => MessageInput) input: MessageInput
-  ): MessageSubType {
+  ): MessagePayload {
     // do some stuff
     // console.log("I'M TYING TO UPDATE THE SUBSCRIPTION");
 
@@ -65,7 +65,7 @@ export class SendMessageResolver {
   async addNewMessage(
     @Ctx() context: MyContext,
     // @ts-ignore
-    @PubSub("MESSAGES") publish: Publisher<NotificationPayload>,
+    @PubSub("MESSAGES") publish: Publisher<MessagePayload>,
     // @ts-ignore
     @Args(type => MessageInput) input: MessageInput
   ): Promise<boolean> {

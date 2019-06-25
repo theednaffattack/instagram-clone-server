@@ -6,7 +6,6 @@ import { createConnection } from "typeorm";
 import { GraphQLFormattedError, GraphQLError } from "graphql";
 import session from "express-session";
 import connectRedis from "connect-redis";
-import cors from "cors";
 import { createServer } from "http";
 
 import { redis } from "./redis";
@@ -39,14 +38,9 @@ const sessionMiddleware = session({
   }
 });
 
-const getContextFromHttpRequest = (req: any, res: any) => {
-  // const { userId } = req.session;
-  // console.log(Object.keys(req));
+const getContextFromHttpRequest = async (req: any, res: any) => {
   const { userId } = req.session;
-  // console.log("LET'S VIEW THE SESSION INFO");
-  // console.log(req.session);
-  // console.log("new Context object");
-  // console.log({ userId, req });
+
   return { userId, req, res };
 };
 
@@ -72,6 +66,7 @@ const main = async () => {
   const apolloServer = new ApolloServer({
     schema,
     tracing: true,
+
     subscriptions: {
       path: "/subscriptions",
       onConnect: (_, webSocket: any) => {
@@ -173,31 +168,13 @@ const main = async () => {
 
   const app = Express.default();
 
-  app.use(cors(corsOptions));
+  // app.use(cors(corsOptions));
 
   const wsServer = createServer(app);
 
   apolloServer.installSubscriptionHandlers(wsServer);
 
   app.use(sessionMiddleware);
-
-  // app.use(
-  //   session({
-  //     name: "qid",
-  //     secret: process.env.SESSION_SECRET as string,
-  //     store: new RedisStore({
-  //       client: redis as any,
-  //       prefix: redisSessionPrefix
-  //     }),
-  //     resave: false,
-  //     saveUninitialized: false,
-  //     cookie: {
-  //       httpOnly: true,
-  //       secure: process.env.NODE_ENV === "production",
-  //       maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
-  //     }
-  //   })
-  // );
 
   app.use("/graphql", (req, res, next) => {
     const startHrTime = process.hrtime();

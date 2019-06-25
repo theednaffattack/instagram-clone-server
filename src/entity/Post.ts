@@ -32,3 +32,26 @@ export class Post extends BaseEntity {
   @ManyToOne(() => User, user => user.posts)
   user: User;
 }
+
+@ObjectType()
+export class PostSubType {
+  // @ts-ignore
+  @Field(type => ID)
+  id: string;
+
+  // @ts-ignore
+  @Field(type => String)
+  title: string;
+
+  // @ts-ignore
+  @Field(type => String)
+  text: string;
+
+  // @ts-ignore
+  @Field(type => [Image])
+  images: Image[];
+
+  // @ts-ignore
+  @Field(type => User)
+  user: User;
+}
