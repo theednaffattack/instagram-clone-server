@@ -57,11 +57,20 @@ export class CreatePostResolver {
     },
 
     // @ts-ignore
-    filter: ({ payload, args }: ResolverFilterData<Post, PostInput>) => {
+    filter: ({
+      payload,
+      // args,
+      context
+    }: ResolverFilterData<Post, PostInput>) => {
       //   return payload.recipeId === args.recipeId;
       // I'll use the example return above to filter for the
       // current selected message thread
-      return true;
+      // @ts-ignore
+      if (context.userId !== payload.user.id) {
+        return true;
+      } else {
+        return false;
+      }
     }
     // filter: ({ payload, args }) => args.priorities.includes(payload.priority),
   })

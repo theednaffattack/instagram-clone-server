@@ -29,6 +29,7 @@ export class Post extends BaseEntity {
   @OneToMany(() => Image, image => image.post)
   images: Image[];
 
+  @Field(() => User)
   @ManyToOne(() => User, user => user.posts)
   user: User;
 }

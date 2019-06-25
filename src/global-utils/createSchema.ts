@@ -14,13 +14,12 @@ import {
 import { ProfilePictureResolver } from "../modules/user/ProfilePictureUpload";
 import { CreatePostResolver } from "../modules/user/CreatePostResolver";
 // import { GetAllMyImagesResolver } from "../modules/user/GetMyImages";
-import {
-  GetAllMyImagesResolver,
-  GetThoseIFollowAndTheirPostsResolver
-} from "../modules/user/GetMyImagesResolver";
+import { GetAllMyImagesResolver } from "../modules/user/GetMyImagesResolver";
+import { GetThoseIFollowAndTheirPostsResolver } from "../modules/user/GetThoseIFollowAndTheirPostsResolver";
 import { FollowUser } from "../modules/user/FollowUser";
 import { GetMyMessagesResolver } from "../modules/messages/GetMyMessages";
 import { SendMessageResolver } from "../modules/messages/SendMessages";
+import { GetGobalPostsResolver } from "../modules/user/GetGlobalFeed";
 
 export const createSchema = () =>
   buildSchema({
@@ -32,6 +31,7 @@ export const createSchema = () =>
       CreateUserResolver,
       FollowUser,
       ForgotPasswordResolver,
+      GetGobalPostsResolver,
       GetMyMessagesResolver,
       GetAllMyImagesResolver,
       GetThoseIFollowAndTheirPostsResolver,
