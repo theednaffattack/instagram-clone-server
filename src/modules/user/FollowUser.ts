@@ -21,23 +21,23 @@ export class FollowUser {
     let me = ctx.req && ctx.req.session ? ctx.req.session.userId : null;
 
     // find the logged in user
-    let userIsFollower = await User.findOne(me, { relations: ["am_follower"] });
+    let userIsFollower = await User.findOne(me, { relations: ["followings"] });
     // userIsFollower.am_follower.push(me);
 
     // find the user to follow
     let userToFollow = await User.findOne(userIDToFollow, {
-      relations: ["followed_by"]
+      relations: ["followers"]
     });
 
     // make the logged in user a follower of the user to follow
     if (userToFollow) {
-      userToFollow.followed_by = me;
+      userToFollow.followers = me;
       await userToFollow.save();
     }
 
     // save the user to follow to "my" `follows`
     if (userIsFollower && userToFollow) {
-      userIsFollower.am_follower.push(userToFollow);
+      userIsFollower.followings.push(userToFollow);
       await userIsFollower.save();
     }
     // let createFollowing = await Follower.create({
