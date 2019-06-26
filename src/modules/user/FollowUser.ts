@@ -45,8 +45,8 @@ export class FollowUser {
     //   followed_by: userToFollow
     // }).save();
 
-    console.log("userToFollow, userIsFollower");
-    console.log(userToFollow, userIsFollower);
+    // console.log("userToFollow, userIsFollower");
+    // console.log(userToFollow, userIsFollower);
 
     // if (userToFollow && userIsFollower) {
     //   userIsFollower.following.push(createFollowing);

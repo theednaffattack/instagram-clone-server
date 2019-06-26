@@ -1,8 +1,7 @@
-import { Resolver, Query, UseMiddleware, Ctx } from "type-graphql";
+import { Resolver, Query, UseMiddleware } from "type-graphql";
 
 import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
-import { MyContext } from "../../types/MyContext";
 import { Post } from "../../entity/Post";
 
 @Resolver()
@@ -12,18 +11,13 @@ export class GetGobalPostsResolver {
     name: "getGobalPosts",
     nullable: true
   })
-  async getGobalPosts(@Ctx() ctx: MyContext): Promise<any> {
-    const userId = ctx.req.session ? ctx.req.session.userId : null;
-    console.log("USERID", userId);
-
+  async getGobalPosts(): Promise<any> {
     const findOptions = {
       where: {},
       relations: ["images", "user"]
     };
 
     let globalPosts = await Post.find(findOptions);
-
-    console.log("globalPosts", globalPosts);
 
     if (globalPosts) {
       return globalPosts;
