@@ -20,11 +20,7 @@ export class GetThoseIFollowAndTheirPostsResolver {
 
     let thoseIFollowAndTheirPosts = await User.findOne({
       where: { id: userId },
-      relations: [
-        "am_follower",
-        "am_follower.posts",
-        "am_follower.posts.images"
-      ]
+      relations: ["followers", "followers.posts", "followers.posts.images"]
     });
 
     if (thoseIFollowAndTheirPosts) {
