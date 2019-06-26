@@ -70,10 +70,11 @@ const main = async () => {
     subscriptions: {
       path: "/subscriptions",
       onConnect: (_, webSocket: any) => {
-        return new Promise(resolve =>
+        return new Promise((resolve, reject) =>
           sessionMiddleware(webSocket.upgradeReq, {} as any, () => {
             if (!webSocket.upgradeReq.session.userId) {
-              throw new Error("Not authenticated");
+              // throw Error("Not authenticated");
+              reject("Not Authenticated");
             }
             resolve({
               req: webSocket.upgradeReq

@@ -30,8 +30,6 @@ export class CreatePostResolver {
       const { filename, createReadStream } = await picture;
 
       const lastImage = images.length > 1 ? images.length - 1 : 0;
-      console.log("IS THIS THE ERROR?");
-      console.log(images[lastImage]);
 
       let imageUrl = `/../../../public/tmp/images/${images[lastImage]}`;
 
@@ -45,7 +43,6 @@ export class CreatePostResolver {
             reject(false);
           });
       });
-      console.log("FILE SAVED? ", savedFile);
 
       // add new image
 
@@ -60,14 +57,10 @@ export class CreatePostResolver {
       // newImage.user = await Promise.resolve(user);
       await newImage.save();
 
-      console.log("newImage".toUpperCase());
-      console.log(newImage);
-
       // save the images to the user.images
       // field / column
       user.images.push(newImage);
       await user.save();
-      console.log("user save".toUpperCase());
 
       const postData = {
         text,
@@ -75,14 +68,11 @@ export class CreatePostResolver {
         user,
         images: [newImage]
       };
-      console.log("can i see post data".toUpperCase());
-      console.log(postData);
 
       let newPost = await Post.create(postData);
-      console.log("NEW POST", newPost);
 
       await newPost.save();
-      console.log("NEW POST", newPost);
+
       newImage.post = newPost;
       await newImage.save();
 
