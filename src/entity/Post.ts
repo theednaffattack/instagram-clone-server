@@ -4,7 +4,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  ManyToOne
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 import { Image } from "./Image";
@@ -32,6 +34,12 @@ export class Post extends BaseEntity {
   @Field(() => User)
   @ManyToOne(() => User, user => user.posts)
   user: User;
+
+  @CreateDateColumn({ type: "timestamp" })
+  created_at: Date;
+
+  @UpdateDateColumn({ type: "timestamp", nullable: true })
+  updated_at?: Date;
 }
 
 @ObjectType()
