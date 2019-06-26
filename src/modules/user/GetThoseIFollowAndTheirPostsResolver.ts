@@ -17,7 +17,7 @@ export class GetThoseIFollowAndTheirPostsResolver {
     @Ctx() ctx: MyContext
   ): Promise<any> {
     const userId = ctx.req.session ? ctx.req.session.userId : null;
-    console.log("USERID", userId);
+
     let thoseIFollowAndTheirPosts = await User.findOne({
       where: { id: userId },
       relations: [
