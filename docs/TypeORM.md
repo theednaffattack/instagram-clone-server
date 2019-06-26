@@ -734,3 +734,47 @@ When you save the object it will check if there are any categories in the databa
 Therefore, saving an object like this will bring you problems - it will remove all previously set categories.
 
 How to avoid this behaviour? Simply don't initialize arrays in your entities. Same rule applies to a constructor - don't initialize it in a constructor as well.
+
+
+
+Self-referencing ManyToMany Relations
+
+from: https://github.com/typeorm/typeorm/issues/1511
+
+I modified your entity so that the second `@ManyToMany` (following) is complete.
+
+```js
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column("varchar", { length: 30 })
+  firstName: string;
+
+  @Column("varchar", { length: 30 })
+  lastName: string;
+
+  @Column("varchar")
+  description: string;
+
+  @Column("varchar")
+  profileImgUrl: string;
+
+  @ManyToMany(type => User, user => user.following)
+  @JoinTable()
+  followers: User[];
+
+  @ManyToMany(type => User, user => user.followers)
+  following: User[];
+
+  @RelationCount((user: User) => user.followers)
+  followersCount: number;
+  
+  @RelationCount((user: User) => user.following)
+  followingCount: number;
+}
+```
+
+With this change, I can load both `following` and `followers` and check `followersCount` and `followingCount`.
+Can you try if that would do the trick for you?
