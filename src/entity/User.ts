@@ -4,7 +4,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  ManyToOne
+  ManyToMany,
+  JoinTable
+  // RelationCount
 } from "typeorm";
 import { Field, ID, ObjectType, Root } from "type-graphql";
 
@@ -56,19 +58,31 @@ export class User extends BaseEntity {
   images: Image[];
 
   // @ts-ignore
+  @Field(type => Image, { nullable: true })
+  @Column("varchar", { nullable: true })
+  profileImgUrl: string;
+
+  // @ts-ignore
   @Field(type => [Message], { nullable: true })
   @OneToMany(() => Message, message => message.user)
   messages?: Message[];
 
   // @ts-ignore
-  @Field(type => User)
+  @Field(type => User, { nullable: true })
   // @ts-ignore
-  @ManyToOne(type => User, user => user.am_follower)
-  followed_by: User;
+  @ManyToMany(type => User, user => user.followings, { nullable: true })
+  @JoinTable()
+  followers: User[];
 
   // @ts-ignore
-  @Field(type => User)
+  @Field(type => User, { nullable: true })
   // @ts-ignore
-  @OneToMany(type => User, user => user.followed_by)
-  am_follower: User[];
+  @ManyToMany(type => User, user => user.followers, { nullable: true })
+  followings: User[];
+
+  // @RelationCount((user: User) => user.followers)
+  // followersCount: number;
+
+  // @RelationCount((user: User) => user.followings)
+  // followingCount: number;
 }
