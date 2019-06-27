@@ -30,7 +30,6 @@ export class LoginResolver {
       throw new Error("Please confirm your account");
       // return null;
     }
-
     // all is well return the user we found
     ctx.req.session!.userId = user.id;
     return user;
