@@ -53,7 +53,8 @@ export class CreatePostResolver {
       if (!context.userId) {
         throw new Error("not authed");
       }
-      return "POSTS";
+
+      return "POSTS_FOLLOWERS";
     },
 
     // @ts-ignore
@@ -62,11 +63,9 @@ export class CreatePostResolver {
       // args,
       context
     }: ResolverFilterData<Post, PostInput>) => {
-      //   return payload.recipeId === args.recipeId;
-      // I'll use the example return above to filter for the
-      // current selected message thread
+      // filter for followers;
       // @ts-ignore
-      if (context.userId !== payload.user.id) {
+      if (context.userId !== payload.user.followers.includes(context.id)) {
         return true;
       } else {
         return false;
@@ -74,7 +73,7 @@ export class CreatePostResolver {
     }
     // filter: ({ payload, args }) => args.priorities.includes(payload.priority),
   })
-  newPost(
+  followingPosts(
     @Root() postPayload: PostPayload,
     // @ts-ignore
     @Arg("data") input: QuickPostSubsInput
@@ -90,7 +89,8 @@ export class CreatePostResolver {
     @Ctx() context: MyContext,
 
     // @ts-ignore
-    @PubSub("POSTS") publish: Publisher<PostPayload>,
+    @PubSub("POSTS_FOLLOWERS") publish: Publisher<PostPayload>,
+    @PubSub("POSTS_GLOBAL") publishGlbl: Publisher<PostPayload>,
     @Arg("data", () => PostInput)
     { text, title, images, user: userId, picture }: PostInput
   ) {
@@ -99,7 +99,7 @@ export class CreatePostResolver {
     }
 
     let user = await User.findOne(userId, {
-      relations: ["images", "posts"]
+      relations: ["images", "posts", "followers"]
     });
     if (user) {
       // @ts-ignore
@@ -158,6 +158,7 @@ export class CreatePostResolver {
         let myPostPayload: PostPayload = { ...newPost };
 
         await publish(myPostPayload);
+        await publishGlbl(myPostPayload);
         // return true;
         return newPost;
       }
