@@ -19,7 +19,7 @@ import { GetThoseIFollowAndTheirPostsResolver } from "../modules/user/GetThoseIF
 import { FollowUser } from "../modules/user/FollowUser";
 import { GetMyMessagesResolver } from "../modules/messages/GetMyMessages";
 import { SendMessageResolver } from "../modules/messages/SendMessages";
-import { GetGobalPostsResolver } from "../modules/user/GetGlobalFeed";
+import { GetGlobalPostsResolver } from "../modules/user/GetGlobalFeed";
 
 export const createSchema = () =>
   buildSchema({
@@ -31,7 +31,7 @@ export const createSchema = () =>
       CreateUserResolver,
       FollowUser,
       ForgotPasswordResolver,
-      GetGobalPostsResolver,
+      GetGlobalPostsResolver,
       GetMyMessagesResolver,
       GetAllMyImagesResolver,
       GetThoseIFollowAndTheirPostsResolver,
