@@ -70,7 +70,7 @@ export class User extends BaseEntity {
   // @ts-ignore
   @Field(type => User, { nullable: true })
   // @ts-ignore
-  @ManyToMany(type => User, user => user.followings, { nullable: true })
+  @ManyToMany(type => User, user => user.following, { nullable: true })
   @JoinTable()
   followers: User[];
 
@@ -78,11 +78,11 @@ export class User extends BaseEntity {
   @Field(type => User, { nullable: true })
   // @ts-ignore
   @ManyToMany(type => User, user => user.followers, { nullable: true })
-  followings: User[];
+  following: User[];
 
   // @RelationCount((user: User) => user.followers)
   // followersCount: number;
 
-  // @RelationCount((user: User) => user.followings)
+  // @RelationCount((user: User) => user.following)
   // followingCount: number;
 }

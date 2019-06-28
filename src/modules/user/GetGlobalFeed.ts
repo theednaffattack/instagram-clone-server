@@ -9,16 +9,17 @@ import {
 
 import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
-import { Post, PostSubType } from "../../entity/Post";
+import { Post } from "../../entity/Post";
 import { PostInput } from "./createPost/CreatePostInput";
-import { PostPayload } from "./CreatePostResolver";
+// import { PostPayload } from "./CreatePostResolver";
 
 @Resolver()
 export class GetGlobalPostsResolver {
   // @ts-ignore
-  @Subscription(type => PostSubType, {
+  @Subscription(type => Post, {
     // the `payload` and `args` are available in the destructured
     // object below `{args, context, payload}`
+    nullable: true,
     topics: ({ context }) => {
       // @ts-ignore
 
@@ -42,7 +43,7 @@ export class GetGlobalPostsResolver {
   // works besides accessing the root query to add a
   // resolver method. For now I don't transform
   // anything here
-  globalPosts(@Root() postPayload: PostPayload) {
+  globalPosts(@Root() postPayload: Post) {
     return { ...postPayload };
   }
 
@@ -62,9 +63,7 @@ export class GetGlobalPostsResolver {
     if (globalPosts) {
       return globalPosts;
     } else {
-      throw Error(
-        "cannot find those you are following (along with their posts)"
-      );
+      throw Error("cannot find global posts");
     }
   }
 }

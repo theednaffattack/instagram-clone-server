@@ -15,7 +15,7 @@ import { User } from "./User";
 @ObjectType()
 @Entity()
 export class Post extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => ID, { nullable: true })
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
@@ -23,7 +23,7 @@ export class Post extends BaseEntity {
   @Column({ nullable: true })
   title: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column()
   text: string;
 
@@ -31,7 +31,7 @@ export class Post extends BaseEntity {
   @OneToMany(() => Image, image => image.post)
   images: Image[];
 
-  @Field(() => User)
+  @Field(() => User, { nullable: true })
   @ManyToOne(() => User, user => user.posts)
   user: User;
 

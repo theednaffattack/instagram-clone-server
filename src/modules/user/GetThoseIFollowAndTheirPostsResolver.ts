@@ -20,15 +20,18 @@ export class GetThoseIFollowAndTheirPostsResolver {
 
     let thoseIFollowAndTheirPosts = await User.findOne({
       where: { id: userId },
-      relations: ["followers", "followers.posts", "followers.posts.images"]
+      relations: [
+        "following",
+        "followers",
+        "following.posts",
+        "following.posts.images"
+      ]
     });
 
     if (thoseIFollowAndTheirPosts) {
       return thoseIFollowAndTheirPosts;
     } else {
-      throw Error(
-        "cannot find those you are following (along with their posts)"
-      );
+      return [];
     }
   }
 }

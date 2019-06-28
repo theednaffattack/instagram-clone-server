@@ -12,7 +12,7 @@ All repository and manager `find` methods accept special options you can use to 
 
 indicates which properties of the main object must be selected
 
-```
+```js
 userRepository.find({ select: ["firstName", "lastName"] });
 ```
 
@@ -20,7 +20,7 @@ userRepository.find({ select: ["firstName", "lastName"] });
 
 relations needs to be loaded with the main entity. Sub-relations can also be loaded (shorthand for join and leftJoinAndSelect)
 
-```
+```js
 userRepository.find({ relations: ["profile", "photos", "videos"] });
 userRepository.find({ relations: ["profile", "photos", "videos", "videos.video_attributes"] });
 ```
@@ -29,7 +29,7 @@ userRepository.find({ relations: ["profile", "photos", "videos", "videos.video_a
 
 joins needs to be performed for the entity. Extended version of "relations".
 
-```
+```js
 userRepository.find({
     join: {
         alias: "user",
@@ -46,19 +46,19 @@ userRepository.find({
 
 Simple conditions by which entity should be queried.
 
-```
+```js
 userRepository.find({ where: { firstName: "Timber", lastName: "Saw" } });
 ```
 
 Querying a column from an embedded entity should be done with respect to the hierarchy in which it was defined. Example:
 
-```
+```js
 userRepository.find({ where: { name: { first: "Timber", last: "Saw" } } });
 ```
 
 Querying with OR operator:
 
-```
+```js
 userRepository.find({
   where: [
     { firstName: "Timber", lastName: "Saw" },
@@ -69,7 +69,7 @@ userRepository.find({
 
 will execute following query:
 
-```
+```plsql
 SELECT * FROM "user" WHERE ("firstName" = 'Timber' AND "lastName" = 'Saw') OR ("firstName" = 'Stan' AND "lastName" = 'Lee')
 ```
 
@@ -77,7 +77,7 @@ SELECT * FROM "user" WHERE ("firstName" = 'Timber' AND "lastName" = 'Saw') OR ("
 
 selection order.
 
-```
+```js
 userRepository.find({
     order: {
         name: "ASC",
@@ -404,6 +404,124 @@ SELECT * FROM "post" WHERE NOT("likes" > 10) AND NOT("title" = 'About #2')
 ```
 
 
+
+## Querybuilder
+
+from: https://github.com/typeorm/typeorm/blob/master/docs/relational-query-builder.md
+
+### Working with Relations
+
+`RelationQueryBuilder` is a special type of `QueryBuilder` which allows you to work with your relations. Using it, you can bind entities to each other in the database without the need to load any entities, or you can load related entities easily. Examples:
+
+For example, we have a `Post` entity and it has a many-to-many relation to `Category` called `categories`. Let's add a new category to this many-to-many relation:
+
+```js
+import {getConnection} from "typeorm";
+
+await getConnection()
+    .createQueryBuilder()
+    .relation(Post, "categories")
+    .of(post)
+    .add(category);
+```
+
+This code is equivalent to doing this:
+
+```js
+import {getManager} from "typeorm";
+
+const postRepository = getRepository(Post);
+const post = await postRepository.findOne(1, { relations: ["categories"] });
+post.categories.push(category);
+await postRepository.save(post);
+```
+
+But more efficient, because it does a minimal number of operations, and binds entities in the database, unlike calling a bulky `save` method call.
+
+Also, another benefit of such an approach is that you don't need to load every related entity before pushing into it. For example, if you have ten thousand categories inside a single post, adding new posts to this list may become problematic for you, because the standard way of doing this is to load the post with all ten thousand categories, push a new category, and save it. This results in very heavy performance costs and is basically inapplicable in production results. However, using `RelationQueryBuilder` solves this problem.
+
+Also, there is no real need to use entities when you "bind" things, since you can use entity ids instead. For example, let's add a category with id = 3 into post with id = 1:
+
+```js
+import {getConnection} from "typeorm";
+
+await getConnection()
+    .createQueryBuilder()
+    .relation(Post, "categories")
+    .of(1)
+    .add(3);
+```
+
+If you are using composite primary keys, you have to pass them as an id map, for example:
+
+```js
+import {getConnection} from "typeorm";
+
+await getConnection()
+    .createQueryBuilder()
+    .relation(Post, "categories")
+    .of({ firstPostId: 1, secondPostId: 3 })
+    .add({ firstCategoryId: 2, secondCategoryId: 4 });
+```
+
+You can remove entities the same way you add them:
+
+```js
+import {getConnection} from "typeorm";
+
+// this code removes a category from a given post
+await getConnection()
+    .createQueryBuilder()
+    .relation(Post, "categories")
+    .of(post) // you can use just post id as well
+    .remove(category); // you can use just category id as well
+```
+
+Adding and removing related entities works in `many-to-many` and `one-to-many` relations. For `one-to-one` and `many-to-one` relations use `set` instead:
+
+```js
+import {getConnection} from "typeorm";
+
+// this code sets category of a given post
+await getConnection()
+    .createQueryBuilder()
+    .relation(Post, "categories")
+    .of(post) // you can use just post id as well
+    .set(category); // you can use just category id as well
+```
+
+If you want to unset a relation (set it to null), simply pass `null` to a `set` method:
+
+```js
+import {getConnection} from "typeorm";
+
+// this code unsets category of a given post
+await getConnection()
+    .createQueryBuilder()
+    .relation(Post, "categories")
+    .of(post) // you can use just post id as well
+    .set(null);
+```
+
+Besides updating relations, the relational query builder also allows you to load relational entities. For example, lets say inside a `Post` entity we have a many-to-many `categories` relation and a many-to-one `user` relation, to load those relations you can use following code:
+
+```js
+import {getConnection} from "typeorm";
+
+const post = await getConnection().manager.findOne(Post, 1);
+
+post.categories = await getConnection()
+    .createQueryBuilder()
+    .relation(Post, "categories")
+    .of(post) // you can use just post id as well
+    .loadMany();
+
+post.author = await getConnection()
+    .createQueryBuilder()
+    .relation(User, "user")
+    .of(post) // you can use just post id as well
+    .loadOne();
+```
 
 ## [Many-to-one / one-to-many relations](https://github.com/typeorm/typeorm/blob/master/docs/many-to-one-one-to-many-relations.md#many-to-one--one-to-many-relations)
 

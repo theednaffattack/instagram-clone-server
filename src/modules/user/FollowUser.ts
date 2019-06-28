@@ -2,7 +2,6 @@ import { Resolver, Mutation, Ctx, InputType, Arg, Field } from "type-graphql";
 
 import { User } from "../../entity/User";
 import { MyContext } from "../../types/MyContext";
-// import { Follower } from "../../entity/Follower";
 
 @InputType()
 export class FollowUserInput {
@@ -20,40 +19,19 @@ export class FollowUser {
   ): Promise<any> {
     let me = ctx.req && ctx.req.session ? ctx.req.session.userId : null;
 
-    // find the logged in user
-    let userIsFollower = await User.findOne(me, { relations: ["followings"] });
-    // userIsFollower.am_follower.push(me);
+    let addMyselfToTheirFollowers = await User.createQueryBuilder()
+      .relation(User, "followers")
+      .of(userIDToFollow) // you can use just post id as well
+      .add(me); // you can use just category id as well
 
-    // find the user to follow
-    let userToFollow = await User.findOne(userIDToFollow, {
-      relations: ["followers"]
-    });
+    // let addThemToThoseIFollow = await User.createQueryBuilder()
+    //   .relation(User, "following")
+    //   .of(me) // you can use just post id as well
+    //   .add(userIDToFollow); // you can use just category id as well
 
-    // make the logged in user a follower of the user to follow
-    if (userToFollow) {
-      userToFollow.followers = me;
-      await userToFollow.save();
-    }
+    console.log(addMyselfToTheirFollowers);
+    // console.log(addThemToThoseIFollow);
 
-    // save the user to follow to "my" `follows`
-    if (userIsFollower && userToFollow) {
-      userIsFollower.followings.push(userToFollow);
-      await userIsFollower.save();
-    }
-    // let createFollowing = await Follower.create({
-    //   am_follower: me,
-    //   followed_by: userToFollow
-    // }).save();
-
-    // console.log("userToFollow, userIsFollower");
-    // console.log(userToFollow, userIsFollower);
-
-    // if (userToFollow && userIsFollower) {
-    //   userIsFollower.following.push(createFollowing);
-    //   userToFollow.followers.push(createFollowing);
-    // }
-
-    // let fakePromise = await new Promise(resolve => resolve("hello"));
-    return userToFollow;
+    return addMyselfToTheirFollowers;
   }
 }
