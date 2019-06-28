@@ -11,27 +11,42 @@ export class UnFollowUserInput {
 
 @Resolver()
 export class UnFollowUser {
-  @Mutation(() => User, { nullable: true })
+  @Mutation(() => Boolean, { nullable: false })
   async unFollowUser(
     @Arg("data", { nullable: false })
     { userIDToUnFollow }: UnFollowUserInput,
     @Ctx() ctx: MyContext
-  ): Promise<any> {
+  ): Promise<boolean> {
+    // @ts-ignore
     let me = ctx.req && ctx.req.session ? ctx.req.session.userId : null;
 
-    // let removeMyselfFromTheirFollowers = await User.createQueryBuilder()
-    //   .relation(User, "followers")
+    // const removeMyselfFromTheirFollowers_v2 = await User.createQueryBuilder(
+    //   "user"
+    // )
+    //   .leftJoinAndSelect("user.followers", "follower", "user.id = :id", {
+    //     id: me
+    //   })
+    //   .delete()
+    //   // .where("user.name = :name", { name: "Timber" })
+    //   .execute();
+    // .getOne();
+    console.log(userIDToUnFollow);
+
+    await User.createQueryBuilder()
+      .relation(User, "followers")
+      .of(userIDToUnFollow) // you can use just post id as well
+      .remove(me)
+      .catch(error =>
+        console.error(`Error unfollowing userId: ${userIDToUnFollow}`, error)
+      ); // you can use just category id as well
+
+    // let removeSomeoneFromThoseIFollow = await User.createQueryBuilder()
+    //   .relation(User, "following")
     //   .of(userIDToUnFollow) // you can use just post id as well
     //   .remove(me); // you can use just category id as well
 
-    let removeOneFromThoseIFollow = await User.createQueryBuilder()
-      .relation(User, "following")
-      .of(me) // you can use just post id as well
-      .remove(userIDToUnFollow); // you can use just category id as well
+    // console.log("removeSomeoneFromThoseIFollow", removeSomeoneFromThoseIFollow);
 
-    // console.log(removeMyselfFromTheirFollowers);
-    console.log(removeOneFromThoseIFollow);
-
-    return removeOneFromThoseIFollow;
+    return true;
   }
 }

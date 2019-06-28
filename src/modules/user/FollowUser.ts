@@ -11,27 +11,41 @@ export class FollowUserInput {
 
 @Resolver()
 export class FollowUser {
-  @Mutation(() => User, { nullable: true })
+  @Mutation(() => Boolean)
   async followUser(
     @Arg("data", { nullable: false })
     { userIDToFollow }: FollowUserInput,
     @Ctx() ctx: MyContext
-  ): Promise<any> {
+  ): Promise<boolean> {
     let me = ctx.req && ctx.req.session ? ctx.req.session.userId : null;
 
-    let addMyselfToTheirFollowers = await User.createQueryBuilder()
-      .relation(User, "followers")
-      .of(userIDToFollow) // you can use just post id as well
-      .add(me); // you can use just category id as well
+    const isUserAFollower = await User.createQueryBuilder("user")
+      .leftJoinAndSelect("user.followers", "follower")
+      .where("user.id = :id", {
+        id: userIDToFollow
+      })
+      .where("follower.id = :fid", { fid: me })
+      .getOne();
 
-    // let addThemToThoseIFollow = await User.createQueryBuilder()
-    //   .relation(User, "following")
-    //   .of(me) // you can use just post id as well
-    //   .add(userIDToFollow); // you can use just category id as well
+    console.log("TIEMBER", isUserAFollower);
 
-    console.log(addMyselfToTheirFollowers);
-    // console.log(addThemToThoseIFollow);
+    if (!isUserAFollower) {
+      let findRelationship;
 
-    return addMyselfToTheirFollowers;
+      findRelationship = async () => {
+        await User.createQueryBuilder()
+          .relation(User, "followers")
+          .of(userIDToFollow)
+          .add(me)
+          .catch(error => console.error("MY ERROR:", error)); // you can use just category id as well
+      };
+      console.log("findRelationship".toUpperCase(), findRelationship());
+      return true;
+    }
+
+    if (isUserAFollower) {
+      return false;
+    }
+    throw Error("Oh no! this isn't intended to be reachable");
   }
 }

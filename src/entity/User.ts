@@ -68,14 +68,14 @@ export class User extends BaseEntity {
   messages?: Message[];
 
   // @ts-ignore
-  @Field(type => User, { nullable: true })
+  @Field(type => [User], { nullable: "itemsAndList" })
   // @ts-ignore
   @ManyToMany(type => User, user => user.following, { nullable: true })
   @JoinTable()
   followers: User[];
 
   // @ts-ignore
-  @Field(type => User, { nullable: true })
+  @Field(type => [User], { nullable: "itemsAndList" })
   // @ts-ignore
   @ManyToMany(type => User, user => user.followers, { nullable: true })
   following: User[];
