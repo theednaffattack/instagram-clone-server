@@ -19,6 +19,10 @@ export class FollowUser {
   ): Promise<boolean> {
     let me = ctx.req && ctx.req.session ? ctx.req.session.userId : null;
 
+    // guard: you can't follow yourself
+    if (me === userIDToFollow) return false;
+
+    // find "me" as a follower of the user "I'd" like to follow
     const isUserAFollower = await User.createQueryBuilder("user")
       .leftJoinAndSelect("user.followers", "follower")
       .where("user.id = :id", {
@@ -27,8 +31,12 @@ export class FollowUser {
       .where("follower.id = :fid", { fid: me })
       .getOne();
 
-    console.log("TIEMBER", isUserAFollower);
+    // guard: already a follower
+    if (isUserAFollower) {
+      return false;
+    }
 
+    // the main function, allow "me" to find and follow another user
     if (!isUserAFollower) {
       let findRelationship;
 
@@ -43,9 +51,6 @@ export class FollowUser {
       return true;
     }
 
-    if (isUserAFollower) {
-      return false;
-    }
     throw Error("Oh no! this isn't intended to be reachable");
   }
 }
