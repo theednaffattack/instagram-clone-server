@@ -17,11 +17,12 @@ import { CreatePostResolver } from "../modules/user/CreatePostResolver";
 import { GetAllMyImagesResolver } from "../modules/user/GetMyImagesResolver";
 import { GetThoseIFollowAndTheirPostsResolver } from "../modules/user/GetThoseIFollowAndTheirPostsResolver";
 import { FollowUser } from "../modules/user/FollowUser";
-import { GetMyMessagesResolver } from "../modules/messages/GetMyMessages";
+import { GetMyMessagesFromUserResolver } from "../modules/messages/GetMyMessagesFromUser";
 import { SendMessageResolver } from "../modules/messages/SendMessages";
 import { GetGlobalPostsResolver } from "../modules/user/GetGlobalFeed";
 import { UnFollowUser } from "../modules/user/UnFollowUser";
 import { MeAndAllFollowers } from "../modules/user/GetMyFollowers";
+import { GetAllMessagesResolver } from "../modules/messages/GetAllMyMessages";
 
 export const createSchema = () =>
   buildSchema({
@@ -34,7 +35,8 @@ export const createSchema = () =>
       FollowUser,
       ForgotPasswordResolver,
       GetGlobalPostsResolver,
-      GetMyMessagesResolver,
+      GetAllMessagesResolver,
+      GetMyMessagesFromUserResolver,
       GetAllMyImagesResolver,
       GetThoseIFollowAndTheirPostsResolver,
       LoginResolver,

@@ -13,10 +13,11 @@ import {
 } from "type-graphql";
 
 // import { MessageInput, MessageOutput } from "./MessageInput";
-import { MessageInput } from "./MessageInput";
+import { MessageFromUserInput } from "./MessageInput";
 import { Message } from "../../entity/Message";
 import { User } from "../../entity/User";
-import { MessageSubType, MessagePayload } from "./message.type";
+import { MessageSubType } from "./MessageSubType";
+import { MessagePayload } from "./types";
 import { MyContext } from "../../types/MyContext";
 
 @Resolver()
@@ -34,7 +35,7 @@ export class SendMessageResolver {
     filter: ({
       payload,
       args
-    }: ResolverFilterData<MessagePayload, MessageInput>) => {
+    }: ResolverFilterData<MessagePayload, MessageFromUserInput>) => {
       //   console.log(payload);
       //   console.log(args);
       //   return payload.recipeId === args.recipeId;
@@ -47,7 +48,7 @@ export class SendMessageResolver {
   newMessage(
     @Root() messagePayload: MessagePayload,
     // @ts-ignore
-    @Args(type => MessageInput) input: MessageInput
+    @Args(type => MessageFromUserInput) input: MessageFromUserInput
   ): MessagePayload {
     // do some stuff
     // console.log("I'M TYING TO UPDATE THE SUBSCRIPTION");
@@ -67,7 +68,7 @@ export class SendMessageResolver {
     // @ts-ignore
     @PubSub("MESSAGES") publish: Publisher<MessagePayload>,
     // @ts-ignore
-    @Args(type => MessageInput) input: MessageInput
+    @Args(type => MessageFromUserInput) input: MessageFromUserInput
   ): Promise<boolean> {
     // Promise<boolean>
     if (!context) {
@@ -77,6 +78,12 @@ export class SendMessageResolver {
     }
 
     const receiver = await User.findOne({
+      where: {
+        id: input.sentTo
+      }
+    });
+
+    const sender = await User.findOne({
       where: {
         id: context.userId
       }
@@ -89,7 +96,7 @@ export class SendMessageResolver {
       createdAt: new Date(),
       updatedAt: new Date(),
       message: input.message,
-      sentBy: input.sentBy, // (Jamey.Cassin@Eloise.org: Aisha Stanton) //SENDING User,
+      sentBy: sender, // (Jamey.Cassin@Eloise.org: Aisha Stanton) //SENDING User,
       user: receiver // (Reinger_Keaton@yahoo.com: Candelario Johnson) THE USER BEING SENT TO
     };
 
@@ -101,7 +108,6 @@ export class SendMessageResolver {
 
     // this should return a boolean? Not sure if that's just the example
     // best practice
-    // return true;
     return true;
   }
 }

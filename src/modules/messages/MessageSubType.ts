@@ -7,12 +7,13 @@ export class MessageSubType {
   @Field(type => ID)
   id: string;
 
-  @Field({ nullable: true })
+  // @ts-ignore
+  @Field(type => String, { nullable: true })
   message?: string;
 
   // @ts-ignore
-  @Field(type => String)
-  sentBy: string;
+  @Field(type => User)
+  sentBy: User;
 
   // @ts-ignore
   @Field(type => User)
@@ -25,13 +26,4 @@ export class MessageSubType {
   // @ts-ignore
   @Field(type => Date, { nullable: true })
   updatedAt: Date;
-}
-
-export interface MessagePayload {
-  id: string;
-  message: string;
-  createdAt: Date;
-  updatedAt: Date;
-  sentBy: string;
-  user: User;
 }

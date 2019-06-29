@@ -42,9 +42,10 @@ export class Message extends BaseEntity {
   message: string;
 
   // @ts-ignore
-  @Field("uuid")
-  @Column({ nullable: true })
-  sentBy: string;
+  @Field(type => User)
+  // @Column({ nullable: true })
+  @ManyToOne(() => User, user => user.sent_messages, { cascade: true })
+  sentBy: User;
 
   // @ts-ignore
   @Field(type => User)
