@@ -26,6 +26,9 @@ export class User extends BaseEntity {
   @Column()
   firstName: string;
 
+  @Field(() => [Message])
+  mappedMessages: Message;
+
   @Field()
   @Column()
   lastName: string;

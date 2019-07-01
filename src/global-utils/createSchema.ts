@@ -22,6 +22,7 @@ import { SendMessageResolver } from "../modules/messages/SendMessages";
 import { GetGlobalPostsResolver } from "../modules/user/GetGlobalFeed";
 import { UnFollowUser } from "../modules/user/UnFollowUser";
 import { MeAndAllFollowers } from "../modules/user/GetMyFollowers";
+import { MyFollowingPostsResolver } from "../modules/user/GetMyPosts";
 import { GetAllMessagesResolver } from "../modules/messages/GetAllMyMessages";
 
 export const createSchema = () =>
@@ -43,6 +44,7 @@ export const createSchema = () =>
       LogoutResolver,
       MeResolver,
       MeAndAllFollowers,
+      MyFollowingPostsResolver,
       ProfilePictureResolver,
       RegisterResolver,
       SendMessageResolver,

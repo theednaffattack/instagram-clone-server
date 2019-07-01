@@ -35,9 +35,11 @@ export class Post extends BaseEntity {
   @ManyToOne(() => User, user => user.posts)
   user: User;
 
+  @Field(() => Date, { nullable: true })
   @CreateDateColumn({ type: "timestamp" })
   created_at: Date;
 
+  @Field(() => Date, { nullable: true })
   @UpdateDateColumn({ type: "timestamp", nullable: true })
   updated_at?: Date;
 }
@@ -63,4 +65,12 @@ export class PostSubType {
   // @ts-ignore
   @Field(type => User)
   user: User;
+
+  // @ts-ignore
+  @Field(type => Date)
+  created_at: Date;
+
+  // @ts-ignore
+  @Field(type => Date)
+  updated_at?: Date;
 }

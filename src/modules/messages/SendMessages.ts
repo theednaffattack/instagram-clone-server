@@ -34,14 +34,20 @@ export class SendMessageResolver {
     // @ts-ignore
     filter: ({
       payload,
-      args
-    }: ResolverFilterData<MessagePayload, MessageFromUserInput>) => {
-      //   console.log(payload);
-      //   console.log(args);
+      args,
+      context
+    }: ResolverFilterData<MessagePayload, MessageFromUserInput, MyContext>) => {
+      if (
+        context.userId === args.sentTo &&
+        context.userId === payload.user.id
+      ) {
+        return true;
+      } else {
+        return false;
+      }
       //   return payload.recipeId === args.recipeId;
       // I'll use the example return above to filter for the
       // current selected message thread
-      return true;
     }
     // filter: ({ payload, args }) => args.priorities.includes(payload.priority),
   })
@@ -88,6 +94,10 @@ export class SendMessageResolver {
         id: context.userId
       }
     });
+
+    console.log("receiver".toUpperCase(), receiver);
+    console.log("sender".toUpperCase(), sender);
+    console.log("context.userId".toUpperCase(), context.userId);
 
     // "00a33f72-4a23-4753-a607-d98aaaed69f9"
     // "00840864-fa70-4b19-968a-0421b77b2074"

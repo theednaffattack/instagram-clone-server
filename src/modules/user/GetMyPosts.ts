@@ -4,15 +4,16 @@ import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
 import { MyContext } from "../../types/MyContext";
 import { User } from "../../entity/User";
+import { Post } from "../../entity/Post";
 
 @Resolver()
-export class GetThoseIFollowAndTheirPostsResolver {
+export class MyFollowingPostsResolver {
   @UseMiddleware(isAuth, logger)
-  @Query(() => User, {
-    name: "getThoseIFollowAndTheirPostsResolver",
+  @Query(() => [Post], {
+    name: "myFollowingPosts",
     nullable: true
   })
-  async getThoseIFollowAndTheirPostsResolver(
+  async myFollowingPosts(
     // @Arg("data") { me }: MyImagesInput,
     @Ctx() ctx: MyContext
   ): Promise<any> {
@@ -22,21 +23,31 @@ export class GetThoseIFollowAndTheirPostsResolver {
       where: { id: userId },
       relations: [
         "following",
+        "followers",
         "following.posts",
-        "following.posts.user",
-        "following.posts.images"
+        "following.posts.images",
+        "following.posts.user"
       ]
     });
-    console.log("thoseIFollowAndTheirPosts".toUpperCase());
-    console.log(JSON.stringify(thoseIFollowAndTheirPosts, null, 4));
 
     const justThePosts = thoseIFollowAndTheirPosts!.following.map(person =>
       person.posts!.map(post => post)
     );
-    console.log("justThePosts".toUpperCase(), justThePosts);
 
-    if (thoseIFollowAndTheirPosts) {
-      return thoseIFollowAndTheirPosts;
+    let cache: Post[] = [];
+
+    justThePosts.forEach(postArr => cache.push(...postArr));
+
+    cache.sort(function(a, b) {
+      // Turn your strings into dates, and then subtract them
+      // to get a value that is either negative, positive, or zero.
+      return b.created_at.getTime() - a.created_at.getTime();
+    });
+
+    console.log("what is cache again?".toUpperCase(), cache);
+
+    if (cache) {
+      return cache;
     } else {
       return [];
     }

@@ -22,22 +22,39 @@ export class FollowUser {
     // guard: you can't follow yourself
     if (me === userIDToFollow) return false;
 
-    // find "me" as a follower of the user "I'd" like to follow
-    const isUserAFollower = await User.createQueryBuilder("user")
-      .leftJoinAndSelect("user.followers", "follower")
-      .where("user.id = :id", {
-        id: userIDToFollow
+    // const isMeAFollower = await User.findOne(userIDToFollow, {
+    //   relations: ["folllowers", "followers.user"],
+    //   where: { followers: me }
+    // });
+
+    const isMeAFollower = await User.createQueryBuilder("user")
+      .where({ id: userIDToFollow })
+      .leftJoinAndSelect("user.followers", "follower", "follower.id = :id", {
+        id: me
       })
-      .where("follower.id = :fid", { fid: me })
       .getOne();
 
-    // guard: already a follower
-    if (isUserAFollower) {
-      return false;
-    }
+    console.log("isMeAFollower".toUpperCase(), isMeAFollower);
+
+    // // find "me" as a follower of the user "I'd" like to follow
+    // const isUserAFollower = await User.createQueryBuilder("user")
+    //   .leftJoinAndSelect("user.followers", "follower")
+    //   .where("user.id = :id", {
+    //     id: userIDToFollow
+    //   })
+    //   .where("follower.id = :fid", { fid: me })
+    //   .getOne();
+
+    // // guard: already a follower
+    // if (isUserAFollower) {
+    //   console.log("isUserAFollower", isUserAFollower);
+    //   console.log("\n\nme".toUpperCase(), me);
+    //   console.log("\n\nuserIDToFollow".toUpperCase(), userIDToFollow);
+    //   return false;
+    // }
 
     // the main function, allow "me" to find and follow another user
-    if (!isUserAFollower) {
+    if (isMeAFollower!.followers.length === 0) {
       let findRelationship;
 
       findRelationship = async () => {
@@ -45,10 +62,15 @@ export class FollowUser {
           .relation(User, "followers")
           .of(userIDToFollow)
           .add(me)
+          .then(data => data)
           .catch(error => console.error("MY ERROR:", error)); // you can use just category id as well
       };
       console.log("findRelationship".toUpperCase(), findRelationship());
       return true;
+    }
+
+    if (isMeAFollower && isMeAFollower.followers.length > 0) {
+      return false;
     }
 
     throw Error("Oh no! this isn't intended to be reachable");

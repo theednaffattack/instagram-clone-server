@@ -41,6 +41,8 @@ export class Message extends BaseEntity {
   @Column()
   message: string;
 
+  mappedMessages: [User];
+
   // @ts-ignore
   @Field(type => User)
   // @Column({ nullable: true })
