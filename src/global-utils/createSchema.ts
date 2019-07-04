@@ -24,14 +24,19 @@ import { UnFollowUser } from "../modules/user/UnFollowUser";
 import { MeAndAllFollowers } from "../modules/user/GetMyFollowers";
 import { MyFollowingPostsResolver } from "../modules/user/GetMyPosts";
 import { GetAllMessagesResolver } from "../modules/messages/GetAllMyMessages";
+import { GetMessageThreadsResolver } from "../modules/messages/GetMessageThreads";
+import { CreateMessageThreadResolver } from "../modules/messages/CreateMessageThreads";
+import { AddMessageToThreadResolver } from "../modules/messages/AddMessageToThreads";
 
 export const createSchema = () =>
   buildSchema({
     resolvers: [
+      AddMessageToThreadResolver,
       ChangePasswordResolver,
       ConfirmUserResolver,
       CreatePostResolver,
       CreateProductResolver,
+      CreateMessageThreadResolver,
       CreateUserResolver,
       FollowUser,
       ForgotPasswordResolver,
@@ -39,6 +44,7 @@ export const createSchema = () =>
       GetAllMessagesResolver,
       GetMyMessagesFromUserResolver,
       GetAllMyImagesResolver,
+      GetMessageThreadsResolver,
       GetThoseIFollowAndTheirPostsResolver,
       LoginResolver,
       LogoutResolver,

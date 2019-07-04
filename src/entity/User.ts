@@ -13,6 +13,7 @@ import { Field, ID, ObjectType, Root } from "type-graphql";
 import { Post } from "./Post";
 import { Image } from "./Image";
 import { Message } from "./Message";
+import { Thread } from "./Thread";
 // import { Follower } from "./Follower";
 
 @ObjectType()
@@ -36,6 +37,10 @@ export class User extends BaseEntity {
   @Field()
   @Column("text", { unique: true })
   email: string;
+
+  @Field(() => [Thread], { nullable: true })
+  @OneToMany(() => Thread, thread => thread.user)
+  threads: Thread[];
 
   @Field()
   name(@Root() parent: User): string {
@@ -81,6 +86,13 @@ export class User extends BaseEntity {
   @ManyToMany(type => User, user => user.following, { nullable: true })
   @JoinTable()
   followers: User[];
+
+  // @ts-ignore
+  @Field(type => [Thread], { nullable: "itemsAndList" })
+  // @ts-ignore
+  @ManyToMany(type => Thread, thread => thread.invitees, { nullable: true })
+  @JoinTable()
+  thread_invitations: Thread[];
 
   // @ts-ignore
   @Field(type => [User], { nullable: "itemsAndList" })

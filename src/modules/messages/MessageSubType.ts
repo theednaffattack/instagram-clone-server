@@ -21,9 +21,9 @@ export class MessageSubType {
 
   // @ts-ignore
   @Field(type => Date, { nullable: true })
-  createdAt: Date;
+  created_at: Date;
 
   // @ts-ignore
   @Field(type => Date, { nullable: true })
-  updatedAt: Date;
+  updated_at: Date;
 }

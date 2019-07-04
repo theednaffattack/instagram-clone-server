@@ -4,17 +4,20 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  BaseEntity
+  BaseEntity,
+  CreateDateColumn,
+  UpdateDateColumn
 } from "typeorm";
 
 import { User } from "./User";
+import { Thread } from "./Thread";
 // import { Hotel } from "./Hotel";
 
 export interface MessagePayload {
   id: number;
   message?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
   sentBy?: string;
   user?: User;
 }
@@ -26,15 +29,23 @@ export class Message extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // @ts-ignore
-  @Field(type => Date)
-  @Column()
-  createdAt: Date;
+  // // @ts-ignore
+  // @Field(type => Date)
+  // @Column()
+  // createdAt: Date;
 
-  // @ts-ignore
-  @Field(type => Date)
-  @Column()
-  updatedAt: Date;
+  // // @ts-ignore
+  // @Field(type => Date)
+  // @Column()
+  // updatedAt: Date;
+
+  @Field(() => Date, { nullable: true })
+  @CreateDateColumn({ type: "timestamp" })
+  created_at: Date;
+
+  @Field(() => Date, { nullable: true })
+  @UpdateDateColumn({ type: "timestamp", nullable: true })
+  updated_at?: Date;
 
   // @ts-ignore
   @Field()
@@ -53,4 +64,8 @@ export class Message extends BaseEntity {
   @Field(type => User)
   @ManyToOne(() => User, user => user.messages, { cascade: true })
   user: User;
+
+  @Field(() => Thread, { nullable: true })
+  @ManyToOne(() => Thread, thread => thread.messages)
+  thread: Thread;
 }

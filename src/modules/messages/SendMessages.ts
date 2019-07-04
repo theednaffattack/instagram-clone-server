@@ -62,8 +62,8 @@ export class SendMessageResolver {
     // console.log(messagePayload);
     // console.log(input);
     return {
-      ...messagePayload,
-      createdAt: new Date()
+      ...messagePayload
+      // created_at: new Date()
     };
   }
 
@@ -103,8 +103,8 @@ export class SendMessageResolver {
     // "00840864-fa70-4b19-968a-0421b77b2074"
 
     const fullMessageInput = {
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      created_at: new Date(),
+      updated_at: new Date(),
       message: input.message,
       sentBy: sender, // (Jamey.Cassin@Eloise.org: Aisha Stanton) //SENDING User,
       user: receiver // (Reinger_Keaton@yahoo.com: Candelario Johnson) THE USER BEING SENT TO

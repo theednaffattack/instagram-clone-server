@@ -3,8 +3,8 @@ import { User } from "../../entity/User";
 export interface MessagePayload {
   id: string;
   message: string;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at?: Date;
+  updated_at?: Date;
   sentBy: User;
   user: User;
 }
