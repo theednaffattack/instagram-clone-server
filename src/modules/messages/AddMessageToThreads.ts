@@ -26,6 +26,7 @@ export interface IAddMessagePayload {
   success: boolean;
   threadId: string;
   message: Message;
+  user: User;
 }
 
 @ObjectType()
@@ -37,6 +38,9 @@ export class AddMessagePayload {
 
   @Field(() => ID)
   threadId: string;
+
+  @Field(() => User)
+  user: User;
 }
 
 @Resolver()
@@ -44,10 +48,11 @@ export class AddMessageToThreadResolver {
   // @ts-ignore
   @Subscription(type => AddMessagePayload, {
     // @ts-ignore
-    topics: (context: any) => {
-      //   if (!context.userId) {
-      //     throw new Error("not authed");
-      //   }
+    topics: ({ context }: any) => {
+      if (!context.userId) {
+        console.log("context".toUpperCase(), context);
+        throw new Error("not authed");
+      }
 
       return "THREADS";
     },
@@ -60,18 +65,16 @@ export class AddMessageToThreadResolver {
       context
     }: ResolverFilterData<IAddMessagePayload, AddMessageToThreadInput>) => {
       // filter for followers;
-      // @ts-ignore
 
+      // @ts-ignore
       const messageMatchesThread = args.data.threadId === payload.threadId;
-      // console.log("args".toUpperCase(), args);
-      // console.log("payload booooy".toUpperCase(), payload);
-      // // @ts-ignore
-      // console.log("Does it match?", args.data.threadId === payload.threadId);
-      // console.log("MATCH PAYLOAD THREADID".toUpperCase(), payload.threadId);
-      // // @ts-ignore
-      // console.log("MATCH ARGS THREADID".toUpperCase(), args.data.threadId);
-      if (messageMatchesThread) return true;
-      return false;
+
+      if (messageMatchesThread) {
+        return true;
+      } else {
+        // console.log("ARGS DON'T MATCH?".toUpperCase(), args.data.threadId);
+        return false;
+      }
     }
     // filter: ({ payload, args }) => args.priorities.includes(payload.priority),
   })
@@ -81,11 +84,8 @@ export class AddMessageToThreadResolver {
     @Arg("data", () => AddMessageToThreadInput_v2)
     input: AddMessageToThreadInput_v2
   ): AddMessagePayload {
-    // do some stuff
     console.log("forced to use input".toUpperCase(), input);
-    // console.log("threadPayload".toUpperCase(), threadPayload);
-    return threadPayload;
-    // createdAt: new Date()
+    return threadPayload; // createdAt: new Date()
   }
 
   // @ts-ignore
@@ -102,18 +102,19 @@ export class AddMessageToThreadResolver {
 
     const receiver = await User.findOne(input.sentTo);
 
-    let createMessage = {
-      message: input.message,
-      user: receiver,
-      sentBy
-    };
-
-    // CREATING rather than REPLYING to message...
-    const newMessage = await Message.create(createMessage).save();
-
     let existingThread;
+    let newMessage;
 
     if (sentBy && receiver) {
+      let createMessage = {
+        message: input.message,
+        user: receiver,
+        sentBy
+      };
+
+      // CREATING rather than REPLYING to message...
+      newMessage = await Message.create(createMessage).save();
+
       existingThread = await Thread.findOne(input.threadId, {
         relations: ["messages", "invitees"]
       }).catch(error => error);
@@ -129,12 +130,12 @@ export class AddMessageToThreadResolver {
     const returnObj = {
       success: existingThread && existingThread.id ? true : false,
       threadId: input.threadId,
-      message: newMessage
+      message: newMessage,
+      user: receiver
     };
 
     // const readyThreadPayload = returnObj;
     await publish(returnObj);
-    console.log("returnObj published", returnObj);
 
     return returnObj;
   }

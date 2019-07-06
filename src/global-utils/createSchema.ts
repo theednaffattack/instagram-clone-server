@@ -27,6 +27,7 @@ import { GetAllMessagesResolver } from "../modules/messages/GetAllMyMessages";
 import { GetMessageThreadsResolver } from "../modules/messages/GetMessageThreads";
 import { CreateMessageThreadResolver } from "../modules/messages/CreateMessageThreads";
 import { AddMessageToThreadResolver } from "../modules/messages/AddMessageToThreads";
+import { GetListToCreateThread } from "../modules/user/GetListToCreateThread";
 
 export const createSchema = () =>
   buildSchema({
@@ -44,6 +45,7 @@ export const createSchema = () =>
       GetAllMessagesResolver,
       GetMyMessagesFromUserResolver,
       GetAllMyImagesResolver,
+      GetListToCreateThread,
       GetMessageThreadsResolver,
       GetThoseIFollowAndTheirPostsResolver,
       LoginResolver,
