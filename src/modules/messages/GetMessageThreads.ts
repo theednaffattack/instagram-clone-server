@@ -28,16 +28,12 @@ export class GetMessageThreadsResolver {
       .leftJoinAndSelect("thread.messages", "message")
       .leftJoinAndSelect("message.sentBy", "sentBy")
       .leftJoinAndSelect("message.user", "user")
+      .leftJoinAndSelect("message.images", "image")
       .leftJoinAndSelect("thread.invitees", "userB")
 
       .where("userB.id = :id", { id: context.userId })
       .orderBy("message.created_at", "ASC")
       .getMany();
-
-    console.log(
-      "view qThreads".toUpperCase(),
-      JSON.stringify(qThreads, null, 3)
-    );
 
     // const myThreads = await Thread.find({
     //   where: { invitees: context.userId },
@@ -61,7 +57,7 @@ export class GetMessageThreadsResolver {
     let newData = {
       getMessageThreads: [...cache]
     };
-    // console.log("VIEW THREADS newData", newData);
+    console.log("VIEW THREADS newData", JSON.stringify(newData, null, 2));
     // console.log("VIEW THREADS myThreads", myThreads);
     return newData.getMessageThreads;
   }

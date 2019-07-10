@@ -6,11 +6,13 @@ import {
   Column,
   BaseEntity,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
+  OneToMany
 } from "typeorm";
 
 import { User } from "./User";
 import { Thread } from "./Thread";
+import { Image } from "./Image";
 // import { Hotel } from "./Hotel";
 
 export interface MessagePayload {
@@ -53,6 +55,10 @@ export class Message extends BaseEntity {
   message: string;
 
   mappedMessages: [User];
+
+  @Field(() => [Image], { nullable: "itemsAndList" })
+  @OneToMany(() => Image, image => image.message, { nullable: true })
+  images: Image[];
 
   // @ts-ignore
   @Field(type => User)

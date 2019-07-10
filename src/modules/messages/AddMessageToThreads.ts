@@ -21,6 +21,8 @@ import { MyContext } from "../../types/MyContext";
 import { Thread } from "../../entity/Thread";
 import { Message } from "../../entity/Message";
 import { User } from "../../entity/User";
+import { Image } from "../../entity/Image";
+import { createWriteStream } from "fs";
 
 export interface IAddMessagePayload {
   success: boolean;
@@ -33,14 +35,18 @@ export interface IAddMessagePayload {
 export class AddMessagePayload {
   @Field(() => Boolean)
   success: boolean;
-  @Field(() => Message)
-  message: Message;
 
   @Field(() => ID)
   threadId: string;
 
+  @Field(() => Message)
+  message: Message;
+
   @Field(() => User)
   user: User;
+
+  // @Field(() => [Image], { nullable: "itemsAndList" })
+  // images?: Image[];
 }
 
 @Resolver()
@@ -50,8 +56,7 @@ export class AddMessageToThreadResolver {
     // @ts-ignore
     topics: ({ context }: any) => {
       if (!context.userId) {
-        console.log("context".toUpperCase(), context);
-        throw new Error("not authed");
+        throw new Error("not authorized for this topic");
       }
 
       return "THREADS";
@@ -72,11 +77,9 @@ export class AddMessageToThreadResolver {
       if (messageMatchesThread) {
         return true;
       } else {
-        // console.log("ARGS DON'T MATCH?".toUpperCase(), args.data.threadId);
         return false;
       }
     }
-    // filter: ({ payload, args }) => args.priorities.includes(payload.priority),
   })
   messageThreads(
     @Root() threadPayload: AddMessagePayload,
@@ -85,6 +88,10 @@ export class AddMessageToThreadResolver {
     input: AddMessageToThreadInput_v2
   ): AddMessagePayload {
     console.log("forced to use input".toUpperCase(), input);
+    console.log(
+      "forced to use threadPayload".toUpperCase(),
+      JSON.stringify(threadPayload, null, 2)
+    );
     return threadPayload; // createdAt: new Date()
   }
 
@@ -105,25 +112,61 @@ export class AddMessageToThreadResolver {
     let existingThread;
     let newMessage;
 
-    if (sentBy && receiver) {
+    // const lastImage = input.images.length > 0 ? input.images.length - 1 : 0;
+
+    // const incomingImages = await input.images;
+
+    const { filename, createReadStream } = await input.images![0];
+
+    if (sentBy && receiver && input.images && input.images[0]) {
+      // if there are images save them. if not make the message without it
+
+      let imageName = `${filename}.png`;
+
+      let localImageUrl = `/../../../public/tmp/images/${imageName}`;
+
+      let publicImageUrl = `http://192.168.1.10:4000/temp/${imageName}`;
+
+      await new Promise((resolve, reject) => {
+        createReadStream()
+          .pipe(createWriteStream(__dirname + localImageUrl))
+          .on("finish", () => {
+            resolve(true);
+          })
+          .on("error", () => {
+            reject(false);
+          });
+      });
+
+      let newImage = await Image.create({
+        uri: publicImageUrl,
+        //@ts-ignore
+        user: context.userId
+      }).save();
+
       let createMessage = {
         message: input.message,
         user: receiver,
-        sentBy
+        sentBy,
+        images: [newImage]
       };
 
       // CREATING rather than REPLYING to message...
       newMessage = await Message.create(createMessage).save();
 
+      newImage.message = newMessage;
+      // let mySavedImage = await newImage.save();
+      console.log("newImage".toUpperCase(), JSON.stringify(newImage, null, 2));
+
       existingThread = await Thread.findOne(input.threadId, {
-        relations: ["messages", "invitees"]
+        relations: ["messages", "invitees", "messages.images"]
       }).catch(error => error);
 
       existingThread.messages.push(newMessage);
       existingThread.save();
     } else {
       throw Error(
-        `unable to find sender or receiver\nsender: ${sentBy}\nreceiver: ${receiver}`
+        `unable to find sender or receiver / sender / image: ${sentBy}\nreceiver: ${receiver}`
       );
     }
 
@@ -135,6 +178,10 @@ export class AddMessageToThreadResolver {
     };
 
     // const readyThreadPayload = returnObj;
+    console.log(
+      "returnObj w/ Image".toUpperCase(),
+      JSON.stringify(returnObj, null, 2)
+    );
     await publish(returnObj);
 
     return returnObj;
