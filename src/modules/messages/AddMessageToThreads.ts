@@ -116,10 +116,10 @@ export class AddMessageToThreadResolver {
 
     // const incomingImages = await input.images;
 
-    const { filename, createReadStream } = await input.images![0];
-
     if (sentBy && receiver && input.images && input.images[0]) {
       // if there are images save them. if not make the message without it
+
+      const { filename, createReadStream } = await input.images![0];
 
       let imageName = `${filename}.png`;
 
@@ -158,32 +158,69 @@ export class AddMessageToThreadResolver {
       // let mySavedImage = await newImage.save();
       console.log("newImage".toUpperCase(), JSON.stringify(newImage, null, 2));
 
+      let existingThread = await Thread.findOne(input.threadId, {
+        relations: ["messages", "invitees", "messages.images"]
+      }).catch(error => error);
+
+      const foundThread = existingThread && existingThread.id ? true : false;
+
+      existingThread.messages.push(newMessage);
+      existingThread.save();
+
+      const returnObj = {
+        success: existingThread && foundThread ? true : false,
+        threadId: input.threadId,
+        message: newMessage,
+        user: receiver
+      };
+
+      // const readyThreadPayload = returnObj;
+      console.log(
+        "returnObj w/ Image".toUpperCase(),
+        JSON.stringify(returnObj, null, 2)
+      );
+      await publish(returnObj);
+
+      return returnObj;
+    }
+
+    if (
+      (sentBy && receiver && input.images === undefined) ||
+      (sentBy && receiver && input.images!.length == 0)
+    ) {
+      let createMessage = {
+        message: input.message,
+        user: receiver,
+        sentBy
+      };
+
       existingThread = await Thread.findOne(input.threadId, {
         relations: ["messages", "invitees", "messages.images"]
       }).catch(error => error);
 
-      existingThread.messages.push(newMessage);
-      existingThread.save();
+      // CREATING rather than REPLYING to message...
+      newMessage = await Message.create(createMessage).save();
+
+      const returnObj = {
+        success: existingThread && existingThread.id ? true : false,
+        threadId: input.threadId,
+        message: newMessage,
+        user: receiver
+      };
+
+      // const readyThreadPayload = returnObj;
+      console.log(
+        "returnObj w/out Image".toUpperCase(),
+        JSON.stringify(returnObj, null, 2)
+      );
+      await publish(returnObj);
+
+      return returnObj;
     } else {
+      console.log("WHAT IS INPUT.IMAGES", input.images);
       throw Error(
         `unable to find sender or receiver / sender / image: ${sentBy}\nreceiver: ${receiver}`
       );
     }
-
-    const returnObj = {
-      success: existingThread && existingThread.id ? true : false,
-      threadId: input.threadId,
-      message: newMessage,
-      user: receiver
-    };
-
-    // const readyThreadPayload = returnObj;
-    console.log(
-      "returnObj w/ Image".toUpperCase(),
-      JSON.stringify(returnObj, null, 2)
-    );
-    await publish(returnObj);
-
-    return returnObj;
   }
 }
