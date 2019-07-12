@@ -5,16 +5,17 @@ import { Upload } from "../../types/Upload";
 // import { Photo } from "../../entity/Photo";
 
 @ArgsType()
-export class MessageThreadFromUserInput {
+export class CreateMessageThreadAndMessageInput {
   // @ts-ignore
   @Field(type => String)
   sentTo: string;
-  // @ts-ignore
-  // @Field(type => String)
-  // sentBy: string;
+
   // @ts-ignore
   @Field(type => String)
   message: string;
+
+  @Field(() => [GraphQLUpload], { nullable: "itemsAndList" })
+  images?: Upload[];
 }
 
 @ArgsType()
