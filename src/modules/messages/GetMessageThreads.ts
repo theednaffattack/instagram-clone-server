@@ -1,30 +1,16 @@
-import { Resolver, Query, Ctx } from "type-graphql";
+import { Resolver, Query, Ctx, UseMiddleware } from "type-graphql";
 
 import { MyContext } from "../../types/MyContext";
 import { Thread } from "../../entity/Thread";
-// import { In } from "typeorm";
-// import { User } from "../../entity/User";
-// import { Message } from "../../entity/Message";
+import { isAuth } from "../middleware/isAuth";
+// import { logger } from "../middleware/logger/logger";
 
 @Resolver()
 export class GetMessageThreadsResolver {
-  // @ts-ignore
-  @Query(type => [Thread])
+  @UseMiddleware(isAuth)
+  @Query(() => [Thread], { nullable: "itemsAndList" })
   async getMessageThreads(@Ctx() context: MyContext) {
-    // const qThreads = await Thread.find({
-    //   join: {
-    //     alias: "thread",
-    //     leftJoinAndSelect: {
-    //       invitee: "thread.invitees",
-    //       message: "thread.messages"
-    //       // video: "user.videos"
-    //     }
-    //   }
-    // });
     const qThreads = await Thread.createQueryBuilder("thread")
-      // .leftJoinAndSelect("thread.invitees", "user", "user.id = :id", {
-      //   id: context.userId
-      // })
       .leftJoinAndSelect("thread.messages", "message")
       .leftJoinAndSelect("message.sentBy", "sentBy")
       .leftJoinAndSelect("message.user", "user")
