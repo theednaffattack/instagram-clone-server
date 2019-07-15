@@ -88,10 +88,7 @@ export class AddMessageToThreadResolver {
     input: AddMessageToThreadInput_v2
   ): AddMessagePayload {
     console.log("forced to use input".toUpperCase(), input);
-    console.log(
-      "forced to use threadPayload".toUpperCase(),
-      JSON.stringify(threadPayload, null, 2)
-    );
+
     return threadPayload; // createdAt: new Date()
   }
 
@@ -155,8 +152,6 @@ export class AddMessageToThreadResolver {
       newMessage = await Message.create(createMessage).save();
 
       newImage.message = newMessage;
-      // let mySavedImage = await newImage.save();
-      console.log("newImage".toUpperCase(), JSON.stringify(newImage, null, 2));
 
       let existingThread = await Thread.findOne(input.threadId, {
         relations: ["messages", "invitees", "messages.images"]
@@ -167,6 +162,10 @@ export class AddMessageToThreadResolver {
       existingThread.messages.push(newMessage);
       existingThread.save();
 
+      newMessage.thread = existingThread;
+
+      await newMessage.save();
+
       const returnObj = {
         success: existingThread && foundThread ? true : false,
         threadId: input.threadId,
@@ -174,11 +173,6 @@ export class AddMessageToThreadResolver {
         user: receiver
       };
 
-      // const readyThreadPayload = returnObj;
-      console.log(
-        "returnObj w/ Image".toUpperCase(),
-        JSON.stringify(returnObj, null, 2)
-      );
       await publish(returnObj);
 
       return returnObj;
@@ -188,6 +182,7 @@ export class AddMessageToThreadResolver {
       (sentBy && receiver && input.images === undefined) ||
       (sentBy && receiver && input.images!.length == 0)
     ) {
+      console.log("NO IMAGES");
       let createMessage = {
         message: input.message,
         user: receiver,
@@ -198,8 +193,11 @@ export class AddMessageToThreadResolver {
         relations: ["messages", "invitees", "messages.images"]
       }).catch(error => error);
 
-      // CREATING rather than REPLYING to message...
       newMessage = await Message.create(createMessage).save();
+
+      newMessage.thread = existingThread;
+
+      await newMessage.save();
 
       const returnObj = {
         success: existingThread && existingThread.id ? true : false,
@@ -208,11 +206,6 @@ export class AddMessageToThreadResolver {
         user: receiver
       };
 
-      // const readyThreadPayload = returnObj;
-      console.log(
-        "returnObj w/out Image".toUpperCase(),
-        JSON.stringify(returnObj, null, 2)
-      );
       await publish(returnObj);
 
       return returnObj;
