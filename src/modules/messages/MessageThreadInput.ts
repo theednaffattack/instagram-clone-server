@@ -10,6 +10,9 @@ export class CreateMessageThreadAndMessageInput {
   @Field(type => String)
   sentTo: string;
 
+  @Field(() => [ID])
+  invitees: string[];
+
   // @ts-ignore
   @Field(type => String)
   message: string;
@@ -27,6 +30,9 @@ export class AddMessageToThreadInput {
   // @ts-ignore
   @Field(type => String)
   sentTo: string;
+
+  @Field(() => [ID])
+  invitees: string[];
 
   // @ts-ignore
   @Field(type => String)

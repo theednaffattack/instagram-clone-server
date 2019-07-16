@@ -21,9 +21,21 @@ export class CreateMessageThreadResolver {
   ) {
     const sentBy = await User.findOne(context.userId);
 
+    const collectInvitees: any[] = [];
+
+    const invitees = await Promise.all(
+      input.invitees.map(async person => {
+        let tempPerson = await User.findOne(person);
+        collectInvitees.push(tempPerson);
+        return tempPerson;
+      })
+    );
+
     const receiver = await User.findOne(input.sentTo);
 
     // let createMessage;
+
+    console.log("Can I see invitees?".toUpperCase(), invitees);
 
     let newThread;
 
@@ -33,7 +45,13 @@ export class CreateMessageThreadResolver {
     console.log(sentBy && receiver && input.images && input.images[lastImage]);
 
     // if we have the user sending and receiving and if there IS AN IMAGE(S)
-    if (sentBy && receiver && input.images && input.images[lastImage]) {
+    if (
+      sentBy &&
+      receiver &&
+      input.images &&
+      input.images[lastImage] &&
+      invitees.length > 0
+    ) {
       // if there are images save them. if not make the message without it
       const { filename, createReadStream } = await input.images[lastImage];
 
@@ -78,13 +96,13 @@ export class CreateMessageThreadResolver {
 
       let createThread = {
         user: sentBy,
-        invitees: [sentBy, receiver],
+        invitees: [sentBy, receiver, ...collectInvitees],
         messages: [newMessage]
       };
 
       newThread = await Thread.create(createThread)
         .save()
-        .catch(error => error);
+        .catch((error: any) => error);
 
       return newThread;
     }
@@ -101,7 +119,7 @@ export class CreateMessageThreadResolver {
 
       let createThread = {
         user: sentBy,
-        invitees: [sentBy, receiver],
+        invitees: [sentBy, receiver, ...collectInvitees],
         messages: [newMessage]
       };
 
