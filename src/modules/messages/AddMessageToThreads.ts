@@ -29,6 +29,7 @@ export interface IAddMessagePayload {
   threadId: string;
   message: Message;
   user: User;
+  invitees: User[];
 }
 
 @ObjectType()
@@ -45,14 +46,16 @@ export class AddMessagePayload {
   @Field(() => User)
   user: User;
 
+  @Field(() => [User])
+  invitees: User[];
+
   // @Field(() => [Image], { nullable: "itemsAndList" })
   // images?: Image[];
 }
 
 @Resolver()
 export class AddMessageToThreadResolver {
-  // @ts-ignore
-  @Subscription(type => AddMessagePayload, {
+  @Subscription(() => AddMessagePayload, {
     // @ts-ignore
     topics: ({ context }: any) => {
       if (!context.userId) {
@@ -87,7 +90,7 @@ export class AddMessageToThreadResolver {
     @Arg("data", () => AddMessageToThreadInput_v2)
     input: AddMessageToThreadInput_v2
   ): AddMessagePayload {
-    console.log("forced to use input".toUpperCase(), input);
+    console.log("forced to use input".toUpperCase(), Object.keys(input));
 
     return threadPayload; // createdAt: new Date()
   }
@@ -166,11 +169,22 @@ export class AddMessageToThreadResolver {
 
       await newMessage.save();
 
+      let collectInvitees: any[] = [];
+
+      await Promise.all(
+        input.invitees.map(async person => {
+          let tempPerson = await User.findOne(person);
+          collectInvitees.push(tempPerson);
+          return tempPerson;
+        })
+      );
+
       const returnObj = {
         success: existingThread && foundThread ? true : false,
         threadId: input.threadId,
         message: newMessage,
-        user: receiver
+        user: receiver,
+        invitees: [...collectInvitees]
       };
 
       await publish(returnObj);
@@ -199,11 +213,22 @@ export class AddMessageToThreadResolver {
 
       await newMessage.save();
 
+      let collectInvitees: any[] = [];
+
+      await Promise.all(
+        input.invitees.map(async person => {
+          let tempPerson = await User.findOne(person);
+          collectInvitees.push(tempPerson);
+          return tempPerson;
+        })
+      );
+
       const returnObj = {
         success: existingThread && existingThread.id ? true : false,
         threadId: input.threadId,
         message: newMessage,
-        user: receiver
+        user: receiver,
+        invitees: [...collectInvitees]
       };
 
       await publish(returnObj);

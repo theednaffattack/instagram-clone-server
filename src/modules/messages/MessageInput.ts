@@ -7,6 +7,7 @@ export class MessageFromUserInput {
   // @ts-ignore
   @Field(type => String)
   sentTo: string;
+
   // @ts-ignore
   // @Field(type => String)
   // sentBy: string;

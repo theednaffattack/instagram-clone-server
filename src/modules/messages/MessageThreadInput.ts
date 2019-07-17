@@ -52,6 +52,9 @@ export class AddMessageToThreadInput_v2 {
   @Field(type => String)
   sentTo: string;
 
+  @Field(() => [ID])
+  invitees: string[];
+
   // @ts-ignore
   @Field(type => String)
   message: string;

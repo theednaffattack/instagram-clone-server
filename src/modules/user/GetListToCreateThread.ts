@@ -41,15 +41,14 @@ export class GetListToCreateThread {
         });
 
         const finalMessageList = new Set(thoseICanMessage);
+
+        // @ts-ignore
         const finalUniqMessageList = [
           ...new Set(thoseICanMessage.map(user => user.id))
         ];
 
+        // @ts-ignore
         const finalMsgListArray = Array.from(finalMessageList);
-
-        console.log("finalMsgListArray", finalMsgListArray);
-        console.log("finalMessageList", finalMessageList);
-        console.log("finalUniqMessageList", finalUniqMessageList);
 
         returnObj.id = meWithFollowers.id;
 
