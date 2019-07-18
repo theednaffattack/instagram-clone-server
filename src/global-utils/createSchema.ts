@@ -28,6 +28,7 @@ import { GetMessageThreadsResolver } from "../modules/messages/GetMessageThreads
 import { CreateMessageThreadResolver } from "../modules/messages/CreateMessageThreads";
 import { AddMessageToThreadResolver } from "../modules/messages/AddMessageToThreads";
 import { GetListToCreateThread } from "../modules/user/GetListToCreateThread";
+import { SignS3 } from "../modules/aws-s3/s3-sign-mutation";
 
 export const createSchema = () =>
   buildSchema({
@@ -56,6 +57,7 @@ export const createSchema = () =>
       ProfilePictureResolver,
       RegisterResolver,
       SendMessageResolver,
+      SignS3,
       UnFollowUser
     ],
     authChecker: ({ context: { req } }) => {
