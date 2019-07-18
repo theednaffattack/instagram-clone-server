@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@types/connect-redis": "^0.0.10",
     "@types/express-session": "^1.15.13",
     "apollo-server-express": "^2.4.8",
     "aws-sdk": "^2.494.0",
@@ -31,7 +32,6 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
-    "@types/connect-redis": "^0.0.10",
     "@types/cookie-parser": "^1.4.1",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^6.1.1",
