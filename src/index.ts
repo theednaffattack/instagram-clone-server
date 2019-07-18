@@ -65,10 +65,6 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema,
-    tracing: true,
-    debug: true,
-    introspection: true,
-    playground: true,
     subscriptions: {
       path: "/subscriptions",
       onConnect: (_, webSocket: any) => {
@@ -84,12 +80,6 @@ const main = async () => {
             });
           })
         );
-      },
-
-      onDisconnect: () => {
-        // ...
-        // console.log(webSocket);
-        // console.log(context);
       }
     },
     context: ({ req, res, connection }: any) => {
@@ -129,22 +119,11 @@ const main = async () => {
         // extensions
       };
     },
-    validationRules: [
-      // queryComplexity({
-      //   // queries above this threshold are rejected
-      //   maximumComplexity: 8,
-      //   variables: {},
-      //   onComplete: (complexity: number) => {
-      //     console.log("Query Complexity:", complexity);
-      //   },
-      //   estimators: [
-      //     fieldConfigEstimator(),
-      //     simpleEstimator({
-      //       defaultComplexity: 1
-      //     })
-      //   ]
-      // }) as any
-    ]
+
+    tracing: true,
+    debug: true,
+    introspection: true,
+    playground: true
   });
 
   const allowedOrigins = [

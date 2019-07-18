@@ -66,10 +66,6 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
     }
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema,
-        tracing: true,
-        debug: true,
-        introspection: true,
-        playground: true,
         subscriptions: {
             path: "/subscriptions",
             onConnect: (_, webSocket) => {
@@ -81,8 +77,6 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
                         req: webSocket.upgradeReq
                     });
                 }));
-            },
-            onDisconnect: () => {
             }
         },
         context: ({ req, res, connection }) => {
@@ -111,7 +105,10 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
                 locations
             };
         },
-        validationRules: []
+        tracing: true,
+        debug: true,
+        introspection: true,
+        playground: true
     });
     const allowedOrigins = [
         "http://localhost:3000",
