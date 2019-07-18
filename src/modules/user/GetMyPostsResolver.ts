@@ -33,7 +33,7 @@ export class CreatePostResolver {
 
       let imageUrl = `/../../../public/tmp/images/${images[lastImage]}`;
 
-      let savedFile = await new Promise((resolve, reject) => {
+      await new Promise((resolve, reject) => {
         createReadStream()
           .pipe(createWriteStream(__dirname + imageUrl))
           .on("finish", () => {

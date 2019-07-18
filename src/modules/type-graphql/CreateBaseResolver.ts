@@ -14,6 +14,7 @@ export function createBaseResolver<T extends ClassType, X extends ClassType>(
   returnType: T,
   inputType: X,
   entity: any,
+  // @ts-ignore
   relations?: string[]
 ) {
   @Resolver({ isAbstract: true })
