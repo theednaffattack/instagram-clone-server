@@ -8,11 +8,11 @@
   "database": "instagram_clone",
   "logging": true,
   "synchronize": true,
-  "entities": ["src/entity/**/*.*"],
+  "entities": ["dist/entity/**/*.*"],
   "migrations": ["src/migration/**/*.ts"],
   "subscribers": ["src/subscriber/**/*.ts"],
   "cli": {
-    "entitiesDir": "src/entity",
+    "entitiesDir": "dist/entity",
     "migrationsDir": "src/migration",
     "subscribersDir": "src/subscriber"
   }

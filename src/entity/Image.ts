@@ -4,7 +4,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne
-  // OneToMany
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 
