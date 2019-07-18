@@ -67,6 +67,8 @@ const main = async () => {
     schema,
     tracing: true,
 
+    introspection: true,
+    playground: true,
     subscriptions: {
       path: "/subscriptions",
       onConnect: (_, webSocket: any) => {
