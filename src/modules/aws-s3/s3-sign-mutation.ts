@@ -53,7 +53,6 @@ export class SignS3 {
     };
 
     aws.config.update(credentials);
-    // aws.config.region = "us-west-2";
 
     const s3 = new aws.S3({
       signatureVersion: "v4",

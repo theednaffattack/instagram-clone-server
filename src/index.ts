@@ -211,7 +211,7 @@ const main = async () => {
   //   );
   // });
 
-  wsServer.listen(4000, () => {
+  wsServer.listen({ port: process.env.PORT || 4000 }, () => {
     console.log("\n\n");
     console.log(
       `🚀  Server started! GraphQL Playground ready at:\nhttp://localhost:${PORT}${
