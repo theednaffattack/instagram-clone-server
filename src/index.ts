@@ -66,7 +66,7 @@ const main = async () => {
   const apolloServer = new ApolloServer({
     schema,
     tracing: true,
-
+    debug: true,
     introspection: true,
     playground: true,
     subscriptions: {

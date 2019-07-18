@@ -67,6 +67,7 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema,
         tracing: true,
+        debug: true,
         introspection: true,
         playground: true,
         subscriptions: {
