@@ -15,8 +15,8 @@ export class LoginResolver {
     const user = await User.findOne({ where: { email } });
     // if we can't find a user return an obscure result (null) to prevent fishing
     console.log("I HAVE MADE CHANGES");
+    console.log("\n\n session", Object.keys(ctx));
     console.log("\n\nuser", user);
-    console.log("\n\n session", Object.keys(ctx.req));
     if (!user) {
       return null;
     }
