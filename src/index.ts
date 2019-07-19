@@ -18,6 +18,21 @@ import { logger } from "./modules/middleware/logger/logger";
 //   simpleEstimator
 // } from "graphql-query-complexity";
 
+const GRAPHQL_PLAYGROUND_CONFIG = {
+  settings: {
+    "general.betaUpdates": false,
+    "editor.cursorShape": "line",
+    "editor.fontSize": 14,
+    "editor.fontFamily":
+      "'Source Code Pro', 'Consolas', 'Inconsolata', 'Droid Sans Mono', 'Monaco', monospace",
+    "editor.theme": "dark",
+    "editor.reuseHeaders": true,
+    "prettier.printWidth": 80,
+    "request.credentials": "include",
+    "tracing.hideTracingResponse": true
+  }
+};
+
 const RedisStore = connectRedis(session);
 
 const PORT = process.env.PORT || 7777;
@@ -39,19 +54,25 @@ const sessionMiddleware = session({
 });
 
 const getContextFromHttpRequest = async (req: any, res: any) => {
-  console.log("1 - getContextFromHttpRequest");
+  if (req.session) {
+    console.log("1 - getContextFromHttpRequest");
 
-  console.log("2 - Object.keys(req)", Object.keys(req));
-  console.log("3 - userId", req.session);
+    console.log("\n\n3 - req.session", req.session);
 
-  const { userId } = req.session;
+    const { userId } = req.session;
 
-  console.log("2 - userId", userId);
-  return { userId, req, res };
+    console.log("2 - userId", userId);
+    return { userId, req, res };
+  }
+  throw Error("no session detected");
 };
 
 const getContextFromSubscription = (connection: any) => {
   // const { userId } = connection.context;
+  console.log(
+    "X - connection.context.req.session;",
+    connection.context.req.session
+  );
   const { userId } = connection.context.req.session;
   return { userId, req: connection.context.req };
 };
@@ -160,13 +181,13 @@ const main = async () => {
 
   const app = Express.default();
 
-  app.use(sessionMiddleware);
-
   // app.use(cors(corsOptions));
 
   const wsServer = createServer(app);
 
   apolloServer.installSubscriptionHandlers(wsServer);
+
+  app.use(sessionMiddleware);
 
   // resolver timing middleware
   app.use("/graphql", (req, res, next) => {

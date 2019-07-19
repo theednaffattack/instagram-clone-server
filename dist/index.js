@@ -30,6 +30,19 @@ const redis_1 = require("./redis");
 const constants_1 = require("./constants");
 const createSchema_1 = require("./global-utils/createSchema");
 const logger_1 = require("./modules/middleware/logger/logger");
+const GRAPHQL_PLAYGROUND_CONFIG = {
+    settings: {
+        "general.betaUpdates": false,
+        "editor.cursorShape": "line",
+        "editor.fontSize": 14,
+        "editor.fontFamily": "'Source Code Pro', 'Consolas', 'Inconsolata', 'Droid Sans Mono', 'Monaco', monospace",
+        "editor.theme": "dark",
+        "editor.reuseHeaders": true,
+        "prettier.printWidth": 80,
+        "request.credentials": "include",
+        "tracing.hideTracingResponse": true
+    }
+};
 const RedisStore = connect_redis_1.default(express_session_1.default);
 const PORT = process.env.PORT || 7777;
 const sessionMiddleware = express_session_1.default({
@@ -48,14 +61,17 @@ const sessionMiddleware = express_session_1.default({
     }
 });
 const getContextFromHttpRequest = (req, res) => __awaiter(this, void 0, void 0, function* () {
-    console.log("1 - getContextFromHttpRequest");
-    console.log("2 - Object.keys(req)", Object.keys(req));
-    console.log("3 - userId", req.session);
-    const { userId } = req.session;
-    console.log("2 - userId", userId);
-    return { userId, req, res };
+    if (req.session) {
+        console.log("1 - getContextFromHttpRequest");
+        console.log("\n\n3 - req.session", req.session);
+        const { userId } = req.session;
+        console.log("2 - userId", userId);
+        return { userId, req, res };
+    }
+    throw Error("no session detected");
 });
 const getContextFromSubscription = (connection) => {
+    console.log("X - connection.context.req.session;", connection.context.req.session);
     const { userId } = connection.context.req.session;
     return { userId, req: connection.context.req };
 };
@@ -140,9 +156,9 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
         }
     };
     const app = Express.default();
-    app.use(sessionMiddleware);
     const wsServer = http_1.createServer(app);
     apolloServer.installSubscriptionHandlers(wsServer);
+    app.use(sessionMiddleware);
     app.use("/graphql", (req, res, next) => {
         const startHrTime = process.hrtime();
         res.on("finish", () => {
