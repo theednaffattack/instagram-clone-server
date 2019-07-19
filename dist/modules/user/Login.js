@@ -31,7 +31,7 @@ let LoginResolver = class LoginResolver {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield User_1.User.findOne({ where: { email } });
             console.log("I HAVE MADE CHANGES");
-            console.log("\n\n session", Object.keys(ctx));
+            console.log("\n\n session", ctx);
             console.log("\n\nuser", user);
             if (!user) {
                 return null;
