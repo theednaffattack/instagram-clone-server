@@ -5,10 +5,12 @@ import { ArgumentValidationError } from "type-graphql";
 import { createConnection } from "typeorm";
 import { GraphQLFormattedError, GraphQLError } from "graphql";
 import session from "express-session";
+
 import connectRedis from "connect-redis";
 import { createServer } from "http";
 
 import { redis } from "./redis";
+
 import { redisSessionPrefix } from "./constants";
 import { createSchema } from "./global-utils/createSchema";
 import { logger } from "./modules/middleware/logger/logger";
@@ -34,7 +36,8 @@ const sessionMiddleware = session({
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
+    domain: "eddie-faux-gram.herokuapp.com"
   }
 });
 

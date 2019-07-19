@@ -50,6 +50,7 @@ let RegisterResolver = class RegisterResolver {
                 firstName,
                 lastName,
                 email,
+                count: 0,
                 password: hashedPassword
             }).save();
             yield sendEmail_1.sendEmail(email, yield createConfirmationUrl_1.createConfirmationUrl(user.id));

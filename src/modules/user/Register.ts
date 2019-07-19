@@ -35,6 +35,7 @@ export class RegisterResolver {
       firstName,
       lastName,
       email,
+      count: 0,
       password: hashedPassword
     }).save();
 

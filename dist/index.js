@@ -44,7 +44,8 @@ const sessionMiddleware = express_session_1.default({
     cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        maxAge: 1000 * 60 * 60 * 24 * 7
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+        domain: "eddie-faux-gram.herokuapp.com"
     }
 });
 const getContextFromHttpRequest = (req, res) => __awaiter(this, void 0, void 0, function* () {

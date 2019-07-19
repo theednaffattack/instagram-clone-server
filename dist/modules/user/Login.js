@@ -25,11 +25,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const type_graphql_1 = require("type-graphql");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const jsonwebtoken_1 = require("jsonwebtoken");
 const User_1 = require("../../entity/User");
+const secret = process.env.JWT_SECRET;
 let LoginResolver = class LoginResolver {
     login(email, password, ctx) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield User_1.User.findOne({ where: { email } });
+            if (!user || !secret) {
+                return null;
+            }
+            const accessToken = jsonwebtoken_1.sign({ userId: user.id, count: user.count }, secret, {
+                expiresIn: "15min"
+            });
+            const refreshToken = jsonwebtoken_1.sign({ userId: user.id }, secret, { expiresIn: "7d" });
+            console.log("CHECK THE TOKENS", { refreshToken, accessToken });
+            ctx.res.cookie("refresh-token", refreshToken, {
+                expires: new Date(Date.now() + 60 * 60 * 24 * 7)
+            });
+            ctx.res.cookie("access-token", accessToken, {
+                expires: new Date(Date.now() + 60 * 15)
+            });
             console.log("I HAVE MADE CHANGES");
             console.log("\n\n session", ctx);
             console.log("\n\nuser", user);
