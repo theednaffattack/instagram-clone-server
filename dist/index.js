@@ -142,7 +142,6 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
     const app = Express.default();
     const wsServer = http_1.createServer(app);
     apolloServer.installSubscriptionHandlers(wsServer);
-    app.use(sessionMiddleware);
     app.use("/graphql", (req, res, next) => {
         const startHrTime = process.hrtime();
         res.on("finish", () => {
@@ -157,6 +156,7 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
     app.use("*/images", Express.static("public/images"));
     app.use("*/temp", Express.static("public/tmp/images"));
     apolloServer.applyMiddleware({ app, cors: corsOptions });
+    app.use(sessionMiddleware);
     wsServer.listen({ port: process.env.PORT || 4000 }, () => {
         console.log("\n\n");
         console.log(`🚀  Server started! GraphQL Playground ready at:\nhttp://localhost:${PORT}${apolloServer.graphqlPath}`);

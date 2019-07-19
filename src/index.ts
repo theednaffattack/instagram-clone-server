@@ -166,8 +166,7 @@ const main = async () => {
 
   apolloServer.installSubscriptionHandlers(wsServer);
 
-  app.use(sessionMiddleware);
-
+  // resolver timing middleware
   app.use("/graphql", (req, res, next) => {
     const startHrTime = process.hrtime();
 
@@ -194,6 +193,8 @@ const main = async () => {
   app.use("*/temp", Express.static("public/tmp/images"));
 
   apolloServer.applyMiddleware({ app, cors: corsOptions });
+
+  app.use(sessionMiddleware);
 
   // app.listen(4000, () => {
   //   console.log(
