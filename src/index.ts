@@ -155,15 +155,9 @@ const main = async () => {
     credentials: true,
     origin: function(origin: any, callback: any) {
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        console.log("looks good ");
-        console.log("origin ", origin);
-        console.log("callback ", callback);
-
         callback(null, true);
       } else {
-        console.error("origin ", origin);
-        console.error("Not allowd by CORS");
-        callback(new Error("Not allowed by CORS"));
+        console.error("cors error:: origin: ", origin);
       }
     }
   };
@@ -172,11 +166,11 @@ const main = async () => {
 
   // app.use(cors(corsOptions));
 
+  app.use(sessionMiddleware);
+
   const wsServer = createServer(app);
 
   apolloServer.installSubscriptionHandlers(wsServer);
-
-  app.use(sessionMiddleware);
 
   // resolver timing middleware
   app.use("/graphql", (req, res, next) => {

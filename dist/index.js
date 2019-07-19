@@ -132,22 +132,17 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
         credentials: true,
         origin: function (origin, callback) {
             if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-                console.log("looks good ");
-                console.log("origin ", origin);
-                console.log("callback ", callback);
                 callback(null, true);
             }
             else {
-                console.error("origin ", origin);
-                console.error("Not allowd by CORS");
-                callback(new Error("Not allowed by CORS"));
+                console.error("cors error:: origin: ", origin);
             }
         }
     };
     const app = Express.default();
+    app.use(sessionMiddleware);
     const wsServer = http_1.createServer(app);
     apolloServer.installSubscriptionHandlers(wsServer);
-    app.use(sessionMiddleware);
     app.use("/graphql", (req, res, next) => {
         const startHrTime = process.hrtime();
         res.on("finish", () => {

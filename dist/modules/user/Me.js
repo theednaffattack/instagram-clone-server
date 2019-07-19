@@ -25,6 +25,7 @@ const User_1 = require("../../entity/User");
 let MeResolver = class MeResolver {
     me(ctx) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("ctx and ctx.req.session", ctx.req.session);
             if (!ctx.req.session.userId) {
                 return undefined;
             }

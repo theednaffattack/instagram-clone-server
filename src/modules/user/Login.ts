@@ -32,12 +32,12 @@ export class LoginResolver {
 
     console.log("CHECK THE TOKENS", { refreshToken, accessToken });
 
-    ctx.res.cookie("refresh-token", refreshToken, {
-      expires: new Date(Date.now() + 60 * 60 * 24 * 7)
-    });
-
     ctx.res.cookie("access-token", accessToken, {
       expires: new Date(Date.now() + 60 * 15)
+    });
+
+    ctx.res.cookie("refresh-token", refreshToken, {
+      expires: new Date(Date.now() + 60 * 60 * 24 * 7)
     });
 
     console.log("I HAVE MADE CHANGES");
@@ -63,6 +63,7 @@ export class LoginResolver {
     }
     // all is well return the user we found
     ctx.req.session!.userId = user.id;
+
     console.log("\n\n ctx.req.session (is userId present?)", ctx.req.session);
 
     return user;
