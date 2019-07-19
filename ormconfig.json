@@ -3,6 +3,7 @@
   "type": "postgres",
   "host": "ec2-23-21-160-38.compute-1.amazonaws.com",
   "port": 5432,
+  "ssl": true,
   "username": "wkthskzeuelruy",
   "password": "4004032267ec19aab9781452510ffddd601c878649ee6e65d2bc789b8c1c7a83",
   "database": "d55f17eit2mhb5",

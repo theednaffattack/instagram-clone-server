@@ -39,9 +39,11 @@ const sessionMiddleware = session({
 });
 
 const getContextFromHttpRequest = async (req: any, res: any) => {
-  console.log("CAN WE SEE THIS FAR? getContextFromHttpRequest");
+  console.log("1 - getContextFromHttpRequest");
   const { userId } = req.session;
 
+  console.log("2 - userId", userId);
+  console.log("3 - Object.keys(req)", Object.keys(req));
   return { userId, req, res };
 };
 
@@ -120,9 +122,6 @@ const main = async () => {
         // extensions
       };
     },
-
-    tracing: true,
-    debug: true,
     introspection: true,
     playground: true
   });
