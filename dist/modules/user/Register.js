@@ -39,6 +39,12 @@ let RegisterResolver = class RegisterResolver {
     }
     register({ email, firstName, lastName, password }) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("VIEW RegisterInput ARGS", {
+                email,
+                firstName,
+                lastName,
+                password
+            });
             const hashedPassword = yield bcryptjs_1.default.hash(password, 12);
             const user = yield User_1.User.create({
                 firstName,
