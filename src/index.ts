@@ -160,6 +160,8 @@ const main = async () => {
 
   const app = Express.default();
 
+  app.use(sessionMiddleware);
+
   // app.use(cors(corsOptions));
 
   const wsServer = createServer(app);
@@ -193,8 +195,6 @@ const main = async () => {
   app.use("*/temp", Express.static("public/tmp/images"));
 
   apolloServer.applyMiddleware({ app, cors: corsOptions });
-
-  app.use(sessionMiddleware);
 
   // app.listen(4000, () => {
   //   console.log(
