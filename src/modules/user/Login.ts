@@ -14,6 +14,8 @@ export class LoginResolver {
   ): Promise<User | null> {
     const user = await User.findOne({ where: { email } });
     // if we can't find a user return an obscure result (null) to prevent fishing
+    console.log("\n\nuser", user);
+    console.log("\n\n session", ctx.req.session);
     if (!user) {
       return null;
     }
