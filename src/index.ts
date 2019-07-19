@@ -39,6 +39,7 @@ const sessionMiddleware = session({
 });
 
 const getContextFromHttpRequest = async (req: any, res: any) => {
+  console.log("CAN WE SEE THIS FAR? getContextFromHttpRequest");
   const { userId } = req.session;
 
   return { userId, req, res };
@@ -142,6 +143,10 @@ const main = async () => {
     credentials: true,
     origin: function(origin: any, callback: any) {
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        console.log("looks good ");
+        console.log("origin ", origin);
+        console.log("callback ", callback);
+
         callback(null, true);
       } else {
         console.error("origin ", origin);
