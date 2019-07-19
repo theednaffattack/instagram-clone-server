@@ -40,10 +40,13 @@ const sessionMiddleware = session({
 
 const getContextFromHttpRequest = async (req: any, res: any) => {
   console.log("1 - getContextFromHttpRequest");
+
+  console.log("2 - Object.keys(req)", Object.keys(req));
+  console.log("3 - userId", req.session);
+
   const { userId } = req.session;
 
   console.log("2 - userId", userId);
-  console.log("3 - Object.keys(req)", Object.keys(req));
   return { userId, req, res };
 };
 
