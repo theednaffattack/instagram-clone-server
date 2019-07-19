@@ -18,21 +18,6 @@ import { logger } from "./modules/middleware/logger/logger";
 //   simpleEstimator
 // } from "graphql-query-complexity";
 
-const GRAPHQL_PLAYGROUND_CONFIG = {
-  settings: {
-    "general.betaUpdates": false,
-    "editor.cursorShape": "line",
-    "editor.fontSize": 14,
-    "editor.fontFamily":
-      "'Source Code Pro', 'Consolas', 'Inconsolata', 'Droid Sans Mono', 'Monaco', monospace",
-    "editor.theme": "dark",
-    "editor.reuseHeaders": true,
-    "prettier.printWidth": 80,
-    "request.credentials": "include",
-    "tracing.hideTracingResponse": true
-  }
-};
-
 const RedisStore = connectRedis(session);
 
 const PORT = process.env.PORT || 7777;
@@ -54,6 +39,7 @@ const sessionMiddleware = session({
 });
 
 const getContextFromHttpRequest = async (req: any, res: any) => {
+  console.log("0 - middleware running");
   if (req.session) {
     console.log("1 - getContextFromHttpRequest");
 
@@ -64,7 +50,7 @@ const getContextFromHttpRequest = async (req: any, res: any) => {
     console.log("2 - userId", userId);
     return { userId, req, res };
   }
-  throw Error("no session detected");
+  return "No session detected";
 };
 
 const getContextFromSubscription = (connection: any) => {
@@ -91,6 +77,8 @@ const main = async () => {
   }
 
   const apolloServer = new ApolloServer({
+    introspection: true,
+    playground: true,
     schema,
     subscriptions: {
       path: "/subscriptions",
@@ -145,9 +133,7 @@ const main = async () => {
         locations
         // extensions
       };
-    },
-    introspection: true,
-    playground: true
+    }
   });
 
   const allowedOrigins = [
