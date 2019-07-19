@@ -15,6 +15,7 @@ export class LoginResolver {
     @Arg("password") password: string,
     @Ctx() ctx: MyContext
   ): Promise<User | null> {
+    console.log("LOGIN RUNNING");
     const user = await User.findOne({ where: { email } });
     if (!user || !secret) {
       return null;

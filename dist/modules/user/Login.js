@@ -31,6 +31,7 @@ const secret = process.env.JWT_SECRET;
 let LoginResolver = class LoginResolver {
     login(email, password, ctx) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("LOGIN RUNNING");
             const user = yield User_1.User.findOne({ where: { email } });
             if (!user || !secret) {
                 return null;
