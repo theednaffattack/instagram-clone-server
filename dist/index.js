@@ -30,19 +30,6 @@ const redis_1 = require("./redis");
 const constants_1 = require("./constants");
 const createSchema_1 = require("./global-utils/createSchema");
 const logger_1 = require("./modules/middleware/logger/logger");
-const GRAPHQL_PLAYGROUND_CONFIG = {
-    settings: {
-        "general.betaUpdates": false,
-        "editor.cursorShape": "line",
-        "editor.fontSize": 14,
-        "editor.fontFamily": "'Source Code Pro', 'Consolas', 'Inconsolata', 'Droid Sans Mono', 'Monaco', monospace",
-        "editor.theme": "dark",
-        "editor.reuseHeaders": true,
-        "prettier.printWidth": 80,
-        "request.credentials": "include",
-        "tracing.hideTracingResponse": true
-    }
-};
 const RedisStore = connect_redis_1.default(express_session_1.default);
 const PORT = process.env.PORT || 7777;
 const sessionMiddleware = express_session_1.default({
@@ -61,6 +48,7 @@ const sessionMiddleware = express_session_1.default({
     }
 });
 const getContextFromHttpRequest = (req, res) => __awaiter(this, void 0, void 0, function* () {
+    console.log("0 - middleware running");
     if (req.session) {
         console.log("1 - getContextFromHttpRequest");
         console.log("\n\n3 - req.session", req.session);
@@ -68,7 +56,7 @@ const getContextFromHttpRequest = (req, res) => __awaiter(this, void 0, void 0, 
         console.log("2 - userId", userId);
         return { userId, req, res };
     }
-    throw Error("no session detected");
+    return "No session detected";
 });
 const getContextFromSubscription = (connection) => {
     console.log("X - connection.context.req.session;", connection.context.req.session);
@@ -85,6 +73,8 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
         console.error(error);
     }
     const apolloServer = new apollo_server_express_1.ApolloServer({
+        introspection: true,
+        playground: true,
         schema,
         subscriptions: {
             path: "/subscriptions",
@@ -124,9 +114,7 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
                 path,
                 locations
             };
-        },
-        introspection: true,
-        playground: true
+        }
     });
     const allowedOrigins = [
         "http://localhost:3000",
