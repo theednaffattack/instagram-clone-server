@@ -49,9 +49,10 @@ const sessionMiddleware = express_session_1.default({
 });
 const getContextFromHttpRequest = (req, res) => __awaiter(this, void 0, void 0, function* () {
     console.log("1 - getContextFromHttpRequest");
+    console.log("2 - Object.keys(req)", Object.keys(req));
+    console.log("3 - userId", req.session);
     const { userId } = req.session;
     console.log("2 - userId", userId);
-    console.log("3 - Object.keys(req)", Object.keys(req));
     return { userId, req, res };
 });
 const getContextFromSubscription = (connection) => {
