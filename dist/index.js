@@ -56,7 +56,7 @@ const getContextFromHttpRequest = (req, res) => __awaiter(this, void 0, void 0, 
         console.log("2 - userId", userId);
         return { userId, req, res };
     }
-    return "No session detected";
+    return ["No session detected"];
 });
 const getContextFromSubscription = (connection) => {
     console.log("X - connection.context.req.session;", connection.context.req.session);

@@ -50,7 +50,7 @@ const getContextFromHttpRequest = async (req: any, res: any) => {
     console.log("2 - userId", userId);
     return { userId, req, res };
   }
-  return "No session detected";
+  return ["No session detected"];
 };
 
 const getContextFromSubscription = (connection: any) => {
