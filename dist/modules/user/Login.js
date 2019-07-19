@@ -38,12 +38,14 @@ let LoginResolver = class LoginResolver {
             }
             const valid = bcryptjs_1.default.compare(password, user.password);
             if (!valid) {
+                console.log("\n\n passwords don't match");
                 return null;
             }
             if (!user.confirmed) {
                 throw new Error("Please confirm your account");
             }
             ctx.req.session.userId = user.id;
+            console.log("\n\n ctx.req.session (is userId present?)", ctx.req.session);
             return user;
         });
     }

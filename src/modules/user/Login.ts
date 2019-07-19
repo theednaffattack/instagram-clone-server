@@ -25,6 +25,8 @@ export class LoginResolver {
 
     // if the supplied password is invalid return early
     if (!valid) {
+      console.log("\n\n passwords don't match");
+
       return null;
     }
 
@@ -35,6 +37,8 @@ export class LoginResolver {
     }
     // all is well return the user we found
     ctx.req.session!.userId = user.id;
+    console.log("\n\n ctx.req.session (is userId present?)", ctx.req.session);
+
     return user;
   }
 }
