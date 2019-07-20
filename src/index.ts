@@ -168,6 +168,18 @@ const main = async () => {
 
   const app = Express.default();
 
+  // app.set("trust proxy", 1);
+
+  app.enable("trust proxy");
+
+  app.use(function(req, res, next) {
+    if (req.header("x-forwarded-proto") !== "https") {
+      res.redirect("https://" + req.header("host") + req.url);
+    } else {
+      next();
+    }
+  });
+
   // app.use(cors(corsOptions));
 
   const wsServer = createServer(app);

@@ -46,7 +46,7 @@ const sessionMiddleware = express_session_1.default({
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         maxAge: 1000 * 60 * 60 * 24 * 7,
-        domain: "fauxgram.eddienaff.dev"
+        domain: "eddienaff.dev"
     }
 });
 const getContextFromHttpRequest = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -143,6 +143,15 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
         }
     };
     const app = Express.default();
+    app.enable("trust proxy");
+    app.use(function (req, res, next) {
+        if (req.header("x-forwarded-proto") !== "https") {
+            res.redirect("https://" + req.header("host") + req.url);
+        }
+        else {
+            next();
+        }
+    });
     const wsServer = http_1.createServer(app);
     apolloServer.installSubscriptionHandlers(wsServer);
     app.use(sessionMiddleware);
