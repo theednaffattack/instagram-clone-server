@@ -24,6 +24,8 @@ const RedisStore = connectRedis(session);
 
 const PORT = process.env.PORT || 7777;
 
+console.log("CAN I SEE THE SECRET?", process.env.SESSION_SECRET);
+
 const sessionMiddleware = session({
   name: "qid",
   secret: process.env.SESSION_SECRET as string,
@@ -37,7 +39,7 @@ const sessionMiddleware = session({
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
-    domain: "fauxgram.eddienaff.dev"
+    domain: "eddienaff.dev"
   }
 });
 
@@ -168,11 +170,11 @@ const main = async () => {
 
   // app.use(cors(corsOptions));
 
-  app.use(sessionMiddleware);
-
   const wsServer = createServer(app);
 
   apolloServer.installSubscriptionHandlers(wsServer);
+
+  app.use(sessionMiddleware);
 
   // resolver timing middleware
   app.use("/graphql", (req, res, next) => {

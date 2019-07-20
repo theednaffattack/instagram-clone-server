@@ -32,6 +32,7 @@ const createSchema_1 = require("./global-utils/createSchema");
 const logger_1 = require("./modules/middleware/logger/logger");
 const RedisStore = connect_redis_1.default(express_session_1.default);
 const PORT = process.env.PORT || 7777;
+console.log("CAN I SEE THE SECRET?", process.env.SESSION_SECRET);
 const sessionMiddleware = express_session_1.default({
     name: "qid",
     secret: process.env.SESSION_SECRET,
@@ -142,9 +143,9 @@ const main = () => __awaiter(this, void 0, void 0, function* () {
         }
     };
     const app = Express.default();
-    app.use(sessionMiddleware);
     const wsServer = http_1.createServer(app);
     apolloServer.installSubscriptionHandlers(wsServer);
+    app.use(sessionMiddleware);
     app.use("/graphql", (req, res, next) => {
         const startHrTime = process.hrtime();
         res.on("finish", () => {
