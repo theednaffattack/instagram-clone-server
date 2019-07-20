@@ -37,7 +37,7 @@ const sessionMiddleware = session({
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
-    domain: "eddie-faux-gram.herokuapp.com"
+    domain: "fauxgram.eddienaff.dev"
   }
 });
 
