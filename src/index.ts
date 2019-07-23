@@ -25,23 +25,46 @@ const RedisStore = connectRedis(session);
 const PORT = process.env.PORT || 7777;
 
 console.log("CAN I SEE THE SECRET?", process.env.SESSION_SECRET);
+console.log("CAN I SEE THE ENVIRONMENT?", process.env.NODE_ENV);
 
-const sessionMiddleware = session({
-  name: "mfg",
-  secret: process.env.SESSION_SECRET as string,
-  store: new RedisStore({
-    client: redis as any,
-    prefix: redisSessionPrefix
-  }),
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
-    domain: "eddienaff.dev"
-  }
-});
+let sessionMiddleware: Express.RequestHandler;
+
+if (process.env.NODE_ENV === "production") {
+  sessionMiddleware = session({
+    name: "mfg",
+    secret: process.env.SESSION_SECRET as string,
+    store: new RedisStore({
+      client: redis as any,
+      prefix: redisSessionPrefix
+    }),
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
+      domain: "eddienaff.dev"
+    }
+  });
+}
+
+if (process.env.NODE_ENV !== "production") {
+  sessionMiddleware = session({
+    name: "mfg",
+    secret: process.env.SESSION_SECRET as string,
+    store: new RedisStore({
+      client: redis as any,
+      prefix: redisSessionPrefix
+    }),
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days,
+    }
+  });
+}
 
 const getContextFromHttpRequest = async (req: any, res: any) => {
   console.log("0 - middleware running");
@@ -154,8 +177,14 @@ const main = async () => {
     "wss://fauxgramapi.eddienaff.dev",
     "wss://192.168.1.10:4000",
     "wss://192.168.1.10:3000",
-    "wss://0.0.0.0:4000"
+    "wss://0.0.0.0:4000",
+    "ws://192.168.1.10:4000",
+    "ws://192.168.1.10:3000",
+    "ws://localhost:4000",
+    "ws://localhost:3000"
   ];
+
+  // a change
 
   const corsOptions = {
     credentials: true,
@@ -174,13 +203,15 @@ const main = async () => {
 
   app.enable("trust proxy");
 
-  app.use(function(req, res, next) {
-    if (req.header("x-forwarded-proto") !== "https") {
-      res.redirect("https://" + req.header("host") + req.url);
-    } else {
-      next();
-    }
-  });
+  if (process.env.NODE_ENV === "production") {
+    app.use(function(req, res, next) {
+      if (req.header("x-forwarded-proto") !== "https") {
+        res.redirect("https://" + req.header("host") + req.url);
+      } else {
+        next();
+      }
+    });
+  }
 
   // app.use(cors(corsOptions));
 
