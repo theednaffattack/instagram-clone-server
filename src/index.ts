@@ -149,12 +149,12 @@ const main = async () => {
     "https://eddie-faux-gram.herokuapp.com",
     "https://fauxgram.eddienaff.dev",
     "https://fauxgramapp.eddienaff.dev",
-    "ws://fauxgramapp.eddienaff.dev",
-    "ws://eddie-faux-gram.herokuapp.com",
-    "ws://fauxgram.eddienaff.dev",
-    "ws://192.168.1.10:4000",
-    "ws://192.168.1.10:3000",
-    "ws://0.0.0.0:4000"
+    "wss://fauxgramapp.eddienaff.dev",
+    "wss://eddie-faux-gram.herokuapp.com",
+    "wss://fauxgram.eddienaff.dev",
+    "wss://192.168.1.10:4000",
+    "wss://192.168.1.10:3000",
+    "wss://0.0.0.0:4000"
   ];
 
   const corsOptions = {
