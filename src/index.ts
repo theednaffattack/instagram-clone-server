@@ -148,6 +148,8 @@ const main = async () => {
     "http://192.168.1.10:4000",
     "https://eddie-faux-gram.herokuapp.com",
     "https://fauxgram.eddienaff.dev",
+    "https://fauxgramapp.eddienaff.dev",
+    "ws://fauxgramapp.eddienaff.dev",
     "ws://eddie-faux-gram.herokuapp.com",
     "ws://fauxgram.eddienaff.dev",
     "ws://192.168.1.10:4000",
