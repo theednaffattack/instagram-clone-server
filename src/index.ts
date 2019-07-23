@@ -5,6 +5,7 @@ import { ArgumentValidationError } from "type-graphql";
 import { createConnection } from "typeorm";
 import { GraphQLFormattedError, GraphQLError } from "graphql";
 import session from "express-session";
+import internalIp from "internal-ip";
 
 import connectRedis from "connect-redis";
 import { createServer } from "http";
@@ -29,6 +30,8 @@ console.log("CAN I SEE THE ENVIRONMENT?", process.env.NODE_ENV);
 
 let sessionMiddleware: Express.RequestHandler;
 
+// needed for remove domain from our cookie
+// in non-production environments
 if (process.env.NODE_ENV === "production") {
   sessionMiddleware = session({
     name: "mfg",
@@ -67,26 +70,14 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const getContextFromHttpRequest = async (req: any, res: any) => {
-  console.log("0 - middleware running");
   if (req.session) {
-    console.log("1 - getContextFromHttpRequest");
-
-    console.log("\n\n3 - req.session", req.session);
-
     const { userId } = req.session;
-
-    console.log("2 - userId", userId);
     return { userId, req, res };
   }
   return ["No session detected"];
 };
 
 const getContextFromSubscription = (connection: any) => {
-  // const { userId } = connection.context;
-  console.log(
-    "X - connection.context.req.session;",
-    connection.context.req.session
-  );
   const { userId } = connection.context.req.session;
   return { userId, req: connection.context.req };
 };
@@ -199,10 +190,11 @@ const main = async () => {
 
   const app = Express.default();
 
-  // app.set("trust proxy", 1);
-
+  // needed for heroku deployment
   app.enable("trust proxy");
 
+  // needed for heroku deployment
+  // they set the "x-forwarded-proto" header???
   if (process.env.NODE_ENV === "production") {
     app.use(function(req, res, next) {
       if (req.header("x-forwarded-proto") !== "https") {
@@ -258,13 +250,13 @@ const main = async () => {
   wsServer.listen({ port: process.env.PORT || 4000 }, () => {
     console.log("\n\n");
     console.log(
-      `🚀  Server started! GraphQL Playground ready at:\nhttp://localhost:${PORT}${
+      `🚀  Server started! GraphQL Playground ready at:\nhttp://${internalIp.v4.sync()}:${PORT}${
         apolloServer.graphqlPath
       }`
     );
     console.log("\n\n");
     console.log(
-      `🚀 Subscriptions ready at:\nws://localhost:${PORT}${
+      `🚀 Subscriptions ready at:\nws://${internalIp.v4.sync()}:${PORT}${
         apolloServer.subscriptionsPath
       }`
     );
