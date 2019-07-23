@@ -27,7 +27,7 @@ const PORT = process.env.PORT || 7777;
 console.log("CAN I SEE THE SECRET?", process.env.SESSION_SECRET);
 
 const sessionMiddleware = session({
-  name: "qid",
+  name: "mfg",
   secret: process.env.SESSION_SECRET as string,
   store: new RedisStore({
     client: redis as any,

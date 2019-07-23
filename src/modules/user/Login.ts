@@ -56,6 +56,8 @@ export class LoginResolver {
     // all is well return the user we found
     ctx.req.session!.userId = user.id;
 
+    // ctx.res.cookie("qid", )
+
     // ctx.res.cookie("access-token", accessToken, {
     //   expires: new Date(Date.now() + 60 * 15)
     // });
