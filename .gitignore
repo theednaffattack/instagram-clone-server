@@ -6,3 +6,4 @@ src/.DS_Store
 public/images
 public/tmp
 dist/
+docs/private/

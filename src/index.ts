@@ -15,6 +15,7 @@ import { redis } from "./redis";
 import { redisSessionPrefix } from "./constants";
 import { createSchema } from "./global-utils/createSchema";
 import { logger } from "./modules/middleware/logger/logger";
+import json from "./ormconfig.json";
 
 // import queryComplexity, {
 //   fieldConfigEstimator,
@@ -85,7 +86,9 @@ const getContextFromSubscription = (connection: any) => {
 // const morganFormat = process.env.NODE_ENV !== "production" ? "dev" : "combined";
 
 const main = async () => {
-  await createConnection();
+  console.log("orm", json);
+  // @ts-ignore
+  await createConnection(json);
 
   let schema;
 
