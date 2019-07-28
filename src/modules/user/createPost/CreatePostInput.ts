@@ -1,8 +1,5 @@
 import { Length } from "class-validator";
-import { GraphQLUpload } from "graphql-upload";
 import { Field, InputType, ID } from "type-graphql";
-
-import { Upload } from "../../../types/Upload";
 
 @InputType()
 export class PostInput {
@@ -20,6 +17,26 @@ export class PostInput {
   @Field(() => [String], { nullable: "itemsAndList" })
   images: string[];
 
-  @Field(() => GraphQLUpload)
-  picture: Upload;
+  // @Field(() => GraphQLUpload)
+  // picture: Upload;
+}
+
+@InputType()
+export class PostInputOld {
+  @Field()
+  @Length(1, 255)
+  text: string;
+
+  @Field({ nullable: true })
+  @Length(1, 255)
+  title?: string;
+
+  @Field(() => ID)
+  user: string;
+
+  @Field(() => [String], { nullable: "itemsAndList" })
+  images: string[];
+
+  // @Field(() => GraphQLUpload)
+  // picture: Upload;
 }

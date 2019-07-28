@@ -1,5 +1,4 @@
 import { Args, Resolver, Ctx, Mutation, UseMiddleware } from "type-graphql";
-import { createWriteStream } from "fs";
 
 import { CreateMessageThreadAndMessageInput } from "./MessageThreadInput";
 import { MyContext } from "../../types/MyContext";
@@ -53,24 +52,24 @@ export class CreateMessageThreadResolver {
       invitees.length > 0
     ) {
       // if there are images save them. if not make the message without it
-      const { filename, createReadStream } = await input.images[lastImage];
+      const { filename } = await input.images[lastImage];
 
       let imageName = `${filename}.png`;
 
-      let localImageUrl = `/../../../public/tmp/images/${imageName}`;
+      // let localImageUrl = `/../../../public/tmp/images/${imageName}`;
 
-      let publicImageUrl = `http://192.168.1.10:4000/temp/${imageName}`;
+      let publicImageUrl = `https://eddie-faux-gram.s3.amazonaws.com/${imageName}`;
 
-      await new Promise((resolve, reject) => {
-        createReadStream()
-          .pipe(createWriteStream(__dirname + localImageUrl))
-          .on("finish", () => {
-            resolve(true);
-          })
-          .on("error", () => {
-            reject(false);
-          });
-      });
+      // await new Promise((resolve, reject) => {
+      //   createReadStream()
+      //     .pipe(createWriteStream(__dirname + localImageUrl))
+      //     .on("finish", () => {
+      //       resolve(true);
+      //     })
+      //     .on("error", () => {
+      //       reject(false);
+      //     });
+      // });
 
       let newImage = await Image.create({
         uri: publicImageUrl,

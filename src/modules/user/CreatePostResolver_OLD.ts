@@ -1,9 +1,6 @@
 import { createWriteStream } from "fs";
-// import { createBaseResolver } from "../type-graphql/CreateBaseResolver";
-import { PostInput } from "./createPost/CreatePostInput";
 import {
   Arg,
-  // Args,
   Field,
   InputType,
   Mutation,
@@ -15,17 +12,15 @@ import {
   Subscription,
   UseMiddleware,
   Ctx
-  // ArgsType,
-  // Args
 } from "type-graphql";
 
+import { PostInputOld } from "./createPost/CreatePostInput";
 import { logger } from "../middleware/logger";
 import { isAuth } from "../middleware/isAuth";
 import { Image } from "../../entity/Image";
 import { User } from "../../entity/User";
 import { Post, PostSubType } from "../../entity/Post";
 import { MyContext } from "../../types/MyContext";
-// import { MyContext } from "src/types/MyContext";
 
 export interface PostPayload {
   id: string;
@@ -62,7 +57,7 @@ export class CreatePostResolver {
       payload,
       // args,
       context
-    }: ResolverFilterData<Post, PostInput>) => {
+    }: ResolverFilterData<Post, PostInputOld>) => {
       // filter for followers;
       // @ts-ignore
       if (context.userId !== payload.user.followers.includes(context.id)) {
@@ -91,8 +86,8 @@ export class CreatePostResolver {
     // @ts-ignore
     @PubSub("POSTS_FOLLOWERS") publish: Publisher<PostPayload>,
     @PubSub("POSTS_GLOBAL") publishGlbl: Publisher<PostPayload>,
-    @Arg("data", () => PostInput)
-    { text, title, images, user: userId, picture }: PostInput
+    @Arg("data", () => PostInputOld)
+    { text, title, images, user: userId }: PostInputOld
   ) {
     if (!context) {
       throw new Error("not authed");

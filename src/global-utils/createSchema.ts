@@ -12,7 +12,7 @@ import {
   CreateProductResolver
 } from "../modules/user/CreateUser";
 import { ProfilePictureResolver } from "../modules/user/ProfilePictureUpload";
-import { CreatePostResolver } from "../modules/user/CreatePostResolver";
+import { CreatePost } from "../modules/user/CreatePost";
 // import { GetAllMyImagesResolver } from "../modules/user/GetMyImages";
 import { GetAllMyImagesResolver } from "../modules/user/GetMyImagesResolver";
 import { GetThoseIFollowAndTheirPostsResolver } from "../modules/user/GetThoseIFollowAndTheirPostsResolver";
@@ -38,7 +38,7 @@ export const createSchema = () =>
       AddMessageToThreadResolver,
       ChangePasswordResolver,
       ConfirmUserResolver,
-      CreatePostResolver,
+      CreatePost,
       CreateProductResolver,
       CreateMessageThreadResolver,
       CreateUserResolver,

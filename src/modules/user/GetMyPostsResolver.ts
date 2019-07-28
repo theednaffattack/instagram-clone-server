@@ -18,8 +18,7 @@ export class CreatePostResolver {
     text,
     title,
     images,
-    user: userId,
-    picture
+    user: userId
   }: PostInput) {
     let user = await User.findOne(userId, {
       relations: ["images", "posts"]
