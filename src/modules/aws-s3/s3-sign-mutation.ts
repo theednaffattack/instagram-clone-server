@@ -72,10 +72,12 @@ export class SignS3 {
       region: "us-west-2"
     });
 
+    const s3Path = `images`;
+
     const s3Params = input.files.map((file: any) => {
       return {
         Bucket: s3Bucket,
-        Key: file.filename,
+        Key: `${s3Path}/${file.filename}`,
         Expires: 60,
         ContentType: file.filetype
         // ACL: "public-read"
