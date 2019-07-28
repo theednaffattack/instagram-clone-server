@@ -4,12 +4,13 @@ import {
   Mutation,
   ObjectType,
   ArgsType,
-  Field
+  Field,
+  InputType
 } from "type-graphql";
 import aws from "aws-sdk";
 
-@ArgsType()
-class SignS3Input {
+@InputType()
+class ImageSubInput {
   @Field(() => String, { nullable: false })
   filename: string;
 
@@ -17,13 +18,25 @@ class SignS3Input {
   filetype: string;
 }
 
+@ArgsType()
+class SignS3Input {
+  @Field(() => [ImageSubInput])
+  files: ImageSubInput[];
+}
+
 @ObjectType()
-class SignedS3Payload {
+class SignedS3SubPayload {
   @Field(() => String)
   url: string;
 
   @Field(() => String)
   signedRequest: string;
+}
+
+@ObjectType()
+class SignedS3Payload {
+  @Field(() => [SignedS3SubPayload])
+  signatures: SignedS3SubPayload[];
 }
 
 // const USER_ADDED = "USER_ADDED";
@@ -43,7 +56,7 @@ export class SignS3 {
     @Args(() => SignS3Input) input: SignS3Input
   ): Promise<SignedS3Payload> {
     // @ts-ignore
-    const { filename, filetype } = input;
+    // const { filename, filetype } = input;
 
     console.log("input", input);
 
@@ -59,17 +72,28 @@ export class SignS3 {
       region: "us-west-2"
     });
 
-    const s3Params = {
-      Bucket: s3Bucket,
-      Key: filename,
-      Expires: 60,
-      ContentType: filetype
-      // ACL: "public-read"
+    const s3Params = input.files.map((file: any) => {
+      return {
+        Bucket: s3Bucket,
+        Key: file.filename,
+        Expires: 60,
+        ContentType: file.filetype
+        // ACL: "public-read"
+      };
+    });
+
+    const signedRequests = await Promise.all(
+      s3Params.map(param => {
+        console.log("VIEW PARAMS", param);
+        let signedRequest = s3.getSignedUrl("putObject", param);
+        const url = `https://${s3Bucket}.s3.amazonaws.com/${param.Key}`;
+
+        return { url, signedRequest };
+      })
+    );
+
+    return {
+      signatures: [...signedRequests]
     };
-
-    const signedRequest = await s3.getSignedUrl("putObject", s3Params);
-    const url = `https://${s3Bucket}.s3.amazonaws.com/${filename}`;
-
-    return { url, signedRequest };
   }
 }
