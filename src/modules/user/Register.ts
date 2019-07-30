@@ -23,13 +23,6 @@ export class RegisterResolver {
     lastName,
     password
   }: RegisterInput): Promise<User> {
-    console.log("VIEW RegisterInput ARGS", {
-      email,
-      firstName,
-      lastName,
-      password
-    });
-
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = await User.create({
       firstName,

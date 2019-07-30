@@ -27,13 +27,10 @@ export class GetThoseIFollowAndTheirPostsResolver {
         "following.posts.images"
       ]
     });
-    console.log("thoseIFollowAndTheirPosts".toUpperCase());
-    console.log(JSON.stringify(thoseIFollowAndTheirPosts, null, 4));
 
     const justThePosts = thoseIFollowAndTheirPosts!.following.map(person =>
       person.posts!.map(post => post)
     );
-    console.log("justThePosts".toUpperCase(), justThePosts);
 
     if (thoseIFollowAndTheirPosts) {
       return thoseIFollowAndTheirPosts;

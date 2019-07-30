@@ -34,8 +34,6 @@ export class FollowUser {
       })
       .getOne();
 
-    console.log("isMeAFollower".toUpperCase(), isMeAFollower);
-
     // // find "me" as a follower of the user "I'd" like to follow
     // const isUserAFollower = await User.createQueryBuilder("user")
     //   .leftJoinAndSelect("user.followers", "follower")

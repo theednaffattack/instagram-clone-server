@@ -11,12 +11,8 @@ export class ConfirmUserResolver {
     @Arg("token") token: string
     // @Ctx() ctx: MyContext
   ): Promise<boolean> {
-    console.log("working!");
-
     const userId = await redis.get(confirmUserPrefix + token);
 
-    console.log("userId", userId);
-    console.log("TOKEN AND PREFIX", confirmUserPrefix + token);
     if (!userId) {
       return false;
     }

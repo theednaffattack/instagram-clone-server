@@ -1,6 +1,6 @@
 import { Arg, Resolver, Mutation, Ctx } from "type-graphql";
 import bcrypt from "bcryptjs";
-import { sign } from "jsonwebtoken";
+// import { sign } from "jsonwebtoken";
 
 import { User } from "../../entity/User";
 import { MyContext } from "../../types/MyContext";
@@ -15,7 +15,6 @@ export class LoginResolver {
     @Arg("password") password: string,
     @Ctx() ctx: MyContext
   ): Promise<User | null> {
-    console.log("LOGIN RUNNING");
     const user = await User.findOne({ where: { email } });
     if (!user || !secret) {
       return null;
@@ -24,17 +23,12 @@ export class LoginResolver {
     // let accessToken;
     // let refreshToken;
 
-    const accessToken = sign({ userId: user.id, count: user.count }, secret, {
-      expiresIn: "15min"
-    });
+    // const accessToken = sign({ userId: user.id, count: user.count }, secret, {
+    //   expiresIn: "15min"
+    // });
 
-    const refreshToken = sign({ userId: user.id }, secret, { expiresIn: "7d" });
+    // const refreshToken = sign({ userId: user.id }, secret, { expiresIn: "7d" });
 
-    console.log("CHECK THE TOKENS", { refreshToken, accessToken });
-
-    console.log("I HAVE MADE CHANGES");
-    console.log("\n\n session", ctx);
-    console.log("\n\nuser", user);
     if (!user) {
       return null;
     }
@@ -43,8 +37,6 @@ export class LoginResolver {
 
     // if the supplied password is invalid return early
     if (!valid) {
-      console.log("\n\n passwords don't match");
-
       return null;
     }
 
@@ -55,18 +47,6 @@ export class LoginResolver {
     }
     // all is well return the user we found
     ctx.req.session!.userId = user.id;
-
-    // ctx.res.cookie("qid", )
-
-    // ctx.res.cookie("access-token", accessToken, {
-    //   expires: new Date(Date.now() + 60 * 15)
-    // });
-
-    // ctx.res.cookie("refresh-token", refreshToken, {
-    //   expires: new Date(Date.now() + 60 * 60 * 24 * 7)
-    // });
-
-    console.log("\n\n ctx.req.session (is userId present?)", ctx.req.session);
 
     return user;
   }

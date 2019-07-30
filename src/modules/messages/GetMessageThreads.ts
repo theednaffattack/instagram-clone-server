@@ -43,11 +43,7 @@ export class GetMessageThreadsResolver {
     let newData = {
       getMessageThreads: [...cache]
     };
-    console.log(
-      "VIEW THREADS newData",
-      JSON.stringify(newData.getMessageThreads[0], null, 2)
-    );
-    // console.log("VIEW THREADS myThreads", myThreads);
+
     return newData.getMessageThreads;
   }
 }

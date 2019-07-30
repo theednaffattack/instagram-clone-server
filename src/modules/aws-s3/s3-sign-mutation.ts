@@ -58,8 +58,6 @@ export class SignS3 {
     // @ts-ignore
     // const { filename, filetype } = input;
 
-    console.log("input", input);
-
     const credentials = {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_KEY
@@ -86,7 +84,6 @@ export class SignS3 {
 
     const signedRequests = await Promise.all(
       s3Params.map(param => {
-        console.log("VIEW PARAMS", param);
         let signedRequest = s3.getSignedUrl("putObject", param);
         const url = `https://${s3Bucket}.s3.amazonaws.com/${param.Key}`;
 

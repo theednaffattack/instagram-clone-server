@@ -56,11 +56,6 @@ export class SendMessageResolver {
     // @ts-ignore
     @Args(type => MessageFromUserInput) input: MessageFromUserInput
   ): MessagePayload {
-    // do some stuff
-    // console.log("I'M TYING TO UPDATE THE SUBSCRIPTION");
-
-    // console.log(messagePayload);
-    // console.log(input);
     return {
       ...messagePayload
       // created_at: new Date()
@@ -78,8 +73,6 @@ export class SendMessageResolver {
   ): Promise<boolean> {
     // Promise<boolean>
     if (!context) {
-      console.log("THIS IS AN ERROR!");
-      console.log(context);
       throw new Error("not authed");
     }
 
@@ -95,10 +88,6 @@ export class SendMessageResolver {
       }
     });
 
-    console.log("receiver".toUpperCase(), receiver);
-    console.log("sender".toUpperCase(), sender);
-    console.log("context.userId".toUpperCase(), context.userId);
-
     // "00a33f72-4a23-4753-a607-d98aaaed69f9"
     // "00840864-fa70-4b19-968a-0421b77b2074"
 
@@ -112,7 +101,6 @@ export class SendMessageResolver {
 
     const newMessage = await Message.create(fullMessageInput).save();
 
-    console.log(newMessage);
     // here we can trigger subscriptions topics
     await publish(newMessage);
 

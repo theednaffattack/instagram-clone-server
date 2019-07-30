@@ -29,7 +29,6 @@ export function getBaseResolver<T extends ClassType>(
     @Query(() => [objectTypeCls], { name: `getAll${suffix}`, nullable: true })
     // @ts-ignore
     async getAll(@Ctx() { req }: MyContext) {
-      console.log("what is on context.req", req);
       const dbQuery = {
         relations: [...relations]
       };

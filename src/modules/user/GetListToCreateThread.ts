@@ -72,7 +72,6 @@ export class GetListToCreateThread {
           });
         }
       }
-      console.log("result", result);
 
       returnObj.thoseICanMessage = [...result];
       return returnObj;

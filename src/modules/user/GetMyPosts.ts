@@ -44,8 +44,6 @@ export class MyFollowingPostsResolver {
       return b.created_at.getTime() - a.created_at.getTime();
     });
 
-    console.log("what is cache again?".toUpperCase(), cache);
-
     if (cache) {
       return cache;
     } else {

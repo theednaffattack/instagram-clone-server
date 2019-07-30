@@ -30,7 +30,6 @@ export class UnFollowUser {
     //   // .where("user.name = :name", { name: "Timber" })
     //   .execute();
     // .getOne();
-    console.log(userIDToUnFollow);
 
     await User.createQueryBuilder()
       .relation(User, "followers")

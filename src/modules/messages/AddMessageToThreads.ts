@@ -127,6 +127,8 @@ export class AddMessageToThreadResolver {
 
       let publicImageUrl = `http://192.168.1.10:4000/temp/${imageName}`;
 
+      // let cdnUrlPrefix = `https://eddie-faux-gram.s3.amazonaws.com/images/`;
+
       await new Promise((resolve, reject) => {
         createReadStream()
           .pipe(createWriteStream(__dirname + localImageUrl))
@@ -187,7 +189,11 @@ export class AddMessageToThreadResolver {
         invitees: [...collectInvitees]
       };
 
-      await publish(returnObj);
+      await publish(returnObj).catch((error: Error) => {
+        throw new Error(error.message);
+      });
+
+      console.log("published!!! WITH AN IMAGE".toUpperCase());
 
       return returnObj;
     }
@@ -196,7 +202,6 @@ export class AddMessageToThreadResolver {
       (sentBy && receiver && input.images === undefined) ||
       (sentBy && receiver && input.images!.length == 0)
     ) {
-      console.log("NO IMAGES");
       let createMessage = {
         message: input.message,
         user: receiver,
@@ -233,9 +238,9 @@ export class AddMessageToThreadResolver {
 
       await publish(returnObj);
 
+      console.log("published!!! NO IMAGE".toUpperCase());
       return returnObj;
     } else {
-      console.log("WHAT IS INPUT.IMAGES", input.images);
       throw Error(
         `unable to find sender or receiver / sender / image: ${sentBy}\nreceiver: ${receiver}`
       );

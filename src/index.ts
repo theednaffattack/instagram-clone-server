@@ -26,9 +26,6 @@ const RedisStore = connectRedis(session);
 
 const PORT = process.env.PORT || 7777;
 
-console.log("CAN I SEE THE SECRET?", process.env.SESSION_SECRET);
-console.log("CAN I SEE THE ENVIRONMENT?", process.env.NODE_ENV);
-
 let sessionMiddleware: Express.RequestHandler;
 
 // needed for remove domain from our cookie
@@ -86,7 +83,6 @@ const getContextFromSubscription = (connection: any) => {
 // const morganFormat = process.env.NODE_ENV !== "production" ? "dev" : "combined";
 
 const main = async () => {
-  console.log("orm", json);
   // @ts-ignore
   await createConnection(json);
 
@@ -243,12 +239,6 @@ const main = async () => {
   app.use("*/temp", Express.static("public/tmp/images"));
 
   apolloServer.applyMiddleware({ app, cors: corsOptions });
-
-  // app.listen(4000, () => {
-  //   console.log(
-  //     "server started! GraphQL Playground available at:\nhttp://localhost:4000/graphql"
-  //   );
-  // });
 
   wsServer.listen({ port: process.env.PORT || 4000 }, () => {
     console.log("\n\n");

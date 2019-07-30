@@ -97,9 +97,7 @@ export class CreatePost {
     });
 
     if (user) {
-      const cdnImageUrl = `https://eddie-faux-gram.s3.amazonaws.com`;
-
-      const lastImage = images.length > 1 ? images.length - 1 : 0;
+      const cdnImageUrl = `https://eddie-faux-gram.s3.amazonaws.com/images`;
 
       // let imageUrl = `/../../../public/tmp/images/${images[lastImage]}`;
 
@@ -117,23 +115,24 @@ export class CreatePost {
       // add new image
 
       // let newImage = new Image();
-      console.log("Let's see the images submitted", images);
+
       // use the model to create a new image
-      const newImageData = Image.create({
-        uri: `${cdnImageUrl}/${images[lastImage]}`,
-        user: user
-      });
+      const newImageData: Image[] = images.map(image =>
+        Image.create({
+          uri: `${cdnImageUrl}/${image}`,
+          user: user
+        })
+      );
 
       // save that image to the database
-      let newImage = await newImageData.save().catch(error => {
-        new Error(`Error saving images\n${JSON.stringify(error, null, 2)}`);
-        return null;
-      });
+      let newImages = await Promise.all(
+        newImageData.map(async newImage => await newImage.save())
+      );
 
       // add the images to the user.images
       // field / column
-      if (newImage) {
-        user.images.push(newImage);
+      if (newImages !== null && newImages.length > 0) {
+        user.images = [...user.images, ...newImages];
       }
 
       // save the user completing the many-to-one images-to-user
@@ -146,19 +145,19 @@ export class CreatePost {
       });
 
       // both must be true to create a post, always
-      if (newImage && savedUser) {
+      if (newImages && savedUser) {
         const postData = {
           text,
           title,
           user,
-          images: [newImage]
+          images: [...newImages]
         };
-        let newPost = await Post.create(postData);
+        let newPost = await Post.create(postData).save();
 
-        await newPost.save();
-
-        newImage.post = newPost;
-        await newImage.save();
+        newImages.forEach(async newSavedImage => {
+          newSavedImage.post = newPost;
+          await newSavedImage.save();
+        });
 
         user!.posts!.push(newPost);
         user.save();

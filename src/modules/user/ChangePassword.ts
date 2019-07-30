@@ -16,8 +16,6 @@ export class ChangePasswordResolver {
     @Ctx() ctx: MyContext
   ): Promise<User | null> {
     const userId = await redis.get(forgotPasswordPrefix + token);
-    console.log(token);
-    console.log(userId);
     // token expired in redis, possibly bad token
     if (!userId) {
       return null;

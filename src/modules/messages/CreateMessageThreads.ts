@@ -32,16 +32,10 @@ export class CreateMessageThreadResolver {
 
     const receiver = await User.findOne(input.sentTo);
 
-    // let createMessage;
-
-    console.log("Can I see invitees?".toUpperCase(), invitees);
-
     let newThread;
 
     const lastImage =
       input.images && input.images.length > 0 ? input.images.length - 1 : 0;
-
-    console.log(sentBy && receiver && input.images && input.images[lastImage]);
 
     // if we have the user sending and receiving and if there IS AN IMAGE(S)
     if (
@@ -88,10 +82,6 @@ export class CreateMessageThreadResolver {
       const newMessage = await Message.create(createMessage).save();
 
       newImage.message = newMessage;
-
-      // let mySavedImage = await newImage.save();
-
-      // console.log("VIEW IMAGE INFO", { images: mySavedImage });
 
       let createThread = {
         user: sentBy,
