@@ -20,9 +20,9 @@ export class Thread extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Field(() => [Message], { nullable: false })
+  @Field(() => [Message], { nullable: "itemsAndList" })
   @OneToMany(() => Message, message => message.thread)
-  messages: Message[];
+  messages?: Message[];
 
   @Field(() => User, { nullable: false })
   @ManyToOne(() => User, user => user.threads)
