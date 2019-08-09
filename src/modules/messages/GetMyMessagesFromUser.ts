@@ -1,11 +1,13 @@
-import { Resolver, Query, Arg, Ctx } from "type-graphql";
+import { Resolver, Query, Arg, Ctx, UseMiddleware } from "type-graphql";
 
 import { Message } from "../../entity/Message";
 import { GetMessagesFromUserInput } from "./MessageInput";
 import { MyContext } from "../../types/MyContext";
+import { isAuth } from "../middleware/isAuth";
 
 @Resolver()
 export class GetMyMessagesFromUserResolver {
+  @UseMiddleware(isAuth)
   // @ts-ignore
   @Query(type => [Message], { nullable: true })
   async getMyMessagesFromUser(
