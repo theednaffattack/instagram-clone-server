@@ -31,6 +31,8 @@ import { AddMessageToThreadResolver } from "../modules/messages/AddMessageToThre
 
 import { GetListToCreateThread } from "../modules/user/GetListToCreateThread";
 import { SignS3 } from "../modules/aws-s3/s3-sign-mutation";
+import { GetOnlyThreads } from "../modules/messages/GetOnlyThreads";
+import { GetMessagesByThreadId } from "../modules/messages/GetMessagesByThreadId";
 
 export const createSchema = () =>
   buildSchema({
@@ -46,11 +48,13 @@ export const createSchema = () =>
       ForgotPasswordResolver,
       GetGlobalPostsResolver,
       GetAllMessagesResolver,
+      GetOnlyThreads,
       GetMessageThreadsResolver,
       GetMyMessagesFromUserResolver,
       GetAllMyImagesResolver,
       GetListToCreateThread,
       GetThoseIFollowAndTheirPostsResolver,
+      GetMessagesByThreadId,
       LoginResolver,
       LogoutResolver,
       MeResolver,
