@@ -97,8 +97,6 @@ export class CreatePost {
     });
 
     if (user) {
-      const cdnImageUrl = `https://eddie-faux-gram.s3.amazonaws.com/images`;
-
       // let imageUrl = `/../../../public/tmp/images/${images[lastImage]}`;
 
       // let savedFile = await new Promise((resolve, reject) => {
@@ -117,6 +115,8 @@ export class CreatePost {
       // let newImage = new Image();
 
       // use the model to create a new image
+      const cdnImageUrl = `https://eddie-faux-gram.s3.amazonaws.com/images`;
+
       const newImageData: Image[] = images.map(image =>
         Image.create({
           uri: `${cdnImageUrl}/${image}`,
