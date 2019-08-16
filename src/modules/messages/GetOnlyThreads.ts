@@ -1,5 +1,5 @@
 import { Resolver, Query, Ctx, UseMiddleware } from "type-graphql";
-// import util from "util";
+import util from "util";
 
 import { MyContext } from "../../types/MyContext";
 import { Thread } from "../../entity/Thread";
@@ -11,17 +11,29 @@ export class GetOnlyThreads {
   @UseMiddleware(isAuth)
   @Query(() => [Thread], { nullable: "itemsAndList" })
   async getOnlyThreads(@Ctx() context: MyContext) {
-    const qThreads = await Thread.createQueryBuilder("thread")
-      // .leftJoinAndSelect("thread.messages", "message")
-      // .leftJoinAndSelect("message.sentBy", "sentBy")
-      .leftJoinAndSelect("thread.user", "user")
-      // .leftJoinAndSelect("message.images", "image")
-      .leftJoinAndSelect("thread.invitees", "userB")
+    const experiment = await Thread.find({
+      relations: ["invitees", "user"],
+      where: { invitees: { id: context.userId } }
+      // id: "c3b2817c-534d-42ce-b168-5565d306e85a"
+    });
 
-      // .where("userB.id = :id", { id: context.userId }) // old?
-      .where("userB.id IN (:...ids)", { ids: [context.userId] })
-      .orderBy("thread.created_at", "ASC")
-      .getMany();
+    // relations: ["invitees", "invitees.id"]
+    console.log(util.inspect({ experiment }, false, 4, true));
+
+    // const qThreads = await Thread.createQueryBuilder("thread")
+    //   // .leftJoinAndSelect("thread.messages", "message")
+    //   // .leftJoinAndSelect("message.sentBy", "sentBy")
+    //   // .leftJoinAndSelect("message.images", "image")
+    //   .leftJoinAndSelect("thread.user", "user")
+    //   .leftJoinAndSelect("thread.invitees", "invitees")
+
+    //   .where(":id = ANY(invitees.id)", { id: context.userId })
+    //   // .where("userB.id = :id", { id: context.userId }) // old?
+    //   // .where("userB.id IN (:...ids)", { ids: [context.userId] })
+    //   .orderBy("thread.updated_at", "ASC")
+    //   .getMany();
+
+    // console.log("view qThreads", util.inspect(qThreads, false, 4, true));
 
     // const myThreads = await Thread.find({
     //   where: { invitees: context.userId },
@@ -43,7 +55,7 @@ export class GetOnlyThreads {
     // });
 
     let newData = {
-      getMessageThreads: [...qThreads]
+      getMessageThreads: [...experiment]
     };
 
     // console.log(util.inspect(newData, false, 4));
