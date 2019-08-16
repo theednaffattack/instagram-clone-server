@@ -22,7 +22,6 @@ import { Thread } from "../../entity/Thread";
 import { Message } from "../../entity/Message";
 import { User } from "../../entity/User";
 import { Image } from "../../entity/Image";
-import { createWriteStream } from "fs";
 
 export interface IAddMessagePayload {
   success: boolean;
@@ -105,12 +104,13 @@ export class AddMessageToThreadResolver {
     @PubSub("THREADS") publish: Publisher<AddMessagePayload>
     // @PubSub("POSTS_GLOBAL") publishGlbl: Publisher<PostPayload>,
   ): Promise<IAddMessagePayload> {
+    console.log({ input });
     const sentBy = await User.findOne(context.userId);
 
     const receiver = await User.findOne(input.sentTo);
 
     let existingThread;
-    let newMessage;
+    let newMessage: any;
 
     // const lastImage = input.images.length > 0 ? input.images.length - 1 : 0;
 
@@ -119,44 +119,70 @@ export class AddMessageToThreadResolver {
     if (sentBy && receiver && input.images && input.images[0]) {
       // if there are images save them. if not make the message without it
 
-      const { filename, createReadStream } = await input.images![0];
+      // const { filename, createReadStream } = await input.images![0];
 
-      let imageName = `${filename}.png`;
+      // let imageName = `${filename}.png`;
 
-      let localImageUrl = `/../../../public/tmp/images/${imageName}`;
+      // let localImageUrl = `/../../../public/tmp/images/${imageName}`;
 
-      let publicImageUrl = `http://192.168.1.10:4000/temp/${imageName}`;
+      // let publicImageUrl = `http://192.168.1.10:4000/temp/${imageName}`;
 
-      // let cdnUrlPrefix = `https://eddie-faux-gram.s3.amazonaws.com/images/`;
+      // // let cdnUrlPrefix = `https://eddie-faux-gram.s3.amazonaws.com/images/`;
 
-      await new Promise((resolve, reject) => {
-        createReadStream()
-          .pipe(createWriteStream(__dirname + localImageUrl))
-          .on("finish", () => {
-            resolve(true);
-          })
-          .on("error", () => {
-            reject(false);
-          });
-      });
+      // await new Promise((resolve, reject) => {
+      //   createReadStream()
+      //     .pipe(createWriteStream(__dirname + localImageUrl))
+      //     .on("finish", () => {
+      //       resolve(true);
+      //     })
+      //     .on("error", () => {
+      //       reject(false);
+      //     });
+      // });
 
-      let newImage = await Image.create({
-        uri: publicImageUrl,
-        //@ts-ignore
-        user: context.userId
-      }).save();
+      const cdnImageUrl = `https://eddie-faux-gram.s3.amazonaws.com/images`;
+
+      const newImageData: Image[] = input.images.map(image =>
+        Image.create({
+          uri: `${cdnImageUrl}/${image}`,
+          user: sentBy
+        })
+      );
+
+      // save that image to the database
+      let newImages = await Promise.all(
+        newImageData.map(async newImage => await newImage.save())
+      );
+
+      // add the images to the user.images
+      // field / column
+      if (newImages !== null && newImages.length > 0) {
+        sentBy.images = [...sentBy.images, ...newImages];
+      }
+
+      // let newImage = await Image.create({
+      //   uri: publicImageUrl,
+      //   //@ts-ignore
+      //   user: context.userId
+      // }).save();
 
       let createMessage = {
         message: input.message,
         user: receiver,
         sentBy,
-        images: [newImage]
+        images: [...newImages]
       };
 
       // CREATING rather than REPLYING to message...
       newMessage = await Message.create(createMessage).save();
 
-      newImage.message = newMessage;
+      // newImage.message = newMessage;
+
+      newImages.forEach(async image => {
+        image.message = newMessage.id;
+        await image.save();
+        return image;
+      });
 
       let existingThread = await Thread.findOne(input.threadId, {
         relations: ["messages", "invitees", "messages.images"]
