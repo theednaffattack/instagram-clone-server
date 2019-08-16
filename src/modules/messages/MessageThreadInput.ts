@@ -1,8 +1,6 @@
 import { Field, ObjectType, ArgsType, InputType, ID } from "type-graphql";
 import { GraphQLUpload } from "apollo-server-core";
 import { Upload } from "../../types/Upload";
-// import { Photo } from "src/entity/Photo";
-// import { Photo } from "../../entity/Photo";
 
 @ArgsType()
 export class CreateMessageThreadAndMessageInput {
@@ -38,8 +36,8 @@ export class AddMessageToThreadInput {
   @Field(type => String)
   message: string;
 
-  @Field(() => [GraphQLUpload], { nullable: "itemsAndList" })
-  images?: Upload[];
+  @Field(() => [String], { nullable: "itemsAndList" })
+  images: string[];
 }
 
 @InputType()
@@ -59,8 +57,8 @@ export class AddMessageToThreadInput_v2 {
   @Field(type => String)
   message: string;
 
-  @Field(() => [GraphQLUpload], { nullable: "itemsAndList" })
-  images?: Upload[];
+  @Field(() => [String], { nullable: "itemsAndList" })
+  images: string[];
 }
 
 @InputType()
