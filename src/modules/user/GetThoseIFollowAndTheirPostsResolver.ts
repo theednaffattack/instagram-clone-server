@@ -28,10 +28,6 @@ export class GetThoseIFollowAndTheirPostsResolver {
       ]
     });
 
-    const justThePosts = thoseIFollowAndTheirPosts!.following.map(person =>
-      person.posts!.map(post => post)
-    );
-
     if (thoseIFollowAndTheirPosts) {
       return thoseIFollowAndTheirPosts;
     } else {
