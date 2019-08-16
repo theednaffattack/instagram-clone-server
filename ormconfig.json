@@ -7,7 +7,7 @@
   "username": "eddienaff",
   "password": "eddienaff",
   "database": "instagram_clone",
-  "logging": false,
+  "logging": true,
   "synchronize": true,
   "entities": ["dist/entity/**/*.*"],
   "migrations": ["src/migration/**/*.ts"],
