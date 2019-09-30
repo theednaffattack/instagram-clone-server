@@ -106,7 +106,9 @@ const main = async () => {
   // @ts-ignore
   try {
     await createConnection(ormConnection);
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+  }
 
   let schema;
 
