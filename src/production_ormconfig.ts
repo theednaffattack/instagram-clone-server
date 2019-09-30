@@ -1,6 +1,6 @@
 import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
 
-const isLoggingFalse = process.env.TYPEORM_LOGGING === "false";
+const isLoggingFalse = process.env.TYPEORM_LOGGING === "true";
 const isSynchronizeTrue = process.env.TYPEORM_SYNCHRONIZE === "true";
 
 const getPortOrSetDefault = process.env.TYPEORM_PORT
