@@ -241,23 +241,26 @@ const main = async () => {
 
   apolloServer.applyMiddleware({ app, cors: corsOptions });
 
-  const port =
-    process.env.NODE_ENV === "production" ? process.env.PORT : "3000";
+  const dev = process.env.NODE_ENV !== "production";
+
+  const port = dev ? "3000" : process.env.PORT;
+
+  const playgroundMessage = dev
+    ? `\n\n🚀  Server started! GraphQL Playground ready at:\nhttp://${internalIp.v4.sync()}:${PORT}${
+        apolloServer.graphqlPath
+      }`
+    : "";
+
+  const subscriptionsMessage = dev
+    ? `\n\n🚀 Subscriptions ready at:\nws://${internalIp.v4.sync()}:${PORT}${
+        apolloServer.subscriptionsPath
+      }\n\n`
+    : "";
 
   // wsServer.listen({ port: process.env.PORT || 4000 }, () => {
   wsServer.listen(port, () => {
-    console.log("\n\n");
-    console.log(
-      `🚀  Server started! GraphQL Playground ready at:\nhttp://${internalIp.v4.sync()}:${PORT}${
-        apolloServer.graphqlPath
-      }`
-    );
-    console.log("\n\n");
-    console.log(
-      `🚀 Subscriptions ready at:\nws://${internalIp.v4.sync()}:${PORT}${
-        apolloServer.subscriptionsPath
-      }`
-    );
+    console.log(playgroundMessage);
+    console.log(subscriptionsMessage);
   });
 };
 
