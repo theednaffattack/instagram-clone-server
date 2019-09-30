@@ -19,18 +19,18 @@ import devOrmConfig from "./ormconfig.json";
 
 const dev = process.env.NODE_ENV !== "production";
 
-const productionOrmConfig = {
+const productionOrmConfig: any = {
   name: "staging",
-  type: process.env.TYPEORM_CONNECTION,
-  host: process.env.TYPEORM_HOST,
-  port: process.env.TYPEORM_PORT,
+  type: process.env.TYPEORM_CONNECTION!,
+  host: process.env.TYPEORM_HOST!,
+  port: process.env.TYPEORM_PORT!,
   ssl: true,
-  username: process.env.TYPEORM_USERNAME,
-  password: process.env.TYPEORM_PASSWORD,
-  database: process.env.TYPEORM_DATABASE,
-  logging: process.env.TYPEORM_LOGGING,
-  synchronize: process.env.TYPEORM_SYNCHRONIZE,
-  entities: process.env.TYPEORM_ENTITIES
+  username: process.env.TYPEORM_USERNAME!,
+  password: process.env.TYPEORM_PASSWORD!,
+  database: process.env.TYPEORM_DATABASE!,
+  logging: process.env.TYPEORM_LOGGING!,
+  synchronize: process.env.TYPEORM_SYNCHRONIZE!,
+  entities: process.env.TYPEORM_ENTITIES!
   // "migrations": ["src/migration/**/*.ts"],
   // "subscribers": ["src/subscriber/**/*.ts"],
   // "cli": {
@@ -104,7 +104,9 @@ const getContextFromSubscription = (connection: any) => {
 
 const main = async () => {
   // @ts-ignore
-  await createConnection(ormConnection);
+  try {
+    await createConnection(ormConnection);
+  } catch (error) {}
 
   let schema;
 
