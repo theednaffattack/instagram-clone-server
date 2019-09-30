@@ -30,9 +30,9 @@ const productionOrmConfig: any = {
   database: process.env.TYPEORM_DATABASE!,
   logging: process.env.TYPEORM_LOGGING!,
   synchronize: process.env.TYPEORM_SYNCHRONIZE!,
-  entities: process.env.TYPEORM_ENTITIES!
-  // "migrations": ["src/migration/**/*.ts"],
-  // "subscribers": ["src/subscriber/**/*.ts"],
+  entities: process.env.TYPEORM_ENTITIES!,
+  migrations: ["src/migration/**/*.ts"],
+  subscribers: ["src/subscriber/**/*.ts"]
   // "cli": {
   //   "entitiesDir": "dist/entity",
   //   "migrationsDir": "src/migration",
