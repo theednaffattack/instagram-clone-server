@@ -33,6 +33,7 @@ import { GetListToCreateThread } from "../modules/user/GetListToCreateThread";
 import { SignS3 } from "../modules/aws-s3/s3-sign-mutation";
 import { GetOnlyThreads } from "../modules/messages/GetOnlyThreads";
 import { GetMessagesByThreadId } from "../modules/messages/GetMessagesByThreadId";
+import { NewMessageByThreadIdResolver } from "../modules/messages/NewMessageByThreadId";
 
 export const createSchema = () =>
   buildSchema({
@@ -60,6 +61,7 @@ export const createSchema = () =>
       MeResolver,
       MeAndAllFollowers,
       MyFollowingPostsResolver,
+      NewMessageByThreadIdResolver,
       ProfilePictureResolver,
       RegisterResolver,
       SendMessageResolver,
