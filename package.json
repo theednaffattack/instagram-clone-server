@@ -31,6 +31,9 @@
     "uuid": "^3.3.2",
     "winston": "^3.2.1"
   },
+  "engines": {
+    "node": "11.x"
+  },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
     "@types/connect-redis": "^0.0.10",
