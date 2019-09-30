@@ -33,10 +33,10 @@ const productionOrmConfig: any = {
   entities: process.env.TYPEORM_ENTITIES!,
   migrations: ["src/migration/**/*.ts"],
   subscribers: ["src/subscriber/**/*.ts"]
-  // "cli": {
-  //   "entitiesDir": "dist/entity",
-  //   "migrationsDir": "src/migration",
-  //   "subscribersDir": "src/subscriber"
+  // cli: {
+  //   entitiesDir: "dist/entity",
+  //   migrationsDir: "src/migration",
+  //   subscribersDir: "src/subscriber"
   // }
 };
 
