@@ -1,6 +1,6 @@
 import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
 
-const isLoggingTrue = process.env.TYPEORM_LOGGING === "true";
+const isLoggingFalse = process.env.TYPEORM_LOGGING === "false";
 const isSynchronizeTrue = process.env.TYPEORM_SYNCHRONIZE === "true";
 
 export const productionOrmConfig: PostgresConnectionOptions = {
@@ -12,7 +12,7 @@ export const productionOrmConfig: PostgresConnectionOptions = {
   username: process.env.TYPEORM_USERNAME!,
   password: process.env.TYPEORM_PASSWORD!,
   database: process.env.TYPEORM_DATABASE!,
-  logging: isLoggingTrue,
+  logging: isLoggingFalse,
   synchronize: isSynchronizeTrue,
   entities: ["dist/entity/*.*"],
   migrations: ["src/migration/**/*.ts"],
