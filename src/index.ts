@@ -31,9 +31,9 @@ const productionOrmConfig: any = {
   database: process.env.TYPEORM_DATABASE!,
   logging: process.env.TYPEORM_LOGGING!,
   synchronize: process.env.TYPEORM_SYNCHRONIZE!,
-  entities: [path.join(__dirname, "dist/entity/*.*")],
-  migrations: [path.join(__dirname, "src/migration/**/*.ts")],
-  subscribers: [path.join(__dirname, "src/subscriber/**/*.ts")]
+  entities: ["dist/entity/*.*"],
+  migrations: ["src/migration/**/*.ts"],
+  subscribers: ["src/subscriber/**/*.ts"]
   // cli: {
   //   entitiesDir: "dist/entity",
   //   migrationsDir: "src/migration",
