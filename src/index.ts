@@ -6,7 +6,6 @@ import { createConnection } from "typeorm";
 import { GraphQLFormattedError, GraphQLError } from "graphql";
 import session from "express-session";
 import internalIp from "internal-ip";
-import path from "path";
 
 import connectRedis from "connect-redis";
 import { createServer } from "http";
@@ -20,7 +19,7 @@ import devOrmConfig from "./ormconfig.json";
 
 const dev = process.env.NODE_ENV !== "production";
 
-const productionOrmConfig: any = {
+const productionOrmConfig = {
   name: "staging",
   type: process.env.TYPEORM_CONNECTION!,
   host: process.env.TYPEORM_HOST!,
