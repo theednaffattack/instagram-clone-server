@@ -24,7 +24,7 @@ import json from "./ormconfig.json";
 
 const RedisStore = connectRedis(session);
 
-const PORT = process.env.PORT || 7777;
+// const PORT = process.env.PORT || 7777;
 
 let sessionMiddleware: Express.RequestHandler;
 
@@ -246,19 +246,19 @@ const main = async () => {
   const port = dev ? "3000" : process.env.PORT;
 
   const playgroundMessage = dev
-    ? `\n\n🚀  Server started! GraphQL Playground ready at:\nhttp://${internalIp.v4.sync()}:${PORT}${
+    ? `\n\n🚀  Server started! GraphQL Playground ready at:\nhttp://${internalIp.v4.sync()}:${port}${
         apolloServer.graphqlPath
       }`
     : "";
 
   const subscriptionsMessage = dev
-    ? `\n\n🚀 Subscriptions ready at:\nws://${internalIp.v4.sync()}:${PORT}${
+    ? `\n\n🚀 Subscriptions ready at:\nws://${internalIp.v4.sync()}:${port}${
         apolloServer.subscriptionsPath
       }\n\n`
     : "";
 
   // wsServer.listen({ port: process.env.PORT || 4000 }, () => {
-  wsServer.listen(port, () => {
+  wsServer.listen(process.env.PORT, () => {
     console.log(playgroundMessage);
     console.log(subscriptionsMessage);
   });
