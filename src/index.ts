@@ -241,7 +241,11 @@ const main = async () => {
 
   apolloServer.applyMiddleware({ app, cors: corsOptions });
 
-  wsServer.listen({ port: process.env.PORT || 4000 }, () => {
+  const port =
+    process.env.NODE_ENV === "production" ? process.env.PORT : "3000";
+
+  // wsServer.listen({ port: process.env.PORT || 4000 }, () => {
+  wsServer.listen(port, () => {
     console.log("\n\n");
     console.log(
       `🚀  Server started! GraphQL Playground ready at:\nhttp://${internalIp.v4.sync()}:${PORT}${
