@@ -15,42 +15,22 @@ import { redis } from "./redis";
 import { redisSessionPrefix } from "./constants";
 import { createSchema } from "./global-utils/createSchema";
 import { logger } from "./modules/middleware/logger/logger";
-import devOrmConfig from "./ormconfig.json";
+import { devOrmconfig } from "./dev_ormconfig";
+import { productionOrmConfig } from "./production_ormconfig";
 
-const dev = process.env.NODE_ENV !== "production";
+const nodeEnvIsDev = process.env.NODE_ENV === "development";
+const nodeEnvIsProd = process.env.NODE_ENV === "production";
+const nodeEnvIs_NOT_Prod = process.env.NODE_ENV !== "production";
 
-const productionOrmConfig = {
-  name: "staging",
-  type: process.env.TYPEORM_CONNECTION!,
-  host: process.env.TYPEORM_HOST!,
-  port: process.env.TYPEORM_PORT!,
-  ssl: true,
-  username: process.env.TYPEORM_USERNAME!,
-  password: process.env.TYPEORM_PASSWORD!,
-  database: process.env.TYPEORM_DATABASE!,
-  logging: process.env.TYPEORM_LOGGING!,
-  synchronize: process.env.TYPEORM_SYNCHRONIZE!,
-  entities: ["dist/entity/*.*"],
-  migrations: ["src/migration/**/*.ts"],
-  subscribers: ["src/subscriber/**/*.ts"]
-  // cli: {
-  //   entitiesDir: "dist/entity",
-  //   migrationsDir: "src/migration",
-  //   subscribersDir: "src/subscriber"
-  // }
-};
-
-const ormConnection = dev ? devOrmConfig : productionOrmConfig;
+const ormConnection = nodeEnvIsDev ? devOrmconfig : productionOrmConfig;
 
 const RedisStore = connectRedis(session);
 
-// const PORT = process.env.PORT || 7777;
-
 let sessionMiddleware: Express.RequestHandler;
 
-// needed for remove domain from our cookie
+// needed to remove domain from our cookie
 // in non-production environments
-if (process.env.NODE_ENV === "production") {
+if (nodeEnvIsProd) {
   sessionMiddleware = session({
     name: "mfg",
     secret: process.env.SESSION_SECRET as string,
@@ -62,14 +42,14 @@ if (process.env.NODE_ENV === "production") {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: nodeEnvIsProd,
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
       domain: "eddienaff.dev"
     }
   });
 }
 
-if (process.env.NODE_ENV !== "production") {
+if (nodeEnvIsDev || nodeEnvIs_NOT_Prod) {
   sessionMiddleware = session({
     name: "mfg",
     secret: process.env.SESSION_SECRET as string,
@@ -81,7 +61,7 @@ if (process.env.NODE_ENV !== "production") {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: nodeEnvIsProd,
       maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days,
     }
   });
@@ -100,10 +80,9 @@ const getContextFromSubscription = (connection: any) => {
   return { userId, req: connection.context.req };
 };
 
-// const morganFormat = process.env.NODE_ENV !== "production" ? "dev" : "combined";
+// const morganFormat = process.env.NODE_ENV !== "production" ? nodeEnvIsDev : "combined";
 
 const main = async () => {
-  // @ts-ignore
   try {
     await createConnection(ormConnection);
   } catch (error) {
@@ -218,7 +197,7 @@ const main = async () => {
 
   // needed for heroku deployment
   // they set the "x-forwarded-proto" header???
-  if (process.env.NODE_ENV === "production") {
+  if (nodeEnvIsProd) {
     app.use(function(req, res, next) {
       if (req.header("x-forwarded-proto") !== "https") {
         res.redirect("https://" + req.header("host") + req.url);
@@ -265,21 +244,24 @@ const main = async () => {
 
   apolloServer.applyMiddleware({ app, cors: corsOptions });
 
-  const dev = process.env.NODE_ENV !== "production";
+  const port =
+    nodeEnvIsDev || nodeEnvIs_NOT_Prod
+      ? process.env.DEV_PORT
+      : process.env.PORT;
 
-  const port = dev ? process.env.DEV_PORT : process.env.PORT;
+  const playgroundMessage =
+    nodeEnvIsDev || nodeEnvIs_NOT_Prod
+      ? `\n\n🚀  Server started! GraphQL Playground ready at:\nhttp://${internalIp.v4.sync()}:${port}${
+          apolloServer.graphqlPath
+        }`
+      : "";
 
-  const playgroundMessage = dev
-    ? `\n\n🚀  Server started! GraphQL Playground ready at:\nhttp://${internalIp.v4.sync()}:${port}${
-        apolloServer.graphqlPath
-      }`
-    : "";
-
-  const subscriptionsMessage = dev
-    ? `\n\n🚀 Subscriptions ready at:\nws://${internalIp.v4.sync()}:${port}${
-        apolloServer.subscriptionsPath
-      }\n\n`
-    : "";
+  const subscriptionsMessage =
+    nodeEnvIsDev || nodeEnvIs_NOT_Prod
+      ? `\n\n🚀 Subscriptions ready at:\nws://${internalIp.v4.sync()}:${port}${
+          apolloServer.subscriptionsPath
+        }\n\n`
+      : "";
 
   // wsServer.listen({ port: process.env.PORT || 4000 }, () => {
   wsServer.listen(port, () => {
