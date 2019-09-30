@@ -1,6 +1,7 @@
 import { Resolver, Query, Ctx, UseMiddleware } from "type-graphql";
 import util from "util";
 
+import { format, parseISO } from "date-fns";
 import { MyContext } from "../../types/MyContext";
 import { Thread } from "../../entity/Thread";
 import { isAuth } from "../middleware/isAuth";
@@ -9,13 +10,7 @@ import { isAuth } from "../middleware/isAuth";
 @Resolver()
 export class GetOnlyThreads {
   @UseMiddleware(isAuth)
-  @Query(() => [Thread], { nullable: "itemsAndList" })
-  async getOnlyThreads(@Ctx() context: MyContext) {
-    const experiment = await Thread.find({
-      relations: ["invitees", "user"],
-      where: { invitees: { id: context.userId } }
-      // id: "c3b2817c-534d-42ce-b168-5565d306e85a"
-    });
+    const formatDate = (date: any) => format(date, "yyyy-MM-dd HH:mm:ss");
 
     // relations: ["invitees", "invitees.id"]
     console.log(util.inspect({ experiment }, false, 4, true));

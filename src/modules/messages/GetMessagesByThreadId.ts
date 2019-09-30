@@ -10,12 +10,14 @@ import {
 } from "type-graphql";
 // import util from "util";
 
-import { MyContext } from "../../types/MyContext";
-// import { Thread } from "../../entity/Thread";
+import { format, parseISO } from "date-fns";
+
 import { isAuth } from "../middleware/isAuth";
 import { Message } from "../../entity/Message";
 import { Min, Max } from "class-validator";
 // import { logger } from "../middleware/logger/logger";
+
+const formatDate = (date: any) => format(date, "yyyy-MM-dd HH:mm:ss");
 
 @InputType()
 export class GetMessagesByThreadIdInput {
