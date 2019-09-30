@@ -229,6 +229,7 @@ const main = async () => {
           //   ms: elapsedTimeInMs
           // }
         );
+        console.log(`${req.body.operationName} ${elapsedTimeInMs} ms`);
       }
     });
     next();
