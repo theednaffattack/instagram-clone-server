@@ -8,7 +8,7 @@ const getPortOrSetDefault = process.env.TYPEORM_PORT
   : 5432;
 
 export const productionOrmConfig: PostgresConnectionOptions = {
-  name: "staging",
+  name: "default",
   type: "postgres",
   host: process.env.TYPEORM_HOST,
   port: getPortOrSetDefault,
