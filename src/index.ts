@@ -6,6 +6,7 @@ import { createConnection } from "typeorm";
 import { GraphQLFormattedError, GraphQLError } from "graphql";
 import session from "express-session";
 import internalIp from "internal-ip";
+import path from "path";
 
 import connectRedis from "connect-redis";
 import { createServer } from "http";
@@ -30,9 +31,9 @@ const productionOrmConfig: any = {
   database: process.env.TYPEORM_DATABASE!,
   logging: process.env.TYPEORM_LOGGING!,
   synchronize: process.env.TYPEORM_SYNCHRONIZE!,
-  entities: process.env.TYPEORM_ENTITIES!,
-  migrations: ["src/migration/**/*.ts"],
-  subscribers: ["src/subscriber/**/*.ts"]
+  entities: [path.join(__dirname, "dist/entity/*.*")],
+  migrations: [path.join(__dirname, "src/migration/**/*.ts")],
+  subscribers: [path.join(__dirname, "src/subscriber/**/*.ts")]
   // cli: {
   //   entitiesDir: "dist/entity",
   //   migrationsDir: "src/migration",
