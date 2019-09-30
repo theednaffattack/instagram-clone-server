@@ -116,31 +116,6 @@ export class AddMessageToThreadResolver {
     // const incomingImages = await input.images;
 
     if (sentBy && receiver && input.images && input.images[0]) {
-      // if there are images save them. if not make the message without it
-
-      // const { filename, createReadStream } = await input.images![0];
-
-      // let imageName = `${filename}.png`;
-
-      // let localImageUrl = `/../../../public/tmp/images/${imageName}`;
-
-      // let publicImageUrl = `http://192.168.1.10:4000/temp/${imageName}`;
-
-      // // let cdnUrlPrefix = `https://eddie-faux-gram.s3.amazonaws.com/images/`;
-
-      // await new Promise((resolve, reject) => {
-      //   createReadStream()
-      //     .pipe(createWriteStream(__dirname + localImageUrl))
-      //     .on("finish", () => {
-      //       resolve(true);
-      //     })
-      //     .on("error", () => {
-      //       reject(false);
-      //     });
-      // });
-
-      // const cdnImageUrl = `https://eddie-faux-gram.s3.amazonaws.com/images`;
-
       const newImageData: Image[] = input.images.map(image =>
         Image.create({
           uri: `${image}`,
@@ -164,12 +139,6 @@ export class AddMessageToThreadResolver {
         }
       }
 
-      // let newImage = await Image.create({
-      //   uri: publicImageUrl,
-      //   //@ts-ignore
-      //   user: context.userId
-      // }).save();
-
       let createMessage = {
         message: input.message,
         user: receiver,
@@ -179,8 +148,6 @@ export class AddMessageToThreadResolver {
 
       // CREATING rather than REPLYING to message...
       newMessage = await Message.create(createMessage).save();
-
-      // newImage.message = newMessage;
 
       newImages.forEach(async image => {
         image.message = newMessage.id;
@@ -194,12 +161,8 @@ export class AddMessageToThreadResolver {
 
       const foundThread = existingThread && existingThread.id ? true : false;
 
-      console.log("HEY WHAT IS THIS?", newMessage.created_at);
-
       // existingThread.messages.push(newMessage);
       existingThread.last_message = input.message;
-
-      console.log("EXISTINGTHREAD AFTER SAVE", existingThread.updated_at);
 
       existingThread.save();
 
