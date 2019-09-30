@@ -104,7 +104,6 @@ export class AddMessageToThreadResolver {
     @PubSub("THREADS") publish: Publisher<AddMessagePayload>
     // @PubSub("POSTS_GLOBAL") publishGlbl: Publisher<PostPayload>,
   ): Promise<IAddMessagePayload> {
-    console.log({ input });
     const sentBy = await User.findOne(context.userId);
 
     const receiver = await User.findOne(input.sentTo);
@@ -140,11 +139,11 @@ export class AddMessageToThreadResolver {
       //     });
       // });
 
-      const cdnImageUrl = `https://eddie-faux-gram.s3.amazonaws.com/images`;
+      // const cdnImageUrl = `https://eddie-faux-gram.s3.amazonaws.com/images`;
 
       const newImageData: Image[] = input.images.map(image =>
         Image.create({
-          uri: `${cdnImageUrl}/${image}`,
+          uri: `${image}`,
           user: sentBy
         })
       );
@@ -157,7 +156,12 @@ export class AddMessageToThreadResolver {
       // add the images to the user.images
       // field / column
       if (newImages !== null && newImages.length > 0) {
-        sentBy.images = [...sentBy.images, ...newImages];
+        if (!sentBy.images || sentBy.images.length === 0) {
+          sentBy.images = [...newImages];
+        }
+        if (sentBy.images && sentBy.images.length > 0) {
+          sentBy.images = [...sentBy.images, ...newImages];
+        }
       }
 
       // let newImage = await Image.create({
@@ -190,7 +194,13 @@ export class AddMessageToThreadResolver {
 
       const foundThread = existingThread && existingThread.id ? true : false;
 
-      existingThread.messages.push(newMessage);
+      console.log("HEY WHAT IS THIS?", newMessage.created_at);
+
+      // existingThread.messages.push(newMessage);
+      existingThread.last_message = input.message;
+
+      console.log("EXISTINGTHREAD AFTER SAVE", existingThread.updated_at);
+
       existingThread.save();
 
       newMessage.thread = existingThread;
@@ -219,8 +229,6 @@ export class AddMessageToThreadResolver {
         throw new Error(error.message);
       });
 
-      console.log("published!!! WITH AN IMAGE".toUpperCase());
-
       return returnObj;
     }
 
@@ -240,16 +248,21 @@ export class AddMessageToThreadResolver {
 
       newMessage = await Message.create(createMessage).save();
 
+      existingThread.last_message = input.message;
+      await existingThread.save();
+
       newMessage.thread = existingThread;
 
       await newMessage.save();
 
-      let collectInvitees: any[] = [];
+      let collectInvitees: User[] = [];
 
       await Promise.all(
         input.invitees.map(async person => {
           let tempPerson = await User.findOne(person);
-          collectInvitees.push(tempPerson);
+          if (tempPerson) {
+            collectInvitees.push(tempPerson);
+          }
           return tempPerson;
         })
       );
