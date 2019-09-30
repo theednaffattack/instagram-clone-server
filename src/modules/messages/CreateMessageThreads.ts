@@ -68,7 +68,7 @@ export class CreateMessageThreadResolver {
       let newImage = await Image.create({
         uri: publicImageUrl,
         //@ts-ignore
-        user: context.userId
+        user: sentBy
       }).save();
 
       let createMessage = {
@@ -85,6 +85,7 @@ export class CreateMessageThreadResolver {
 
       let createThread = {
         user: sentBy,
+        last_message: input.message,
         invitees: [sentBy, receiver, ...collectInvitees],
         messages: [newMessage]
       };
@@ -99,8 +100,8 @@ export class CreateMessageThreadResolver {
     // if we have the user sending and receiving and if there IS NOT AN IMAGE
     if ((sentBy && receiver && !input.images) || !input.images![lastImage]) {
       let createMessage = {
-        message: input.message,
         user: receiver,
+        message: input.message,
         sentBy
       };
 
@@ -108,6 +109,7 @@ export class CreateMessageThreadResolver {
 
       let createThread = {
         user: sentBy,
+        last_message: input.message,
         invitees: [sentBy, receiver, ...collectInvitees],
         messages: [newMessage]
       };
