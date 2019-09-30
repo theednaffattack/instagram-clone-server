@@ -6,9 +6,10 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToMany
+  ManyToMany,
+  Column
 } from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType, Int } from "type-graphql";
 
 import { User } from "./User";
 import { Message } from "./Message";
@@ -23,6 +24,13 @@ export class Thread extends BaseEntity {
   @Field(() => [Message], { nullable: "itemsAndList" })
   @OneToMany(() => Message, message => message.thread)
   messages?: Message[];
+
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
+  last_message?: string;
+
+  @Field(() => Int)
+  message_count?: number;
 
   @Field(() => User, { nullable: false })
   @ManyToOne(() => User, user => user.threads)
