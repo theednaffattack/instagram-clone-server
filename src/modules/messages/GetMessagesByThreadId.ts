@@ -1,26 +1,35 @@
 import {
   Resolver,
   Query,
-  Ctx,
   UseMiddleware,
   Arg,
   InputType,
   Field,
-  Int
+  Int,
+  Subscription,
+  ObjectType
 } from "type-graphql";
-// import util from "util";
 
 import { format, parseISO } from "date-fns";
 
 import { isAuth } from "../middleware/isAuth";
 import { Message } from "../../entity/Message";
 import { Min, Max } from "class-validator";
-// import { logger } from "../middleware/logger/logger";
+import { AddMessagePayload } from "./AddMessageToThreads";
+import { PaginatedRelayMessageResponse } from "./paginated-relay-response-type";
 
 const formatDate = (date: any) => format(date, "yyyy-MM-dd HH:mm:ss");
 
+@ObjectType()
+class MessageConnection extends PaginatedRelayMessageResponse {
+  // you can add more fields here if you need
+}
+
 @InputType()
 export class GetMessagesByThreadIdInput {
+  @Field(() => String, { nullable: true })
+  cursor?: string;
+
   @Field(() => String)
   threadId: string;
 
@@ -33,61 +42,99 @@ export class GetMessagesByThreadIdInput {
   @Max(25)
   take: number;
 
-  // helpers - index calculations
-  startIndex = this.skip;
-  endIndex = this.skip + this.take;
+  // // helpers - index calculations
+  // startIndex = this.skip;
+  // endIndex = this.skip + this.take;
 }
 
 @Resolver()
 export class GetMessagesByThreadId {
   @UseMiddleware(isAuth)
-  @Query(() => [Message], { nullable: "itemsAndList" })
+  @Query(() => MessageConnection, { nullable: true })
+  @Subscription(() => AddMessagePayload, {
+    topics: "THREADS",
+    filter: ({ args, payload }) => {
+      const messageMatchesThread = args.data.threadId === payload.threadId;
+
+      if (messageMatchesThread) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  })
   async getMessagesByThreadId(
-    @Ctx() context: MyContext,
     @Arg("input", () => GetMessagesByThreadIdInput)
     input: GetMessagesByThreadIdInput
-  ) {
+  ): Promise<MessageConnection> {
     const qThreads = await Message.createQueryBuilder("message")
-      // .leftJoinAndSelect("thread.messages", "message")
-      // .leftJoinAndSelect("message.sentBy", "sentBy")
       .leftJoinAndSelect("message.user", "user")
       .leftJoinAndSelect("message.sentBy", "sentBy")
-      // .leftJoinAndSelect("message.images", "image")
+      .leftJoinAndSelect("message.images", "image")
       .leftJoinAndSelect("message.thread", "thread")
-
-      // .where("userB.id = :id", { id: context.userId }) // old?
-      .where("userB.id IN (:...ids)", { ids: [context.userId] })
       .where("thread.id = :id", { id: input.threadId })
-      .orderBy("thread.created_at", "ASC")
-      .skip(input.skip)
+      .andWhere("message.created_at <= :cursor::timestamp", {
+        cursor: formatDate(input.cursor ? parseISO(input.cursor) : new Date())
+      })
+      .orderBy("message.created_at", "DESC")
       .take(input.take)
       .getMany();
 
-    // const myThreads = await Thread.find({
-    //   where: { invitees: context.userId },
-    //   relations: ["invitees", "messages", "messages.user", "messages.sentBy"]
-    // });
+    const flippedMessages = qThreads.reverse();
 
-    // let cache: any = [];
+    const startCursor = input.cursor ? input.cursor : new Date().toISOString();
 
-    // qThreads.forEach(thread => {
-    //   const sortedMessages = thread.messages.sort(function(a, b) {
-    //     return a.created_at.getTime() - b.created_at.getTime(); // ASC
-    //     // return b.created_at.getTime() - a.created_at.getTime(); // DESC
-    //   });
-    //   const copyThread = {
-    //     ...thread,
-    //     messages: [...sortedMessages]
-    //   };
-    //   cache.push(copyThread);
-    // });
+    const cursorNoRecordsErrorMessage =
+      "no 'created_at' record present to create new cursor";
 
-    let newData = {
-      getMessageThreads: [...qThreads]
+    const newCursor =
+      flippedMessages[0] && flippedMessages[0].created_at
+        ? flippedMessages[0].created_at.toISOString()
+        : cursorNoRecordsErrorMessage;
+
+    const beforeMessages =
+      newCursor === cursorNoRecordsErrorMessage
+        ? false
+        : await Message.createQueryBuilder("message")
+            .leftJoinAndSelect("message.user", "user")
+            .leftJoinAndSelect("message.sentBy", "sentBy")
+            .leftJoinAndSelect("message.images", "image")
+            .leftJoinAndSelect("message.thread", "thread")
+            // .where("user.id = :user_id", { user_id: context.userId })
+            .where("thread.id = :id", { id: input.threadId })
+            .andWhere("message.created_at <= :cursor::timestamp", {
+              cursor: formatDate(parseISO(newCursor))
+            })
+            .orderBy("message.created_at", "DESC")
+            .take(input.take)
+            .getMany();
+
+    const afterMessages = await Message.createQueryBuilder("message")
+      .leftJoinAndSelect("message.user", "user")
+      .leftJoinAndSelect("message.sentBy", "sentBy")
+      .leftJoinAndSelect("message.images", "image")
+      .leftJoinAndSelect("message.thread", "thread")
+      .where("thread.id = :id", { id: input.threadId })
+      .andWhere("message.created_at >= :cursor::timestamp", {
+        cursor: formatDate(input.cursor ? parseISO(startCursor) : new Date())
+      })
+      .orderBy("message.created_at", "DESC")
+      .take(input.take)
+      .getMany();
+
+    let response = {
+      edges: flippedMessages.map(message => {
+        return { node: message };
+      }),
+      pageInfo: {
+        startCursor,
+        endCursor: newCursor,
+        hasNextPage: afterMessages.length > 0 ? true : false,
+        hasPreviousPage:
+          beforeMessages && beforeMessages.length > 0 ? true : false
+      }
     };
 
-    // console.log(util.inspect(newData, false, 4));
-
-    return newData.getMessageThreads;
+    return response;
   }
 }
