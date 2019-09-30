@@ -15,12 +15,32 @@ import { redis } from "./redis";
 import { redisSessionPrefix } from "./constants";
 import { createSchema } from "./global-utils/createSchema";
 import { logger } from "./modules/middleware/logger/logger";
-import json from "./ormconfig.json";
+import devOrmConfig from "./ormconfig.json";
 
-// import queryComplexity, {
-//   fieldConfigEstimator,
-//   simpleEstimator
-// } from "graphql-query-complexity";
+const dev = process.env.NODE_ENV !== "production";
+
+const productionOrmConfig = {
+  name: "staging",
+  type: process.env.TYPEORM_CONNECTION,
+  host: process.env.TYPEORM_HOST,
+  port: process.env.TYPEORM_PORT,
+  ssl: true,
+  username: process.env.TYPEORM_USERNAME,
+  password: process.env.TYPEORM_PASSWORD,
+  database: process.env.TYPEORM_DATABASE,
+  logging: process.env.TYPEORM_LOGGING,
+  synchronize: process.env.TYPEORM_SYNCHRONIZE,
+  entities: process.env.TYPEORM_ENTITIES
+  // "migrations": ["src/migration/**/*.ts"],
+  // "subscribers": ["src/subscriber/**/*.ts"],
+  // "cli": {
+  //   "entitiesDir": "dist/entity",
+  //   "migrationsDir": "src/migration",
+  //   "subscribersDir": "src/subscriber"
+  // }
+};
+
+const ormConnection = dev ? devOrmConfig : productionOrmConfig;
 
 const RedisStore = connectRedis(session);
 
@@ -84,7 +104,7 @@ const getContextFromSubscription = (connection: any) => {
 
 const main = async () => {
   // @ts-ignore
-  await createConnection(json);
+  await createConnection(ormConnection);
 
   let schema;
 
@@ -243,7 +263,7 @@ const main = async () => {
 
   const dev = process.env.NODE_ENV !== "production";
 
-  const port = dev ? "3000" : process.env.PORT;
+  const port = dev ? process.env.DEV_PORT : process.env.PORT;
 
   const playgroundMessage = dev
     ? `\n\n🚀  Server started! GraphQL Playground ready at:\nhttp://${internalIp.v4.sync()}:${port}${
@@ -258,7 +278,7 @@ const main = async () => {
     : "";
 
   // wsServer.listen({ port: process.env.PORT || 4000 }, () => {
-  wsServer.listen(process.env.PORT, () => {
+  wsServer.listen(port, () => {
     console.log(playgroundMessage);
     console.log(subscriptionsMessage);
   });
