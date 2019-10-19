@@ -72,9 +72,12 @@ export class GetOnlyThreads {
     const threadsSelected = findThreads.reverse();
 
     // let newCursor;
-    const newCursor = threadsSelected[0].updated_at
-      ? threadsSelected[0].updated_at.toISOString()
-      : new Date().toISOString();
+    const newCursor =
+      threadsSelected &&
+      threadsSelected.length > 0 &&
+      threadsSelected[0].updated_at
+        ? threadsSelected[0].updated_at.toISOString()
+        : new Date().toISOString();
 
     const startCursor = feedinput.cursor
       ? feedinput.cursor
@@ -109,7 +112,7 @@ export class GetOnlyThreads {
     // console.log({ startCursor, newCursor });
     // console.log({ formattedNewCursor: formatDate(parseISO(newCursor)) });
     // console.log({ formattedStartCursor: formatDate(parseISO(startCursor)) });
-    // console.log({ beforeThreads, afterThreads, threadsSelected });
+    console.log({ beforeThreads, afterThreads, threadsSelected });
 
     const myThreadEdges =
       threadsSelected && threadsSelected.length > 0
