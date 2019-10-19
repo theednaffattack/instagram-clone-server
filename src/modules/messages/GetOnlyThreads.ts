@@ -120,7 +120,7 @@ export class GetOnlyThreads {
         hasPreviousPage: beforeThreads.length > 0 ? true : false
       }
     };
-
+    console.log("VIEW RESPONSE", response);
     return response;
   }
 }
