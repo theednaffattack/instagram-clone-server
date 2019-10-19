@@ -158,6 +158,7 @@ const main = async () => {
   });
 
   const allowedOrigins = [
+    "https://faux-gram-client-nextjs.herokuapp.com", // prod
     "http://localhost:3000",
     "http://localhost:4000",
     "http://192.168.1.24:3000",
