@@ -119,6 +119,7 @@ export class GetOnlyThreads {
             };
           })
         : [];
+    console.log("myThreadEdges".toUpperCase(), myThreadEdges);
 
     let response = {
       edges: myThreadEdges,
