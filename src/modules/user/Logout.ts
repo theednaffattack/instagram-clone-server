@@ -14,9 +14,9 @@ export class LogoutResolver {
           console.error(err);
           return reject(false);
         }
+        console.log("TRY TO CLEAR COOKIE", ctx);
 
-        ctx.res.clearCookie("qid");
-
+        ctx.res.clearCookie("mfg");
         return resolve(true);
       });
     });
