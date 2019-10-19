@@ -42,14 +42,12 @@ export class GetOnlyThreads {
     @Arg("feedinput", () => FeedInput)
     feedinput: FeedInput
   ): Promise<ThreadConnection> {
-    console.log("GETONLYTHREADS REQUEST");
-
     const formatDate = (date: any) => format(date, "yyyy-MM-dd HH:mm:ss");
 
     // export const MoreThanDate = (date: Date) => MoreThan(format(date, 'YYYY-MM-DD HH:MM:SS'))
     // export const LessThanDate = (date: Date) => LessThan(format(date, 'YYYY-MM-DD HH:MM:SS')
 
-    const findThreads = await Thread.createQueryBuilder("thread")
+    let findThreads = await Thread.createQueryBuilder("thread")
       .loadRelationCountAndMap("thread.message_count", "thread.messages")
       .leftJoinAndSelect("thread.user", "user")
       .leftJoinAndSelect("thread.invitees", "inviteduser")
@@ -64,6 +62,12 @@ export class GetOnlyThreads {
       .addOrderBy("thread.updated_at", "DESC")
       .take(feedinput.take)
       .getMany();
+
+    // @TODO: This will have to be changed to hybrid data. Forcing an empty array
+    // isn't enough information to handle very many cases
+    findThreads && findThreads.length > 0 ? findThreads : (findThreads = []);
+
+    console.log("GETONLYTHREADS REQUEST", findThreads);
 
     const threadsSelected = findThreads.reverse();
 
