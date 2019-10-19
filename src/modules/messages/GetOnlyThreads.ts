@@ -67,8 +67,6 @@ export class GetOnlyThreads {
     // isn't enough information to handle very many cases
     findThreads && findThreads.length > 0 ? findThreads : (findThreads = []);
 
-    console.log("GETONLYTHREADS REQUEST", findThreads.reverse());
-
     const threadsSelected = findThreads.reverse();
 
     // let newCursor;
@@ -109,11 +107,6 @@ export class GetOnlyThreads {
       .take(feedinput.take)
       .getMany();
 
-    // console.log({ startCursor, newCursor });
-    // console.log({ formattedNewCursor: formatDate(parseISO(newCursor)) });
-    // console.log({ formattedStartCursor: formatDate(parseISO(startCursor)) });
-    console.log({ beforeThreads, afterThreads, threadsSelected });
-
     const myThreadEdges =
       threadsSelected && threadsSelected.length > 0
         ? threadsSelected.map(thread => {
@@ -122,7 +115,6 @@ export class GetOnlyThreads {
             };
           })
         : [];
-    console.log("myThreadEdges".toUpperCase(), myThreadEdges);
 
     let response = {
       edges: myThreadEdges,
@@ -133,7 +125,6 @@ export class GetOnlyThreads {
         hasPreviousPage: beforeThreads.length > 0 ? true : false
       }
     };
-    console.log("VIEW RESPONSE", response);
     return response;
   }
 }
