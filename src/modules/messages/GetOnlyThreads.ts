@@ -67,7 +67,7 @@ export class GetOnlyThreads {
     // isn't enough information to handle very many cases
     findThreads && findThreads.length > 0 ? findThreads : (findThreads = []);
 
-    console.log("GETONLYTHREADS REQUEST", findThreads);
+    console.log("GETONLYTHREADS REQUEST", findThreads.reverse());
 
     const threadsSelected = findThreads.reverse();
 
@@ -111,11 +111,14 @@ export class GetOnlyThreads {
     // console.log({ formattedStartCursor: formatDate(parseISO(startCursor)) });
     // console.log({ beforeThreads, afterThreads, threadsSelected });
 
-    const myThreadEdges = threadsSelected.map(thread => {
-      return {
-        node: thread
-      };
-    });
+    const myThreadEdges =
+      threadsSelected && threadsSelected.length > 0
+        ? threadsSelected.map(thread => {
+            return {
+              node: thread
+            };
+          })
+        : [];
 
     let response = {
       edges: myThreadEdges,
