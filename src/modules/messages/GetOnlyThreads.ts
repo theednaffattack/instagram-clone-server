@@ -42,6 +42,8 @@ export class GetOnlyThreads {
     @Arg("feedinput", () => FeedInput)
     feedinput: FeedInput
   ): Promise<ThreadConnection> {
+    console.log("GETONLYTHREADS REQUEST");
+
     const formatDate = (date: any) => format(date, "yyyy-MM-dd HH:mm:ss");
 
     // export const MoreThanDate = (date: Date) => MoreThan(format(date, 'YYYY-MM-DD HH:MM:SS'))
