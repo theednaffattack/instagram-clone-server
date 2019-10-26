@@ -158,7 +158,7 @@ export class CreatePost {
 
       const newImageData: Image[] = images.map(image =>
         Image.create({
-          uri: `${cdnImageUrl}/${image}`,
+          uri: `${image}`,
           user: user
         })
       );
