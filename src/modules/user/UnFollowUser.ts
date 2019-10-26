@@ -2,6 +2,7 @@ import { Resolver, Mutation, Ctx, InputType, Arg, Field } from "type-graphql";
 
 import { User } from "../../entity/User";
 import { MyContext } from "../../types/MyContext";
+import util from "util";
 
 @InputType()
 export class UnFollowUserInput {
@@ -20,31 +21,27 @@ export class UnFollowUser {
     // @ts-ignore
     let me = ctx.req && ctx.req.session ? ctx.req.session.userId : null;
 
-    // const removeMyselfFromTheirFollowers_v2 = await User.createQueryBuilder(
-    //   "user"
-    // )
-    //   .leftJoinAndSelect("user.followers", "follower", "user.id = :id", {
-    //     id: me
-    //   })
-    //   .delete()
-    //   // .where("user.name = :name", { name: "Timber" })
-    //   .execute();
-    // .getOne();
-
     await User.createQueryBuilder()
       .relation(User, "followers")
       .of(userIDToUnFollow) // you can use just post id as well
       .remove(me)
-      .catch(error =>
-        console.error(`Error unfollowing userId: ${userIDToUnFollow}`, error)
-      ); // you can use just category id as well
-
-    // let removeSomeoneFromThoseIFollow = await User.createQueryBuilder()
-    //   .relation(User, "following")
-    //   .of(userIDToUnFollow) // you can use just post id as well
-    //   .remove(me); // you can use just category id as well
-
-    // console.log("removeSomeoneFromThoseIFollow", removeSomeoneFromThoseIFollow);
+      .then(data =>
+        console.log(
+          "WHAT DOES THE UNFOLLOW USER DATA LOOK LIKE AFTER DELETION?",
+          data
+        )
+      )
+      .catch(error => {
+        let { message, name } = error;
+        console.error(
+          `Error unfollowing user: ${util.inspect(
+            { name, message },
+            true,
+            2,
+            true
+          )}`
+        );
+      }); // you can use just category id as well
 
     return true;
   }
