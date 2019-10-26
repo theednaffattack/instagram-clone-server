@@ -16,6 +16,25 @@ import { Message } from "./Message";
 import { Thread } from "./Thread";
 // import { Follower } from "./Follower";
 
+/**
+ * @type {Object} User - User Entity (gql type and DB model)
+ *
+ *
+ *
+ * ```
+ * class User {
+ *   id: string (gql ID);
+ *   count: number;
+ *   firstName: string;
+ *   mappedMessages: Message;
+ *   lastName: string;
+ *   email: string
+ *   threads: Thread[];
+ *   name: string;
+ *   password: string;
+ * }
+ * ```
+ */
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
