@@ -50,7 +50,7 @@ export class User extends BaseEntity {
   firstName: string;
 
   @Field(() => [Message])
-  mappedMessages: Message;
+  mappedMessages: Message[];
 
   @Field()
   @Column()
