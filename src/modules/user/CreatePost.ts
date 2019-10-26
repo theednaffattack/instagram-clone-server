@@ -11,7 +11,8 @@ import {
   Subscription,
   UseMiddleware,
   Ctx,
-  ObjectType
+  ObjectType,
+  ID
 } from "type-graphql";
 
 import { PostInput } from "./createPost/CreatePostInput";
