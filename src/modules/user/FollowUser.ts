@@ -1,5 +1,5 @@
 import { Resolver, Mutation, Ctx, InputType, Arg, Field } from "type-graphql";
-
+import util from "util";
 import { User } from "../../entity/User";
 import { MyContext } from "../../types/MyContext";
 
@@ -32,7 +32,10 @@ export class FollowUser {
       .leftJoinAndSelect("user.followers", "follower", "follower.id = :id", {
         id: me
       })
-      .getOne();
+      .getOne()
+      .catch(error => {
+        console.error("ERROR", util.inspect(error, true, 3, true));
+      });
 
     // // find "me" as a follower of the user "I'd" like to follow
     // const isUserAFollower = await User.createQueryBuilder("user")
@@ -52,18 +55,19 @@ export class FollowUser {
     // }
 
     // the main function, allow "me" to find and follow another user
-    if (isMeAFollower!.followers.length === 0) {
-      let findRelationship;
+    if (isMeAFollower && isMeAFollower.followers.length === 0) {
+      await User.createQueryBuilder()
+        .relation(User, "followers")
+        .of(userIDToFollow)
+        .add(me)
+        .then(data =>
+          console.log(
+            "DID WE FIND ANY DATA?",
+            util.inspect(data, true, 2, true)
+          )
+        )
+        .catch(error => console.error("MY ERROR:", error)); // you can use just category id as well
 
-      findRelationship = async () => {
-        await User.createQueryBuilder()
-          .relation(User, "followers")
-          .of(userIDToFollow)
-          .add(me)
-          .then(data => data)
-          .catch(error => console.error("MY ERROR:", error)); // you can use just category id as well
-      };
-      console.log("findRelationship".toUpperCase(), findRelationship());
       return true;
     }
 
