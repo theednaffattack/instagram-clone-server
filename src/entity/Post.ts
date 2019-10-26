@@ -31,6 +31,9 @@ export class Post extends BaseEntity {
   @OneToMany(() => Image, image => image.post)
   images: Image[];
 
+  @Field(() => Boolean, { nullable: true })
+  isCtxUserIdAFollowerOfPostUser: boolean;
+
   @Field(() => User, { nullable: true })
   @ManyToOne(() => User, user => user.posts)
   user: User;
@@ -41,36 +44,5 @@ export class Post extends BaseEntity {
 
   @Field(() => Date, { nullable: true })
   @UpdateDateColumn({ type: "timestamp", nullable: true })
-  updated_at?: Date;
-}
-
-@ObjectType()
-export class PostSubType {
-  // @ts-ignore
-  @Field(type => ID)
-  id: string;
-
-  // @ts-ignore
-  @Field(type => String)
-  title: string;
-
-  // @ts-ignore
-  @Field(type => String)
-  text: string;
-
-  // @ts-ignore
-  @Field(type => [Image])
-  images: Image[];
-
-  // @ts-ignore
-  @Field(type => User)
-  user: User;
-
-  // @ts-ignore
-  @Field(type => Date)
-  created_at: Date;
-
-  // @ts-ignore
-  @Field(type => Date)
   updated_at?: Date;
 }
