@@ -67,9 +67,7 @@ export class AddMessageToThreadResolver {
     // @ts-ignore
     filter: ({
       payload,
-      args,
-      // @ts-ignore
-      context
+      args
     }: ResolverFilterData<IAddMessagePayload, AddMessageToThreadInput>) => {
       // filter for followers;
 
