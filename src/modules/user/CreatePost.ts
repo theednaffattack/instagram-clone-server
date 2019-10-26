@@ -126,7 +126,7 @@ export class CreatePost {
     @PubSub("POSTS_GLOBAL") publishGlbl: Publisher<PostPayload>,
     @Arg("data", () => PostInput)
     { text, title, images, user: userId }: PostInput
-  ) {
+  ): Promise<PostSubType> {
     if (!context) {
       throw new Error("not authed");
     }
