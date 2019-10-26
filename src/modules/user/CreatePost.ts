@@ -21,6 +21,43 @@ import { User } from "../../entity/User";
 import { Post, PostSubType } from "../../entity/Post";
 import { MyContext } from "../../types/MyContext";
 
+/**
+ * Post type for returns to client
+ * @typedef {Class} PostSubType
+ * @property {string} id - The Entity ID
+ * @property {string} title - The Post title
+ */
+@ObjectType()
+export class PostSubType {
+  // @ts-ignore
+  @Field(type => ID)
+  id: string;
+
+  // @ts-ignore
+  @Field(type => String)
+  title: string;
+
+  // @ts-ignore
+  @Field(type => String)
+  text: string;
+
+  // @ts-ignore
+  @Field(type => [Image])
+  images: Image[];
+
+  // @ts-ignore
+  @Field(type => User)
+  user: User;
+
+  // @ts-ignore
+  @Field(type => Date)
+  created_at: Date;
+
+  // @ts-ignore
+  @Field(type => Date)
+  updated_at?: Date;
+}
+
 export interface PostPayload {
   id: string;
   title: string;
