@@ -4,14 +4,18 @@ import {
   UseMiddleware,
   Subscription,
   ResolverFilterData,
-  Root
+  Root,
+  Ctx,
+  PubSub,
+  Publisher
 } from "type-graphql";
 
 import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
 import { Post } from "../../entity/Post";
 import { PostInput } from "./createPost/CreatePostInput";
-// import { PostPayload } from "./CreatePostResolver";
+import { MyContext } from "../../types/MyContext";
+// import { HandlePostPayload } from "./GetMyPosts";
 
 @Resolver()
 export class GetGlobalPostsResolver {
@@ -21,8 +25,6 @@ export class GetGlobalPostsResolver {
     // object below `{args, context, payload}`
     nullable: true,
     topics: ({ context }) => {
-      // @ts-ignore
-
       if (!context.userId) {
         throw new Error("not authed");
       }
@@ -52,16 +54,36 @@ export class GetGlobalPostsResolver {
     name: "getGlobalPosts",
     nullable: true
   })
-  async getGlobalPosts(): Promise<any> {
+  async getGlobalPosts(
+    @Ctx() ctx: MyContext,
+
+    @PubSub("GLOBAL_POSTS") publish: Publisher<any>
+    // @PubSub("POSTS_GLOBAL") publishGlbl: Publisher<PostPayload>,
+  ): Promise<any> {
     const findOptions = {
       where: {},
-      relations: ["images", "user"]
+      relations: ["images", "user", "user.followers"]
     };
 
     let globalPosts = await Post.find(findOptions);
 
-    if (globalPosts) {
-      return globalPosts;
+    let addFollowerStatusToGlobalPosts = globalPosts.map(post => {
+      return {
+        isCtxUserIdAFollowerOfPostUser: post.user.followers
+          .map(follower => follower.id)
+          .includes(ctx.userId),
+        ...post,
+        success: true,
+        action: "CREATE"
+      };
+    });
+
+    if (addFollowerStatusToGlobalPosts) {
+      await publish(addFollowerStatusToGlobalPosts).catch((error: Error) => {
+        throw new Error(error.message);
+      });
+
+      return addFollowerStatusToGlobalPosts;
     } else {
       throw Error("cannot find global posts");
     }
