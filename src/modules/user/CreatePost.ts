@@ -10,7 +10,8 @@ import {
   Root,
   Subscription,
   UseMiddleware,
-  Ctx
+  Ctx,
+  ObjectType
 } from "type-graphql";
 
 import { PostInput } from "./createPost/CreatePostInput";
@@ -18,7 +19,7 @@ import { logger } from "../middleware/logger";
 import { isAuth } from "../middleware/isAuth";
 import { Image } from "../../entity/Image";
 import { User } from "../../entity/User";
-import { Post, PostSubType } from "../../entity/Post";
+import { Post } from "../../entity/Post";
 import { MyContext } from "../../types/MyContext";
 
 /**
@@ -113,7 +114,6 @@ export class CreatePost {
   ): PostPayload {
     // do some stuff
     return { ...postPayload };
-    // createdAt: new Date()
   }
 
   @UseMiddleware(isAuth, logger)
@@ -136,26 +136,6 @@ export class CreatePost {
     });
 
     if (user) {
-      // let imageUrl = `/../../../public/tmp/images/${images[lastImage]}`;
-
-      // let savedFile = await new Promise((resolve, reject) => {
-      //   createReadStream()
-      //     .pipe(createWriteStream(__dirname + imageUrl))
-      //     .on("finish", () => {
-      //       resolve(true);
-      //     })
-      //     .on("error", () => {
-      //       reject(false);
-      //     });
-      // });
-
-      // add new image
-
-      // let newImage = new Image();
-
-      // use the model to create a new image
-      const cdnImageUrl = `https://eddie-faux-gram.s3.amazonaws.com/images`;
-
       const newImageData: Image[] = images.map(image =>
         Image.create({
           uri: `${image}`,
