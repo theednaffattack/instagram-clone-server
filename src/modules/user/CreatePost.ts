@@ -93,7 +93,7 @@ export class CreatePost {
       payload,
       // args,
       context
-    }: ResolverFilterData<Post, PostInput>) => {
+    }: ResolverFilterData<Post, PostInput, MyContext>) => {
       if (!payload) return false;
       // filter for followers;
       // @ts-ignore
