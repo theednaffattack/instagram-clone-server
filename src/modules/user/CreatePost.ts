@@ -198,8 +198,9 @@ export class CreatePost {
           await newSavedImage.save();
         });
 
-        user!.posts!.push(newPost);
-        user.save();
+        user && user.posts && user.posts.push(newPost);
+        // user!.posts!.push(newPost);
+        await user.save();
 
         // we use myPostPayload because of the subscription
         let myPostPayload: PostPayload = { ...newPost };
