@@ -57,6 +57,7 @@ export class CreatePost {
       // args,
       context
     }: ResolverFilterData<Post, PostInput>) => {
+      if (!payload) return false;
       // filter for followers;
       // @ts-ignore
       if (context.userId !== payload.user.followers.includes(context.id)) {
