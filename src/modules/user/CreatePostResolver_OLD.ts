@@ -19,8 +19,9 @@ import { logger } from "../middleware/logger";
 import { isAuth } from "../middleware/isAuth";
 import { Image } from "../../entity/Image";
 import { User } from "../../entity/User";
-import { Post, PostSubType } from "../../entity/Post";
+import { Post } from "../../entity/Post";
 import { MyContext } from "../../types/MyContext";
+import { PostSubType } from "./CreatePost";
 
 export interface PostPayload {
   id: string;
