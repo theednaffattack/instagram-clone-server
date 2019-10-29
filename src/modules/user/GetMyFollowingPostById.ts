@@ -1,12 +1,12 @@
-import { Resolver, Query, UseMiddleware, Arg, Ctx } from "type-graphql";
+import { Resolver, Query, UseMiddleware, Arg } from "type-graphql";
 import { FindOneOptions } from "typeorm";
 
 import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
 import { Post } from "../../entity/Post";
 import { GetMyFollowingPostByIdInput } from "./GetMyFollowingPostByIdInput";
-import { MyContext } from "../../types/MyContext";
-import { User } from "../../entity/User";
+// import { MyContext } from "../../types/MyContext";
+// import { User } from "../../entity/User";
 
 @Resolver()
 export class GetMyFollowingPostById {
@@ -17,15 +17,15 @@ export class GetMyFollowingPostById {
   })
   async getMyFollowingPostById(
     @Arg("getpostinput", () => GetMyFollowingPostByIdInput)
-    getpostinput: GetMyFollowingPostByIdInput,
-    @Ctx() ctx: MyContext
+    getpostinput: GetMyFollowingPostByIdInput
+    // @Ctx() ctx: MyContext
   ): Promise<any> {
-    const isMeAFollower = await User.createQueryBuilder("user")
-      .where({ id: getpostinput.postId })
-      .leftJoinAndSelect("user.followers", "follower", "follower.id = :id", {
-        id: ctx.userId
-      })
-      .getOne();
+    // const isMeAFollower = await User.createQueryBuilder("user")
+    //   .where({ id: getpostinput.postId })
+    //   .leftJoinAndSelect("user.followers", "follower", "follower.id = :id", {
+    //     id: ctx.userId
+    //   })
+    //   .getOne();
 
     let findOnePostOptions: FindOneOptions<Post> = {
       where: { id: getpostinput.postId },
@@ -34,8 +34,8 @@ export class GetMyFollowingPostById {
 
     const singlePostOfSomeoneIFollow = await Post.findOne(findOnePostOptions);
 
-    console.log(isMeAFollower);
-    console.log(singlePostOfSomeoneIFollow);
+    // console.log(isMeAFollower);
+    // console.log(singlePostOfSomeoneIFollow);
     if (singlePostOfSomeoneIFollow) {
       return singlePostOfSomeoneIFollow;
     } else {
