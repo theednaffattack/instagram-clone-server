@@ -1,20 +1,18 @@
 import "reflect-metadata";
-import { ApolloServer, ApolloError } from "apollo-server-express";
-import * as Express from "express";
-import { ArgumentValidationError } from "type-graphql";
+import "dotenv/config";
 import { createConnection } from "typeorm";
-import { GraphQLFormattedError, GraphQLError } from "graphql";
+import { ApolloServer, ApolloError } from "apollo-server-express";
+import Express from "express";
 import session from "express-session";
-import internalIp from "internal-ip";
-
+import http from "http";
 import connectRedis from "connect-redis";
-import { createServer } from "http";
+// import cors from "cors";
 
-import { redis } from "./redis";
-
-import { redisSessionPrefix } from "./constants";
 import { createSchema } from "./global-utils/createSchema";
-import { logger } from "./modules/middleware/logger/logger";
+import { ArgumentValidationError } from "type-graphql";
+import { GraphQLFormattedError, GraphQLError } from "graphql";
+import { redis } from "./redis";
+import { redisSessionPrefix } from "./constants";
 import { devOrmconfig } from "./dev_ormconfig";
 import { productionOrmConfig } from "./production_ormconfig";
 
@@ -23,6 +21,35 @@ const nodeEnvIsProd = process.env.NODE_ENV === "production";
 const nodeEnvIs_NOT_Prod = process.env.NODE_ENV !== "production";
 
 const ormConnection = nodeEnvIsDev ? devOrmconfig : productionOrmConfig;
+
+const allowedOrigins = [
+  "https://faux-gram-client-nextjs.herokuapp.com", // prod
+  "http://192.168.1.24:3030",
+  "http://192.168.1.24:4000",
+  "https://eddie-faux-gram.herokuapp.com",
+  "https://fauxgramapi.eddienaff.dev",
+  "https://fauxgramapp.eddienaff.dev",
+  "wss://eddie-faux-gram.herokuapp.com",
+  "wss://fauxgramapp.eddienaff.dev",
+  "wss://fauxgramapi.eddienaff.dev",
+  "wss://192.168.1.24:4000",
+  "wss://192.168.1.24:3000",
+  "wss://192.168.1.24:3030",
+  "wss://0.0.0.0:4000",
+  "ws://192.168.1.24:4000",
+  "ws://192.168.1.24:3000"
+];
+
+const corsOptions = {
+  credentials: true,
+  origin: function(origin: any, callback: any) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.error("cors error:: origin: ", origin);
+    }
+  }
+};
 
 const RedisStore = connectRedis(session);
 
@@ -68,7 +95,7 @@ if (nodeEnvIsDev || nodeEnvIs_NOT_Prod) {
 }
 
 const getContextFromHttpRequest = async (req: any, res: any) => {
-  if (req.session) {
+  if (req && req.session) {
     const { userId } = req.session;
     return { userId, req, res };
   }
@@ -80,44 +107,33 @@ const getContextFromSubscription = (connection: any) => {
   return { userId, req: connection.context.req };
 };
 
-// const morganFormat = process.env.NODE_ENV !== "production" ? nodeEnvIsDev : "combined";
+const startServer = async () => {
+  let schema: any = await createSchema()
+    .then(data => data)
+    .catch(error =>
+      console.error("Error running createSchema function", error)
+    );
 
-const main = async () => {
-  try {
-    await createConnection(ormConnection);
-  } catch (error) {
-    console.error(error);
-  }
+  await createConnection(ormConnection);
 
-  let schema;
+  const app = Express();
 
-  try {
-    schema = await createSchema();
-  } catch (error) {
-    console.error(error);
-  }
+  // const sessionMiddleware = session({
+  //   secret: "asdjlfkaasdfkjlads",
+  //   resave: false,
+  //   saveUninitialized: false
+  // });
 
-  const apolloServer = new ApolloServer({
+  app.use(sessionMiddleware);
+
+  const devHost = "192.168.1.24";
+
+  const devPort = "4000";
+
+  const server = new ApolloServer({
     introspection: true,
     playground: true,
     schema,
-    subscriptions: {
-      path: "/subscriptions",
-      onConnect: (_, webSocket: any) => {
-        return new Promise((resolve, reject) =>
-          sessionMiddleware(webSocket.upgradeReq, {} as any, () => {
-            if (!webSocket.upgradeReq.session.userId) {
-              // throw Error("Not authenticated");
-              reject("Not Authenticated");
-            }
-            resolve({
-              req: webSocket.upgradeReq
-              // userId: webSocket.upgradeReq.session.userId
-            });
-          })
-        );
-      }
-    },
     context: ({ req, res, connection }: any) => {
       if (connection) {
         return getContextFromSubscription(connection);
@@ -125,9 +141,18 @@ const main = async () => {
 
       return getContextFromHttpRequest(req, res);
 
-      // return { req, res, connection };
+      // return { req, res, connection }
     },
-    // custom error handling from: https://github.com/19majkel94/type-graphql/issues/258
+    subscriptions: {
+      path: "/subscriptions",
+      onConnect: (_, ws: any) => {
+        return new Promise(res =>
+          sessionMiddleware(ws.upgradeReq, {} as any, () => {
+            res({ req: ws.upgradeReq });
+          })
+        );
+      }
+    },
     formatError: (error: GraphQLError): GraphQLFormattedError => {
       if (error.originalError instanceof ApolloError) {
         return error;
@@ -146,6 +171,8 @@ const main = async () => {
         };
       }
 
+      console.log(error);
+
       //   error.message = "Internal Server Error";
 
       return {
@@ -157,120 +184,21 @@ const main = async () => {
     }
   });
 
-  const allowedOrigins = [
-    "https://faux-gram-client-nextjs.herokuapp.com", // prod
-    "http://localhost:3000",
-    "http://localhost:4000",
-    "http://192.168.1.24:3000",
-    "http://192.168.1.24:3030",
-    "http://192.168.1.24:4000",
-    "https://eddie-faux-gram.herokuapp.com",
-    "https://fauxgramapi.eddienaff.dev",
-    "https://fauxgramapp.eddienaff.dev",
-    "wss://eddie-faux-gram.herokuapp.com",
-    "wss://fauxgramapp.eddienaff.dev",
-    "wss://fauxgramapi.eddienaff.dev",
-    "wss://192.168.1.24:4000",
-    "wss://192.168.1.24:3000",
-    "wss://192.168.1.24:3030",
-    "wss://0.0.0.0:4000",
-    "ws://192.168.1.24:4000",
-    "ws://192.168.1.24:3000",
-    "ws://localhost:4000",
-    "ws://localhost:3000"
-  ];
+  // app.use(cors(corsOptions))
 
-  // a change
+  server.applyMiddleware({
+    app,
+    cors: corsOptions
+  }); // app is from an existing express app
 
-  const corsOptions = {
-    credentials: true,
-    origin: function(origin: any, callback: any) {
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        console.error("cors error:: origin: ", origin);
-      }
-    }
-  };
+  const httpServer = http.createServer(app);
+  server.installSubscriptionHandlers(httpServer);
 
-  const app = Express.default();
-
-  // needed for heroku deployment
-  app.enable("trust proxy");
-
-  // needed for heroku deployment
-  // they set the "x-forwarded-proto" header???
-  if (nodeEnvIsProd) {
-    app.use(function(req, res, next) {
-      if (req.header("x-forwarded-proto") !== "https") {
-        res.redirect("https://" + req.header("host") + req.url);
-      } else {
-        next();
-      }
-    });
-  }
-
-  // app.use(cors(corsOptions));
-
-  const wsServer = createServer(app);
-
-  apolloServer.installSubscriptionHandlers(wsServer);
-
-  app.use(sessionMiddleware);
-
-  // resolver timing middleware
-  app.use("/graphql", (req, res, next) => {
-    const startHrTime = process.hrtime();
-
-    res.on("finish", () => {
-      if (req.body && req.body.operationName) {
-        const elapsedHrTime = process.hrtime(startHrTime);
-        const elapsedTimeInMs =
-          elapsedHrTime[0] * 1000 + elapsedHrTime[1] / 1e6;
-        logger.info(
-          `${req.body.operationName} ${elapsedTimeInMs} ms`
-          // {
-          //   type: "timing",
-          //   name: req.body.operationName,
-          //   ms: elapsedTimeInMs
-          // }
-        );
-        console.log(`${req.body.operationName} ${elapsedTimeInMs} ms`);
-      }
-    });
-    next();
-  });
-
-  // app.use(Express.static(path.join(__dirname, "public")));
-  app.use("*/images", Express.static("public/images"));
-  app.use("*/temp", Express.static("public/tmp/images"));
-
-  apolloServer.applyMiddleware({ app, cors: corsOptions });
-
-  const port =
-    nodeEnvIsDev || nodeEnvIs_NOT_Prod
-      ? process.env.DEV_PORT
-      : process.env.PORT;
-
-  const playgroundMessage =
-    nodeEnvIsDev || nodeEnvIs_NOT_Prod
-      ? `\n\n🚀  Server started! GraphQL Playground ready at:\nhttp://${internalIp.v4.sync()}:${port}${
-          apolloServer.graphqlPath
-        }`
-      : "";
-
-  const subscriptionsMessage =
-    nodeEnvIsDev || nodeEnvIs_NOT_Prod
-      ? `\n\n🚀 Subscriptions ready at:\nws://${internalIp.v4.sync()}:${port}${
-          apolloServer.subscriptionsPath
-        }\n\n`
-      : "";
-
-  // wsServer.listen({ port: process.env.PORT || 4000 }, () => {
-  wsServer.listen(port, () => {
-    console.log(playgroundMessage);
-    console.log(subscriptionsMessage);
-  });
+  httpServer.listen({ port: 4000 }, () =>
+    console.log(
+      `🚀 Server ready at http://${devHost}:${devPort}${server.graphqlPath}`
+    )
+  );
 };
 
-main();
+startServer();
