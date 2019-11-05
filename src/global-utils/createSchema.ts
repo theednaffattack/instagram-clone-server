@@ -12,26 +12,31 @@ import {
   CreateProductResolver
 } from "../modules/user/CreateUser";
 // import { ProfilePictureResolver } from "../modules/user/ProfilePictureUpload";
+import { CreatePost } from "../modules/posts/CreatePost";
+import { GetAllMyImagesResolver } from "../modules/user/GetMyImages";
 // import { GetAllMyImagesResolver } from "../modules/user/GetMyImagesResolver";
+import { GetThoseIFollowAndTheirPostsResolver } from "../modules/posts/GetThoseIFollowAndTheirPostsResolver";
 import { FollowUser } from "../modules/user/FollowUser";
 import { GetMyMessagesFromUserResolver } from "../modules/messages/GetMyMessagesFromUser";
 import { SendMessageResolver } from "../modules/messages/SendMessages";
-import { GetGlobalPostsResolver } from "../modules/user/GetGlobalFeed";
+import { GetGlobalPostsResolver } from "../modules/posts/GetGlobalFeed";
 import { UnFollowUser } from "../modules/user/UnFollowUser";
 import { MeAndAllFollowers } from "../modules/user/GetMyFollowers";
-import { MyFollowingPostsResolver } from "../modules/user/GetMyPosts";
-import { GetMyFollowingPostById } from "../modules/user/GetMyFollowingPostById";
+import { MyFollowingPostsResolver } from "../modules/posts/GetMyPosts";
+import { GetMyFollowingPostById } from "../modules/posts/GetMyFollowingPostById";
 
 import { GetAllMessagesResolver } from "../modules/messages/GetAllMyMessages";
 import { GetMessageThreadsResolver } from "../modules/messages/GetMessageThreads";
 import { CreateMessageThreadResolver } from "../modules/messages/CreateMessageThreads";
 import { AddMessageToThreadResolver } from "../modules/messages/AddMessageToThreads";
 
-import { GetListToCreateThread } from "../modules/user/GetListToCreateThread";
+import { GetListToCreateThread } from "../modules/messages/GetListToCreateThread";
 import { SignS3 } from "../modules/aws-s3/s3-sign-mutation";
 import { GetOnlyThreads } from "../modules/messages/GetOnlyThreads";
 import { GetMessagesByThreadId } from "../modules/messages/GetMessagesByThreadId";
 import { NewMessageByThreadIdResolver } from "../modules/messages/NewMessageByThreadId";
+import { CreateOrUpdateLikes } from "../modules/posts/likes/updateLikes.resolver";
+import { AddCommentToPost } from "../modules/posts/comments/createNewComment.resolver";
 
 export const createSchema = () =>
   buildSchema({
@@ -39,9 +44,11 @@ export const createSchema = () =>
       AddMessageToThreadResolver,
       ChangePasswordResolver,
       ConfirmUserResolver,
+      CreateOrUpdateLikes,
       CreatePost,
       CreateProductResolver,
       CreateMessageThreadResolver,
+      AddCommentToPost,
       CreateUserResolver,
       FollowUser,
       ForgotPasswordResolver,
@@ -61,7 +68,7 @@ export const createSchema = () =>
       MeAndAllFollowers,
       MyFollowingPostsResolver,
       NewMessageByThreadIdResolver,
-      ProfilePictureResolver,
+      // ProfilePictureResolver,
       RegisterResolver,
       SendMessageResolver,
       SignS3,
