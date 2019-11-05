@@ -11,6 +11,7 @@ import {
 import { Field, ID, ObjectType } from "type-graphql";
 import { Image } from "./Image";
 import { User } from "./User";
+import { Like } from "./Like";
 import { Comment } from "./Comment";
 
 @ObjectType()
@@ -32,6 +33,9 @@ export class Post extends BaseEntity {
   @OneToMany(() => Image, image => image.post)
   images: Image[];
 
+  @Field(() => [Like], { nullable: true })
+  @OneToMany(() => Like, like => like.post)
+  likes: Like[];
 
   @Field(() => [Comment], { nullable: true })
   @OneToMany(() => Comment, comment => comment.post)

@@ -14,6 +14,8 @@ import { Post } from "./Post";
 import { Image } from "./Image";
 import { Message } from "./Message";
 import { Thread } from "./Thread";
+import { Like } from "./Like";
+
 // import { Follower } from "./Follower";
 
 /**
@@ -63,6 +65,10 @@ export class User extends BaseEntity {
   @Field(() => [Thread], { nullable: true })
   @OneToMany(() => Thread, thread => thread.user)
   threads: Thread[];
+
+  @Field(() => [Like], { nullable: true })
+  @OneToMany(() => Like, like => like.user)
+  likes: Like[];
 
   @Field()
   name(@Root() parent: User): string {
