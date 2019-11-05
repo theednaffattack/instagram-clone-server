@@ -84,7 +84,7 @@ export class CreatePost {
   @Subscription(type => PostSubType, {
     topics: ({ context }) => {
       if (!context.userId) {
-        throw new Error("not authed");
+        throw new Error("Not authorized");
       }
 
       return "POSTS_FOLLOWERS";
@@ -114,6 +114,11 @@ export class CreatePost {
     @Arg("data") input: PostSubInput
   ): PostPayload {
     // do some stuff
+    console.log("VIEW INPUT (likesUpdated subscriber func)", input);
+    console.log(
+      "VIEW LIKES PAYLOAD (likesUpdated subscriber func)",
+      postPayload
+    );
     return { ...postPayload };
   }
 

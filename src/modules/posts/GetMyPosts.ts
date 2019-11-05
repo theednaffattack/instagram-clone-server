@@ -9,8 +9,8 @@ import {
   Subscription,
   ResolverFilterData,
   InputType,
-  Root,
-  registerEnumType
+  Root
+  // registerEnumType
 } from "type-graphql";
 import util from "util";
 
@@ -21,29 +21,29 @@ import { User } from "../../entity/User";
 import { Post } from "../../entity/Post";
 import { Image } from "../../entity/Image";
 
-/**
- * @type {Enum} Action - CRUD action helper
- *
- * ```
- * enum Action {
- *   Create = "CREATE",
- *   Read = "READ",
- *   Update = "UPDATE",
- *   Delete = "DELETE"
- * }
- * ```
- */
-enum Action {
-  Create = "CREATE",
-  Read = "READ",
-  Update = "UPDATE",
-  Delete = "DELETE"
-}
+// /**
+//  * @type {Enum} Action - CRUD action helper
+//  *
+//  * ```
+//  * enum Action {
+//  *   Create = "CREATE",
+//  *   Read = "READ",
+//  *   Update = "UPDATE",
+//  *   Delete = "DELETE"
+//  * }
+//  * ```
+//  */
+// enum Action {
+//   Create = "CREATE",
+//   Read = "READ",
+//   Update = "UPDATE",
+//   Delete = "DELETE"
+// }
 
-registerEnumType(Action, {
-  name: "Action", // this one is mandatory
-  description: "An Enum to help with CRUD operations" // this one is optional
-});
+// registerEnumType(Action, {
+//   name: "Action", // this one is mandatory
+//   description: "An Enum to help with CRUD operations" // this one is optional
+// });
 
 @InputType()
 export class PostSubscriptionInput {
@@ -65,8 +65,8 @@ export class HandlePostPayload {
   @Field(() => Boolean)
   success: boolean;
 
-  @Field(() => Action)
-  action: Action;
+  @Field(() => String)
+  action: string;
 
   @Field(() => ID, { nullable: true })
   id: string;
@@ -96,8 +96,9 @@ export class MyFollowingPostsResolver {
   @Subscription(() => HandlePostPayload, {
     // @ts-ignore
     topics: ({ context }: any) => {
+      console.log("WHAT IS CONTEXT Objects?", Object.keys(context));
       if (!context.userId) {
-        throw new Error("not authorized for this topic");
+        throw new Error("Not authorized for this topic");
       }
 
       return "GLOBAL_POSTS";
