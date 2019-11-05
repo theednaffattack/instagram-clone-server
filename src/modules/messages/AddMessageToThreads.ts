@@ -58,7 +58,7 @@ export class AddMessageToThreadResolver {
     // @ts-ignore
     topics: ({ context }: any) => {
       if (!context.userId) {
-        throw new Error("not authorized for this topic");
+        throw new Error("Not authorized for this topic");
       }
 
       return "THREADS";
