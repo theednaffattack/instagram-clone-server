@@ -11,11 +11,8 @@ import {
   CreateUserResolver,
   CreateProductResolver
 } from "../modules/user/CreateUser";
-import { ProfilePictureResolver } from "../modules/user/ProfilePictureUpload";
-import { CreatePost } from "../modules/user/CreatePost";
-// import { GetAllMyImagesResolver } from "../modules/user/GetMyImages";
-import { GetAllMyImagesResolver } from "../modules/user/GetMyImagesResolver";
-import { GetThoseIFollowAndTheirPostsResolver } from "../modules/user/GetThoseIFollowAndTheirPostsResolver";
+// import { ProfilePictureResolver } from "../modules/user/ProfilePictureUpload";
+// import { GetAllMyImagesResolver } from "../modules/user/GetMyImagesResolver";
 import { FollowUser } from "../modules/user/FollowUser";
 import { GetMyMessagesFromUserResolver } from "../modules/messages/GetMyMessagesFromUser";
 import { SendMessageResolver } from "../modules/messages/SendMessages";
