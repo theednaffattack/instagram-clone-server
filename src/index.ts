@@ -194,6 +194,21 @@ const startServer = async () => {
   const httpServer = http.createServer(app);
   server.installSubscriptionHandlers(httpServer);
 
+  // needed for heroku deployment
+  app.enable("trust proxy");
+
+  // needed for heroku deployment
+  // they set the "x-forwarded-proto" header???
+  if (nodeEnvIsProd) {
+    app.use(function(req, res, next) {
+      if (req.header("x-forwarded-proto") !== "https") {
+        res.redirect("https://" + req.header("host") + req.url);
+      } else {
+        next();
+      }
+    });
+  }
+
   httpServer.listen({ port: 4000 }, () =>
     console.log(
       `🚀 Server ready at http://${devHost}:${devPort}${server.graphqlPath}`
