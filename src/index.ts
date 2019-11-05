@@ -20,6 +20,8 @@ const nodeEnvIsDev = process.env.NODE_ENV === "development";
 const nodeEnvIsProd = process.env.NODE_ENV === "production";
 const nodeEnvIs_NOT_Prod = process.env.NODE_ENV !== "production";
 
+const port = nodeEnvIsProd ? process.env.PORT : "4000";
+
 const ormConnection = nodeEnvIsDev ? devOrmconfig : productionOrmConfig;
 
 const allowedOrigins = [
@@ -209,7 +211,7 @@ const startServer = async () => {
     });
   }
 
-  httpServer.listen({ port: 4000 }, () =>
+  httpServer.listen({ port }, () =>
     console.log(
       `🚀 Server ready at http://${devHost}:${devPort}${server.graphqlPath}`
     )
