@@ -11,6 +11,7 @@ import {
 import { Field, ID, ObjectType } from "type-graphql";
 import { Image } from "./Image";
 import { User } from "./User";
+import { Comment } from "./Comment";
 
 @ObjectType()
 @Entity()
@@ -30,6 +31,11 @@ export class Post extends BaseEntity {
   @Field(() => [Image], { nullable: true })
   @OneToMany(() => Image, image => image.post)
   images: Image[];
+
+
+  @Field(() => [Comment], { nullable: true })
+  @OneToMany(() => Comment, comment => comment.post)
+  comments: Comment[];
 
   @Field(() => Boolean, { nullable: true })
   isCtxUserIdAFollowerOfPostUser: boolean;
