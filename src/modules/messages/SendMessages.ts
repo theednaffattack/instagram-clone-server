@@ -37,14 +37,15 @@ export class SendMessageResolver {
       args,
       context
     }: ResolverFilterData<MessagePayload, MessageFromUserInput, MyContext>) => {
-      if (
-        context.userId === args.sentTo &&
-        context.userId === payload.user.id
-      ) {
-        return true;
-      } else {
-        return false;
-      }
+      // if (
+      //   context.userId === args.sentTo &&
+      //   context.userId === payload.user.id
+      // ) {
+      //   return true;
+      // } else {
+      //   return false;
+      // }
+      return true;
       //   return payload.recipeId === args.recipeId;
       // I'll use the example return above to filter for the
       // current selected message thread
