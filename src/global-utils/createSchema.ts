@@ -37,6 +37,7 @@ import { GetMessagesByThreadId } from "../modules/messages/GetMessagesByThreadId
 import { NewMessageByThreadIdResolver } from "../modules/messages/NewMessageByThreadId";
 import { CreateOrUpdateLikes } from "../modules/posts/likes/updateLikes.resolver";
 import { AddCommentToPost } from "../modules/posts/comments/createNewComment.resolver";
+import { pubSub } from "../redis";
 
 export const createSchema = () =>
   buildSchema({
@@ -74,6 +75,7 @@ export const createSchema = () =>
       SignS3,
       UnFollowUser
     ],
+    pubSub,
     authChecker: ({ context: { req } }) => {
       // I can read context here
       // cehck permission vs what's in the db "roles" argument

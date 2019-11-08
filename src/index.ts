@@ -20,27 +20,44 @@ const nodeEnvIsDev = process.env.NODE_ENV === "development";
 const nodeEnvIsProd = process.env.NODE_ENV === "production";
 const nodeEnvIs_NOT_Prod = process.env.NODE_ENV !== "production";
 
-const port = nodeEnvIsProd ? process.env.PORT : "4000";
+const devPort = "4000";
+
+const port = nodeEnvIsProd ? process.env.PORT : devPort;
+
+const devHost = "192.168.1.24";
+
+const prodHost = "fauxgramapi.eddienaff.dev";
+
+const protocol = nodeEnvIsProd ? "https://" : "http://";
+
+const host = nodeEnvIsProd
+  ? `${protocol}${prodHost}/graphql`
+  : `${protocol}${devHost}:${port}/graphql`;
+
+let message = `\n🚀 Server is ready at:\n${host}`;
 
 const ormConnection = nodeEnvIsDev ? devOrmconfig : productionOrmConfig;
 
-const allowedOrigins = [
-  "https://faux-gram-client-nextjs.herokuapp.com", // prod
-  "http://192.168.1.24:3030",
-  "http://192.168.1.24:4000",
-  "https://eddie-faux-gram.herokuapp.com",
-  "https://fauxgramapi.eddienaff.dev",
-  "https://fauxgramapp.eddienaff.dev",
-  "wss://eddie-faux-gram.herokuapp.com",
-  "wss://fauxgramapp.eddienaff.dev",
-  "wss://fauxgramapi.eddienaff.dev",
-  "wss://192.168.1.24:4000",
-  "wss://192.168.1.24:3000",
-  "wss://192.168.1.24:3030",
-  "wss://0.0.0.0:4000",
-  "ws://192.168.1.24:4000",
-  "ws://192.168.1.24:3000"
-];
+let allowedOrigins = nodeEnvIs_NOT_Prod
+  ? [
+      "http://192.168.1.24:3030",
+      "http://192.168.1.24:4000",
+      "ws://192.168.1.24:4000",
+      "ws://192.168.1.24:3000"
+    ]
+  : [
+      "https://faux-gram-client-nextjs.herokuapp.com", // prod frontend
+      "https://eddie-faux-gram.herokuapp.com", // prod backend
+      "https://fauxgramapp.eddienaff.dev", // public frontend
+      "https://fauxgramapi.eddienaff.dev", // public backend
+      "wss://eddie-faux-gram.herokuapp.com",
+      "wss://fauxgramapp.eddienaff.dev",
+      "wss://fauxgramapi.eddienaff.dev"
+      // "wss://0.0.0.0:4000"
+      // "wss://192.168.1.24:4000",
+      // "wss://192.168.1.24:3000",
+      // "wss://192.168.1.24:3030"
+    ];
 
 const corsOptions = {
   credentials: true,
@@ -128,14 +145,11 @@ const startServer = async () => {
 
   app.use(sessionMiddleware);
 
-  const devHost = "192.168.1.24";
-
-  const devPort = "4000";
-
   const server = new ApolloServer({
     introspection: true,
     playground: true,
     schema,
+
     context: ({ req, res, connection }: any) => {
       if (connection) {
         return getContextFromSubscription(connection);
@@ -213,7 +227,8 @@ const startServer = async () => {
 
   httpServer.listen({ port }, () =>
     console.log(
-      `🚀 Server ready at http://${devHost}:${devPort}${server.graphqlPath}`
+      message
+      // `🚀 Server ready at http://${devHost}:${devPort}${server.graphqlPath}`
     )
   );
 };
