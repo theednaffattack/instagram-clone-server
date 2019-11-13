@@ -1,5 +1,5 @@
 import { BaseEntity, Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType, Int } from "type-graphql";
 
 import { Post } from "./Post";
 import { User } from "./User";
@@ -20,4 +20,7 @@ export class Like extends BaseEntity {
   @Field(type => User)
   @ManyToOne(() => User, user => user.likes)
   user: User;
+
+  @Field(() => Int, { nullable: false })
+  count: number;
 }
