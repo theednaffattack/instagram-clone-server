@@ -9,7 +9,8 @@ import {
   Subscription,
   ResolverFilterData,
   InputType,
-  Root
+  Root,
+  Int
   // registerEnumType
 } from "type-graphql";
 import util from "util";
@@ -88,6 +89,9 @@ export class HandlePostPayload {
 
   @Field(() => Date, { nullable: true })
   updated_at?: Date;
+
+  @Field(() => Int, { nullable: true })
+  comment_count?: number;
 }
 
 @Resolver()
@@ -149,7 +153,9 @@ export class MyFollowingPostsResolver {
         "followers",
         "following.posts",
         "following.posts.images",
-        "following.posts.user"
+        "following.posts.user",
+        "following.posts.comments",
+        "following.posts.likes"
       ]
     });
 
@@ -157,15 +163,42 @@ export class MyFollowingPostsResolver {
       person.posts!.map(post => post)
     );
 
-    let cache: Post[] = [];
+    let cache: any[] = [];
 
-    justThePosts.forEach(postArr => cache.push(...postArr));
+    justThePosts.forEach(postArr =>
+      cache.push(
+        ...postArr.map((singlePost: Post) => {
+          return {
+            ...singlePost,
+            comments_count: singlePost.comments.length,
+            likes_count: singlePost.likes.length
+          };
+        })
+      )
+    );
 
     cache.sort(function(a, b) {
+      console.log("WHAT DOES THE TIMESTRING LOOK LIKE?\n", { a, b });
       // Turn your strings into dates, and then subtract them
       // to get a value that is either negative, positive, or zero.
       return b.created_at.getTime() - a.created_at.getTime();
     });
+
+    console.log("WHAT DO THE POSTS LOOK LIKE?\n", { cache });
+
+    // let sortAndAddCounts = justThePosts[0]
+    //   .sort(function(a, b) {
+    //     // Turn your strings into dates, and then subtract them
+    //     // to get a value that is either negative, positive, or zero.
+    //     return b.created_at.getTime() - a.created_at.getTime();
+    //   })
+    //   .map(post => {
+    //     return {
+    //       ...post,
+    //       comments_count: post.comments.length,
+    //       likes_count: post.likes.length
+    //     };
+    //   });
 
     if (cache) {
       return cache;
