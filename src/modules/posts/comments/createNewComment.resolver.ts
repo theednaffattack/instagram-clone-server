@@ -11,7 +11,8 @@ import {
   Resolver,
   ResolverFilterData,
   Root,
-  Subscription
+  Subscription,
+  Int
 } from "type-graphql";
 
 import { MyContext } from "../../../types/MyContext";
@@ -19,6 +20,15 @@ import { Post } from "../../../entity/Post";
 import { User } from "../../../entity/User";
 import { Comment as CommentEntity } from "../../../entity/Comment";
 import { Comment } from "./comment.type";
+
+@ObjectType()
+export class CommentCountType {
+  @Field(() => Int)
+  count: number;
+
+  @Field(() => ID)
+  postId: string;
+}
 
 @ObjectType()
 export class AddCommentPayloadType {
@@ -101,17 +111,17 @@ export class AddCommentToPost {
 
       const createComment = await CommentEntity.create(newComment).save();
 
-      let forPublishing: AddCommentPayloadType = {
+      let forCommentPublishing: AddCommentPayloadType = {
         id: createComment.id,
         content: createComment.content,
-        created_at: createComment.created_at,
+        created_at: new Date(createComment.created_at).toISOString(),
         postId: createComment.post.id,
         userId: createComment.user.id
       };
 
-      await publishComment(forPublishing);
+      await publishComment(forCommentPublishing);
 
-      return forPublishing;
+      return forCommentPublishing;
     } else {
       throw new Error("Error posting comment!");
     }
