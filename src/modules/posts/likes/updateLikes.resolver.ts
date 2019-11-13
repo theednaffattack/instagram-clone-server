@@ -12,20 +12,21 @@ import {
   Root,
   PubSub,
   Publisher,
-  ObjectType
+  ObjectType,
+  Int
 } from "type-graphql";
+import { DeleteResult, InsertResult } from "typeorm";
 
 import { isAuth } from "../../middleware/isAuth";
 import { logger } from "../../middleware/logger";
 import { MyContext } from "../../../types/MyContext";
-import { Post } from "../../../entity/Post";
 import { Like } from "../../../entity/Like";
-import { User } from "../../../entity/User";
 import { registerEnum } from "../../../modules/type-graphql/RegisterEnum";
 
-enum LikeStatus {
+export enum LikeStatus {
   Created = "CREATED",
   Deleted = "DELETED",
+  CountUpdated = "COUNT_UPDATED",
   Undetermined = "UNDETERMINED"
 }
 
@@ -51,6 +52,19 @@ export class LikeReturnType {
   status: LikeStatus;
 }
 
+@ObjectType()
+export class LikesCountReturnType {
+  // @ts-ignore
+  @Field(type => ID)
+  postId: string;
+
+  @Field(() => LikeStatus)
+  status: LikeStatus.CountUpdated;
+
+  @Field(() => Int)
+  count: number;
+}
+
 @Resolver()
 export class CreateOrUpdateLikes {
   @UseMiddleware(isAuth, logger)
@@ -60,74 +74,110 @@ export class CreateOrUpdateLikes {
   })
   async createOrUpdateLikes(
     @PubSub("LIKES_UPDATED") publishLikesUpdate: Publisher<LikeReturnType>,
+    @PubSub("COUNT_UPDATED")
+    publishLikesCountUpdate: Publisher<LikesCountReturnType>,
     @Arg("input", () => UpdateLikesInput)
     input: UpdateLikesInput,
     @Ctx() ctx: MyContext
   ): Promise<LikeReturnType> {
-    // A - check if the user has already liked the post
+    let { postId }: UpdateLikesInput = input;
+    let { userId }: MyContext = ctx;
 
-    // SCENARIO - 1 - IF LIKE WAS FOUND:
-    // B - decrement likes, send back count of likes
+    let retrievedLikes = await Like.createQueryBuilder("likes")
+      .innerJoinAndSelect("likes.post", "post")
+      .innerJoinAndSelect("likes.user", "user")
+      .where("post.id = :postId", {
+        postId
+      })
+      .andWhere("user.id = :userId", {
+        userId
+      })
+      .getOne();
 
-    // SCENARIO - 2 - IF LIKE WAS NOT FOUND:
-    // B - increment likes, send back count of likes
+    let countLikes: number;
 
-    let hasTheUserLikeThisAlready = await Like.find({
-      where: { user: { id: ctx.userId, posts: { id: input.postId } } },
-      relations: ["user", "post"]
-    });
+    if (!retrievedLikes) {
+      // if this user hasn't liked then add a like
 
-    let getUser = await User.findOne(ctx.userId);
+      let newlyCreatedLike: InsertResult = await Like.createQueryBuilder(
+        "likes"
+      )
+        .insert()
+        .into(Like)
+        .values({ user: { id: ctx.userId }, post: { id: input.postId } })
+        .execute();
 
-    let getPost = await Post.findOne(input.postId);
-
-    let returnData: LikeReturnType;
-
-    // SCENARIO - 1
-    if (hasTheUserLikeThisAlready && hasTheUserLikeThisAlready.length > 0) {
-      if (hasTheUserLikeThisAlready.length > 1) {
-        // We're using Entity.find() which returns an array
-        // more than one record is an issue.
-        throw Error(
-          `More than one like for post ${hasTheUserLikeThisAlready[0].post.id} detected!`
-        );
-      }
-      let [likeRecordFound] = hasTheUserLikeThisAlready;
-      let deletedLike = await Like.delete({ id: likeRecordFound.id });
-      returnData = {
-        postId: likeRecordFound.post.id,
-        status: deletedLike.affected
-          ? LikeStatus.Deleted
-          : LikeStatus.Undetermined
+      let likeReturn: LikeReturnType = {
+        postId: input.postId,
+        status:
+          newlyCreatedLike.raw.id && typeof newlyCreatedLike.raw.id === "string"
+            ? LikeStatus.Created
+            : LikeStatus.Undetermined
       };
 
-      publishLikesUpdate(returnData);
+      countLikes = await Like.createQueryBuilder("likes")
+        .innerJoinAndSelect("likes.post", "post")
+        .where("post.id = :postId", {
+          postId
+        })
+        .getCount();
 
-      return returnData;
-    } else {
-      // SCENARIO - 2
-      if (
-        !hasTheUserLikeThisAlready ||
-        hasTheUserLikeThisAlready.length === 0
-      ) {
-        let newLike = await Like.create({
-          user: getUser,
-          post: getPost
-        }).save();
+      let likeCountReturn: LikesCountReturnType = {
+        count: countLikes,
+        postId: input.postId,
+        status: LikeStatus.CountUpdated
+      };
 
-        returnData = { postId: newLike.post.id, status: LikeStatus.Created };
+      publishLikesCountUpdate(likeCountReturn);
 
-        publishLikesUpdate(returnData);
+      publishLikesUpdate(likeReturn);
 
-        return returnData;
-      }
-      return { postId: "error", status: LikeStatus.Undetermined };
+      return likeReturn;
     }
+
+    if (retrievedLikes) {
+      // if the logged in user has ALREADY liked this post...
+      // then delete that user's like
+
+      let deleteLikes: DeleteResult = await Like.createQueryBuilder("likes")
+        .delete()
+        .from(Like)
+        .where("id = :id", { id: retrievedLikes.id })
+        .execute();
+
+      let likeReturn: LikeReturnType = {
+        postId: retrievedLikes.post.id,
+        status:
+          deleteLikes.affected === 1
+            ? LikeStatus.Deleted
+            : LikeStatus.Undetermined
+      };
+
+      countLikes = await Like.createQueryBuilder("likes")
+        .innerJoinAndSelect("likes.post", "post")
+        .where("post.id = :postId", {
+          postId
+        })
+        .getCount();
+
+      let likeCountReturn: LikesCountReturnType = {
+        count: countLikes,
+        postId: retrievedLikes.post.id,
+        status: LikeStatus.CountUpdated
+      };
+
+      publishLikesCountUpdate(likeCountReturn);
+
+      publishLikesUpdate(likeReturn);
+
+      return likeReturn;
+    }
+
+    throw new Error("Error updating like");
   }
 
   @Subscription(() => LikeReturnType, {
-    // @ts-ignore
-    topics: ({ context, args, payload }) => {
+    topics: ({ context }) => {
       if (!context.userId) {
         throw new Error("Not authorized");
       }
@@ -149,9 +199,8 @@ export class CreateOrUpdateLikes {
     }
   })
   likesUpdated(
-    @Root() likesPayload: LikeReturnType,
-    // @ts-ignore
-    @Arg("input") input: UpdateLikesInput
+    @Root() likesPayload: LikeReturnType
+    // @Arg("input") input: UpdateLikesInput
   ): LikeReturnType {
     return likesPayload;
   }
