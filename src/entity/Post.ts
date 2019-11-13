@@ -8,7 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn
 } from "typeorm";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType, Int } from "type-graphql";
 import { Image } from "./Image";
 import { User } from "./User";
 import { Like } from "./Like";
@@ -55,4 +55,10 @@ export class Post extends BaseEntity {
   @Field(() => Date, { nullable: true })
   @UpdateDateColumn({ type: "timestamp", nullable: true })
   updated_at?: Date;
+
+  @Field(() => Int, { nullable: false })
+  comments_count: number;
+
+  @Field(() => Int, { nullable: false })
+  likes_count: number;
 }
