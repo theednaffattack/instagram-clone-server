@@ -37,6 +37,8 @@ import { GetMessagesByThreadId } from "../modules/messages/GetMessagesByThreadId
 import { NewMessageByThreadIdResolver } from "../modules/messages/NewMessageByThreadId";
 import { CreateOrUpdateLikes } from "../modules/posts/likes/updateLikes.resolver";
 import { AddCommentToPost } from "../modules/posts/comments/createNewComment.resolver";
+import { CommentCountResolver } from "../modules/posts/comments/commentCount.subscription.resolver";
+import { LikesCountResolver } from "../modules/posts/likes/likesCount.subscription.resolver";
 import { pubSub } from "../redis";
 
 export const createSchema = () =>
@@ -44,6 +46,7 @@ export const createSchema = () =>
     resolvers: [
       AddMessageToThreadResolver,
       ChangePasswordResolver,
+      CommentCountResolver,
       ConfirmUserResolver,
       CreateOrUpdateLikes,
       CreatePost,
@@ -63,6 +66,7 @@ export const createSchema = () =>
       GetListToCreateThread,
       GetThoseIFollowAndTheirPostsResolver,
       GetMessagesByThreadId,
+      LikesCountResolver,
       LoginResolver,
       LogoutResolver,
       MeResolver,
