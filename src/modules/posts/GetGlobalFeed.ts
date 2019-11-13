@@ -62,7 +62,7 @@ export class GetGlobalPostsResolver {
   ): Promise<any> {
     const findOptions = {
       where: {},
-      relations: ["images", "user", "user.followers"]
+      relations: ["images", "likes", "comments", "user", "user.followers"]
     };
 
     let globalPosts = await Post.find(findOptions);
@@ -72,6 +72,8 @@ export class GetGlobalPostsResolver {
         isCtxUserIdAFollowerOfPostUser: post.user.followers
           .map(follower => follower.id)
           .includes(ctx.userId),
+        likes_count: post.likes.length,
+        comments_count: post.comments.length,
         ...post,
         success: true,
         action: "CREATE"
