@@ -54,11 +54,10 @@ export class LikesCountResolver {
     let [data, count] = await Like.findAndCount({
       where: { post: { id: input.postId } }
     });
-    // console.log("WHAT THE HELL IS GOING ON?", {
-    //   count,
-    //   data,
-    //   likesCountPayload
-    // });
-    return { count: likesCountPayload.count, postId: likesCountPayload.postId };
+    let returnCount =
+      likesCountPayload && likesCountPayload.count
+        ? likesCountPayload.count
+        : -1;
+    return { count: returnCount, postId: input.postId };
   }
 }
