@@ -29,13 +29,21 @@ export class GetMyFollowingPostById {
 
     let findOnePostOptions: FindOneOptions<Post> = {
       where: { id: getpostinput.postId },
-      relations: ["images", "user"]
+      relations: ["images", "user", "likes", "comments"]
     };
 
-    const singlePostOfSomeoneIFollow = await Post.findOne(findOnePostOptions);
+    let singlePostOfSomeoneIFollow = await Post.findOne(findOnePostOptions);
+
+    if (singlePostOfSomeoneIFollow) {
+      singlePostOfSomeoneIFollow.likes_count =
+        singlePostOfSomeoneIFollow.likes.length;
+
+      singlePostOfSomeoneIFollow.comments_count =
+        singlePostOfSomeoneIFollow.comments.length;
+    }
 
     // console.log(isMeAFollower);
-    // console.log(singlePostOfSomeoneIFollow);
+    console.log(singlePostOfSomeoneIFollow);
     if (singlePostOfSomeoneIFollow) {
       return singlePostOfSomeoneIFollow;
     } else {
