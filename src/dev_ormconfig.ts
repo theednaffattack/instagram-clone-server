@@ -9,7 +9,7 @@ export const devOrmconfig: PostgresConnectionOptions = {
   username: "eddienaff",
   password: "eddienaff",
   database: "instagram_clone",
-  logging: true,
+  logging: false,
   synchronize: true,
   entities: ["dist/entity/**/*.*"],
   migrations: ["src/migration/**/*.ts"],
