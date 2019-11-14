@@ -13,7 +13,6 @@ import {
   Int
   // registerEnumType
 } from "type-graphql";
-import util from "util";
 
 import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
@@ -113,7 +112,6 @@ export class MyFollowingPostsResolver {
       payload,
       args
     }: ResolverFilterData<HandlePostPayload, PostSubscriptionInput>) => {
-      console.log("posts subscription".toUpperCase());
       // filter for those ctx.userId is following
       // Filter based on user? Not sure yet
 
@@ -127,7 +125,7 @@ export class MyFollowingPostsResolver {
     // input: PostSubscriptionInput
   ): HandlePostPayload {
     // opportunity to transform data (the filter above has to be boolean)
-    console.log("VIEW THE PAYLOAD", util.inspect(feedPayload, true, 3, true));
+
     feedPayload.isCtxUserIdAFollowerOfPostUser &&
       feedPayload.user.id === ctx.userId;
 
