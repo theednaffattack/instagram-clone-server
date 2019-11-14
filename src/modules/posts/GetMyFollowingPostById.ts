@@ -1,12 +1,9 @@
 import { Resolver, Query, UseMiddleware, Arg } from "type-graphql";
-import { FindOneOptions } from "typeorm";
 
 import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
 import { Post } from "../../entity/Post";
 import { GetMyFollowingPostByIdInput } from "./GetMyFollowingPostByIdInput";
-// import { MyContext } from "../../types/MyContext";
-// import { User } from "../../entity/User";
 
 @Resolver()
 export class GetMyFollowingPostById {
@@ -20,19 +17,13 @@ export class GetMyFollowingPostById {
     getpostinput: GetMyFollowingPostByIdInput
     // @Ctx() ctx: MyContext
   ): Promise<any> {
-    // const isMeAFollower = await User.createQueryBuilder("user")
-    //   .where({ id: getpostinput.postId })
-    //   .leftJoinAndSelect("user.followers", "follower", "follower.id = :id", {
-    //     id: ctx.userId
-    //   })
-    //   .getOne();
-
-    let findOnePostOptions: FindOneOptions<Post> = {
-      where: { id: getpostinput.postId },
-      relations: ["images", "user", "likes", "comments"]
-    };
-
-    let singlePostOfSomeoneIFollow = await Post.findOne(findOnePostOptions);
+    let singlePostOfSomeoneIFollow = await Post.createQueryBuilder("post")
+      .leftJoinAndSelect("post.comments", "comments")
+      .leftJoinAndSelect("post.user", "user")
+      .leftJoinAndSelect("post.likes", "likes")
+      .where({ id: getpostinput.postId })
+      .orderBy("comments.created_at", "ASC")
+      .getOne();
 
     if (singlePostOfSomeoneIFollow) {
       singlePostOfSomeoneIFollow.likes_count =
@@ -42,8 +33,6 @@ export class GetMyFollowingPostById {
         singlePostOfSomeoneIFollow.comments.length;
     }
 
-    // console.log(isMeAFollower);
-    console.log(singlePostOfSomeoneIFollow);
     if (singlePostOfSomeoneIFollow) {
       return singlePostOfSomeoneIFollow;
     } else {
