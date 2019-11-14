@@ -1,19 +1,15 @@
 import {
   Resolver,
   ResolverFilterData,
-  // Root,
   Subscription,
-  Arg,
   InputType,
   Field,
   ID,
   ObjectType,
   Int,
-  Root
+  Root,
+  Arg
 } from "type-graphql";
-
-import { Like } from "../../../entity/Like";
-// import { LikeStatus } from "./updateLikes.resolver";
 
 @ObjectType()
 export class LikesCountType {
@@ -48,16 +44,27 @@ export class LikesCountResolver {
   })
   async likesCount(
     @Root() likesCountPayload: LikesCountType,
+    // @ts-ignore
     @Arg("input") input: LikesCountArgs
   ): Promise<LikesCountType> {
-    // @ts-ignore
-    let [data, count] = await Like.findAndCount({
-      where: { post: { id: input.postId } }
-    });
-    let returnCount =
-      likesCountPayload && likesCountPayload.count
-        ? likesCountPayload.count
-        : -1;
-    return { count: returnCount, postId: input.postId };
+    if (!likesCountPayload) {
+      // if the payload doesn't exist (meaning nothing was published)
+      // that means it's executing this on startup. Publish an
+      // obviously fake number
+      return { count: -3, postId: input.postId };
+    }
+    return {
+      count: likesCountPayload && likesCountPayload.count,
+      postId: input.postId
+    };
+    // // @ts-ignore
+    // let [data, count] = await Like.findAndCount({
+    //   where: { post: { id: input.postId } }
+    // });
+    // let returnCount =
+    //   likesCountPayload && likesCountPayload.count
+    //     ? likesCountPayload.count
+    //     : -1;
+    // return { count: returnCount, postId: input.postId };
   }
 }
