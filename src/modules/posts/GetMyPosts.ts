@@ -178,27 +178,10 @@ export class MyFollowingPostsResolver {
     );
 
     cache.sort(function(a, b) {
-      console.log("WHAT DOES THE TIMESTRING LOOK LIKE?\n", { a, b });
-      // Turn your strings into dates, and then subtract them
+      // Turn strings into dates, and then subtract them
       // to get a value that is either negative, positive, or zero.
       return b.created_at.getTime() - a.created_at.getTime();
     });
-
-    console.log("WHAT DO THE POSTS LOOK LIKE?\n", { cache });
-
-    // let sortAndAddCounts = justThePosts[0]
-    //   .sort(function(a, b) {
-    //     // Turn your strings into dates, and then subtract them
-    //     // to get a value that is either negative, positive, or zero.
-    //     return b.created_at.getTime() - a.created_at.getTime();
-    //   })
-    //   .map(post => {
-    //     return {
-    //       ...post,
-    //       comments_count: post.comments.length,
-    //       likes_count: post.likes.length
-    //     };
-    //   });
 
     if (cache) {
       return cache;
