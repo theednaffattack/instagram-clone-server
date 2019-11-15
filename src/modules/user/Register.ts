@@ -12,7 +12,7 @@ export class RegisterResolver {
   @UseMiddleware(isAuth, logger)
   @Query(() => String, { name: "helloWorld", nullable: false })
   async hello() {
-    return await "Hello World";
+    return "Hello World";
   }
 
   @Mutation(() => User)
