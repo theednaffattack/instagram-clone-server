@@ -28,11 +28,16 @@ export class GetMyFollowingPostById {
       .orderBy("comments.created_at", "ASC")
       .getOne();
 
+    // retrieve post, check if a record exists then determine if it's been
+    // liked by the user
+    // if the Post record doesn't exist the variable is false
+    // if the record does exist but the logged in user is not among the likes...
+    // the variable is false. If the user HAS liked the Post the variable is true
     let alreadyLiked =
       singlePostOfSomeoneIFollow && singlePostOfSomeoneIFollow.likes.length >= 1
-        ? !!singlePostOfSomeoneIFollow.likes.filter(likeRecord => {
+        ? singlePostOfSomeoneIFollow.likes.filter(likeRecord => {
             return likeRecord.user.id === ctx.userId;
-          })
+          }).length > 0
         : false;
 
     let returnData;
