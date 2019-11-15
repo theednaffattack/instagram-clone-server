@@ -107,10 +107,20 @@ export class CreateOrUpdateLikes {
         .values({ user: { id: ctx.userId }, post: { id: input.postId } })
         .execute();
 
+      console.log("INSPECT newlyCreatedLike", {
+        newlyCreatedLikeRAW: newlyCreatedLike.raw[0].id,
+        status:
+          newlyCreatedLike.raw[0].id &&
+          typeof newlyCreatedLike.raw[0].id === "string"
+            ? LikeStatus.Created
+            : LikeStatus.Undetermined
+      });
+
       let likeReturn: LikeReturnType = {
         postId: input.postId,
         status:
-          newlyCreatedLike.raw.id && typeof newlyCreatedLike.raw.id === "string"
+          newlyCreatedLike.raw[0].id &&
+          typeof newlyCreatedLike.raw[0].id === "string"
             ? LikeStatus.Created
             : LikeStatus.Undetermined
       };
