@@ -50,11 +50,11 @@ export class GetGlobalPostsResolver {
     return { ...postPayload };
   }
 
-  @UseMiddleware(isAuth, logger)
   @Query(() => [FollowingPostReturnType], {
     name: "getGlobalPosts",
     nullable: true
   })
+  @UseMiddleware(isAuth, logger)
   async getGlobalPosts(
     @Ctx() ctx: MyContext,
 
