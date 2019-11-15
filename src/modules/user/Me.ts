@@ -6,8 +6,8 @@ import { isAuth } from "../middleware/isAuth";
 
 @Resolver()
 export class MeResolver {
-  @UseMiddleware(isAuth)
   @Query(() => User, { nullable: true })
+  @UseMiddleware(isAuth)
   async me(@Ctx() ctx: MyContext): Promise<User | undefined> {
     // if we can't find a userId on the current session
 
