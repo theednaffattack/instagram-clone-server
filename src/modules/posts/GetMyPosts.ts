@@ -5,21 +5,22 @@ import {
   Ctx,
   Field,
   ID,
-  ObjectType,
   Subscription,
   ResolverFilterData,
   InputType,
-  Root,
-  Int
+  Root
   // registerEnumType
 } from "type-graphql";
 
+import {
+  FollowingPostReturnType,
+  HandlePostPayload
+} from "../../types/PostReturnTypes";
 import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
 import { MyContext } from "../../types/MyContext";
 import { User } from "../../entity/User";
 import { Post } from "../../entity/Post";
-import { Image } from "../../entity/Image";
 
 // /**
 //  * @type {Enum} Action - CRUD action helper
@@ -58,39 +59,6 @@ export class PostSubscriptionInput {
 
   @Field(() => [String], { nullable: "itemsAndList" })
   images: string[];
-}
-
-@ObjectType()
-export class HandlePostPayload {
-  @Field(() => Boolean)
-  success: boolean;
-
-  @Field(() => String)
-  action: string;
-
-  @Field(() => ID, { nullable: true })
-  id: string;
-
-  @Field(() => Boolean, { nullable: true })
-  title: string;
-
-  @Field(() => [Image], { nullable: true })
-  images: Image[];
-
-  @Field(() => Boolean, { nullable: true })
-  isCtxUserIdAFollowerOfPostUser?: boolean;
-
-  @Field(() => User, { nullable: true })
-  user: User;
-
-  @Field(() => Date, { nullable: true })
-  created_at: Date;
-
-  @Field(() => Date, { nullable: true })
-  updated_at?: Date;
-
-  @Field(() => Int, { nullable: true })
-  comment_count?: number;
 }
 
 @Resolver()
@@ -132,14 +100,14 @@ export class MyFollowingPostsResolver {
     return feedPayload; // createdAt: new Date()
   }
 
-  @Query(() => [Post], {
+  @Query(() => [FollowingPostReturnType], {
     name: "myFollowingPosts",
     nullable: true
   })
   async myFollowingPosts(
     // @Arg("data") { me }: MyImagesInput,
     @Ctx() ctx: MyContext
-  ): Promise<any> {
+  ): Promise<FollowingPostReturnType[]> {
     const userId = ctx.req.session ? ctx.req.session.userId : null;
 
     // search for the logged in user
@@ -153,7 +121,8 @@ export class MyFollowingPostsResolver {
         "following.posts.images",
         "following.posts.user",
         "following.posts.comments",
-        "following.posts.likes"
+        "following.posts.likes",
+        "following.posts.likes.user"
       ]
     });
 
@@ -163,13 +132,22 @@ export class MyFollowingPostsResolver {
 
     let cache: any[] = [];
 
+    let alreadyLiked;
+
     justThePosts.forEach(postArr =>
       cache.push(
         ...postArr.map((singlePost: Post) => {
+          alreadyLiked =
+            singlePost && singlePost.likes.length >= 1
+              ? !!singlePost.likes.filter(likeRecord => {
+                  return likeRecord.user.id === ctx.userId;
+                })
+              : false;
           return {
             ...singlePost,
             comments_count: singlePost.comments.length,
-            likes_count: singlePost.likes.length
+            likes_count: singlePost.likes.length,
+            already_liked: alreadyLiked
           };
         })
       )

@@ -15,6 +15,7 @@ import { logger } from "../middleware/logger";
 import { Post } from "../../entity/Post";
 import { PostInput } from "./createPost/CreatePostInput";
 import { MyContext } from "../../types/MyContext";
+import { FollowingPostReturnType } from "../../types/PostReturnTypes";
 // import { HandlePostPayload } from "./GetMyPosts";
 
 @Resolver()
@@ -50,7 +51,7 @@ export class GetGlobalPostsResolver {
   }
 
   @UseMiddleware(isAuth, logger)
-  @Query(() => [Post], {
+  @Query(() => [FollowingPostReturnType], {
     name: "getGlobalPosts",
     nullable: true
   })
@@ -59,22 +60,38 @@ export class GetGlobalPostsResolver {
 
     @PubSub("GLOBAL_POSTS") publish: Publisher<any>
     // @PubSub("POSTS_GLOBAL") publishGlbl: Publisher<PostPayload>,
-  ): Promise<any> {
+  ): Promise<FollowingPostReturnType[]> {
     const findOptions = {
       where: {},
-      relations: ["images", "likes", "comments", "user", "user.followers"]
+      relations: [
+        "images",
+        "comments",
+        "user",
+        "user.followers",
+        "likes",
+        "likes.user"
+      ]
     };
 
     let globalPosts = await Post.find(findOptions);
 
+    let alreadyLiked;
+
     let addFollowerStatusToGlobalPosts = globalPosts.map(post => {
+      alreadyLiked =
+        post && post.likes.length >= 1
+          ? !!post.likes.filter(likeRecord => {
+              return likeRecord.user.id === ctx.userId;
+            })
+          : false;
       return {
         isCtxUserIdAFollowerOfPostUser: post.user.followers
           .map(follower => follower.id)
           .includes(ctx.userId),
+        ...post,
         likes_count: post.likes.length,
         comments_count: post.comments.length,
-        ...post,
+        already_liked: alreadyLiked,
         success: true,
         action: "CREATE"
       };
