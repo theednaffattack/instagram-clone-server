@@ -47,7 +47,7 @@ export class FollowingPostReturnType {
   likes_count: number;
 
   @Field(() => Boolean, { nullable: false })
-  already_liked: boolean;
+  currently_liked: boolean;
 }
 
 @ObjectType()
@@ -86,5 +86,5 @@ export class HandlePostPayload {
   likes_count: number;
 
   @Field(() => Boolean, { nullable: false })
-  already_liked: boolean;
+  currently_liked: boolean;
 }

@@ -132,22 +132,23 @@ export class MyFollowingPostsResolver {
 
     let cache: any[] = [];
 
-    let alreadyLiked;
+    let currentlyLiked;
 
     justThePosts.forEach(postArr =>
       cache.push(
         ...postArr.map((singlePost: Post) => {
-          alreadyLiked =
+          currentlyLiked =
             singlePost && singlePost.likes.length >= 1
-              ? !!singlePost.likes.filter(likeRecord => {
+              ? singlePost.likes.filter(likeRecord => {
                   return likeRecord.user.id === ctx.userId;
-                })
+                }).length > 0
               : false;
+
           return {
             ...singlePost,
             comments_count: singlePost.comments.length,
             likes_count: singlePost.likes.length,
-            already_liked: alreadyLiked
+            currently_liked: currentlyLiked
           };
         })
       )

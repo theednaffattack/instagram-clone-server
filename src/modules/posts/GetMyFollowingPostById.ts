@@ -33,7 +33,7 @@ export class GetMyFollowingPostById {
     // if the Post record doesn't exist the variable is false
     // if the record does exist but the logged in user is not among the likes...
     // the variable is false. If the user HAS liked the Post the variable is true
-    let alreadyLiked =
+    let currentlyLiked =
       singlePostOfSomeoneIFollow && singlePostOfSomeoneIFollow.likes.length >= 1
         ? singlePostOfSomeoneIFollow.likes.filter(likeRecord => {
             return likeRecord.user.id === ctx.userId;
@@ -47,7 +47,7 @@ export class GetMyFollowingPostById {
         ...singlePostOfSomeoneIFollow,
         likes_count: singlePostOfSomeoneIFollow.likes.length,
         comments_count: singlePostOfSomeoneIFollow.comments.length,
-        already_liked: alreadyLiked
+        currently_liked: currentlyLiked
       };
     }
 

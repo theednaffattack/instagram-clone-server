@@ -75,15 +75,16 @@ export class GetGlobalPostsResolver {
 
     let globalPosts = await Post.find(findOptions);
 
-    let alreadyLiked;
+    let currentlyLiked;
 
     let addFollowerStatusToGlobalPosts = globalPosts.map(post => {
-      alreadyLiked =
+      currentlyLiked =
         post && post.likes.length >= 1
-          ? !!post.likes.filter(likeRecord => {
+          ? post.likes.filter(likeRecord => {
               return likeRecord.user.id === ctx.userId;
-            })
+            }).length > 0
           : false;
+
       return {
         isCtxUserIdAFollowerOfPostUser: post.user.followers
           .map(follower => follower.id)
@@ -91,7 +92,7 @@ export class GetGlobalPostsResolver {
         ...post,
         likes_count: post.likes.length,
         comments_count: post.comments.length,
-        already_liked: alreadyLiked,
+        currently_liked: currentlyLiked,
         success: true,
         action: "CREATE"
       };
