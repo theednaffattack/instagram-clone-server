@@ -147,7 +147,7 @@ const startServer = async () => {
 
   const server = new ApolloServer({
     introspection: true,
-    playground: true,
+    playground: { version: "1.7.25", endpoint: "/graphql" }, // 1.7.10
     schema,
 
     context: ({ req, res, connection }: any) => {
