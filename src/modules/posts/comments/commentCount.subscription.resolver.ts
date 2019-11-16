@@ -30,7 +30,11 @@ export class CommentCountResolver {
     },
 
     filter: ({ payload, args }: ResolverFilterData<CommentCountType, any>) => {
-      return payload.postId === args.input.postId;
+      if (payload && args.input) {
+        return payload.postId === args.input.postId;
+      } else {
+        return false;
+      }
     }
   })
   async commentCount(

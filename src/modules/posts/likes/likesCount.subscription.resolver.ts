@@ -38,8 +38,11 @@ export class LikesCountResolver {
     },
 
     filter: ({ payload, args }: ResolverFilterData<LikesCountType, any>) => {
-      // @ts-ignore
-      return payload.postId === args.input.postId;
+      if (payload && args.input) {
+        return payload.postId === args.input.postId;
+      } else {
+        return false;
+      }
     }
   })
   async likesCount(
