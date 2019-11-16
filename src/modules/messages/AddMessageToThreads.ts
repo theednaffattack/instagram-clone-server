@@ -10,7 +10,8 @@ import {
   Root,
   PubSub,
   Subscription,
-  ID
+  ID,
+  Publisher
 } from "type-graphql";
 
 import {
@@ -47,9 +48,6 @@ export class AddMessagePayload {
 
   @Field(() => [User])
   invitees: User[];
-
-  // @Field(() => [Image], { nullable: "itemsAndList" })
-  // images?: Image[];
 }
 
 @Resolver()
@@ -96,11 +94,8 @@ export class AddMessageToThreadResolver {
   @Mutation(type => AddMessagePayload)
   async addMessageToThread(
     @Ctx() context: MyContext,
-    // @ts-ignore
-    @Args(type => AddMessageToThreadInput) input: AddMessageToThreadInput,
-    // @ts-ignore
+    @Args(() => AddMessageToThreadInput) input: AddMessageToThreadInput,
     @PubSub("THREADS") publish: Publisher<AddMessagePayload>
-    // @PubSub("POSTS_GLOBAL") publishGlbl: Publisher<PostPayload>,
   ): Promise<IAddMessagePayload> {
     const sentBy = await User.findOne(context.userId);
 
@@ -108,10 +103,6 @@ export class AddMessageToThreadResolver {
 
     let existingThread;
     let newMessage: any;
-
-    // const lastImage = input.images.length > 0 ? input.images.length - 1 : 0;
-
-    // const incomingImages = await input.images;
 
     if (sentBy && receiver && input.images && input.images[0]) {
       const newImageData: Image[] = input.images.map(image =>
@@ -159,7 +150,6 @@ export class AddMessageToThreadResolver {
 
       const foundThread = existingThread && existingThread.id ? true : false;
 
-      // existingThread.messages.push(newMessage);
       existingThread.last_message = input.message;
 
       existingThread.save();
@@ -238,7 +228,6 @@ export class AddMessageToThreadResolver {
 
       await publish(returnObj);
 
-      console.log("published!!! NO IMAGE".toUpperCase());
       return returnObj;
     } else {
       throw Error(

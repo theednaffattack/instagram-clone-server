@@ -11,7 +11,7 @@ import {
   CreateUserResolver,
   CreateProductResolver
 } from "../modules/user/CreateUser";
-// import { ProfilePictureResolver } from "../modules/user/ProfilePictureUpload";
+import { ProfilePictureResolver } from "../modules/user/ProfilePictureUpload";
 import { CreatePost } from "../modules/posts/CreatePost";
 // import { GetAllMyImagesResolver } from "../modules/user/GetMyImages";
 import { GetAllMyImagesResolver } from "../modules/user/GetMyImagesResolver";
@@ -73,7 +73,7 @@ export const createSchema = () =>
       MeAndAllFollowers,
       MyFollowingPostsResolver,
       NewMessageByThreadIdResolver,
-      // ProfilePictureResolver,
+      ProfilePictureResolver,
       RegisterResolver,
       SendMessageResolver,
       SignS3,
