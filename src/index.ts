@@ -191,8 +191,12 @@ const startServer = async () => {
 
       //   error.message = "Internal Server Error";
 
+      let getStacktrace = extensions.exception
+        ? extensions.exception.stacktrace[0].replace("Error: ", "")
+        : "Undetermined error";
+
       return {
-        message: extensions.exception.stacktrace[0].replace("Error: ", ""),
+        message: getStacktrace,
         path,
         locations
         // extensions
