@@ -89,14 +89,14 @@ export class User extends BaseEntity {
   posts?: Post[];
 
   // @ts-ignore
-  @Field(type => Image, { nullable: true })
+  @Field(type => Image, { nullable: "itemsAndList" })
   @OneToMany(() => Image, image => image.user, { nullable: true })
   images: Image[];
 
   // @ts-ignore
-  @Field(type => Image, { nullable: true })
+  @Field(type => String, { nullable: true })
   @Column("varchar", { nullable: true })
-  profileImgUrl: string;
+  profileImgUrl?: string;
 
   // @ts-ignore
   @Field(type => [Message], { nullable: true })
