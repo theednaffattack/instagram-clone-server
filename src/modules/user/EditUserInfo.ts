@@ -7,7 +7,7 @@ import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
 import { MyContext } from "../../types/MyContext";
 
-// let errorMessageBase = "Error saving info to database";
+let errorMessageBase = "Error saving info to database";
 
 @Resolver()
 export class EditUserInfoResolver {
@@ -36,7 +36,10 @@ export class EditUserInfoResolver {
     let userToReturn = await User.createQueryBuilder()
       .where("id = :id", { id: ctx.userId })
       .getOne()
-      .catch(error => console.error(error));
+      .catch(error => {
+        console.error(error);
+        throw Error(`${errorMessageBase}\n${error}`);
+      });
 
     console.log({ userToReturn });
 
