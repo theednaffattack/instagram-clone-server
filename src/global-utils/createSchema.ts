@@ -15,6 +15,7 @@ import { ProfilePictureResolver } from "../modules/user/ProfilePictureUpload";
 import { CreatePost } from "../modules/posts/CreatePost";
 // import { GetAllMyImagesResolver } from "../modules/user/GetMyImages";
 import { GetAllMyImagesResolver } from "../modules/user/GetMyImagesResolver";
+import { EditUserInfoResolver } from "../modules/user/EditUserInfo";
 import { GetThoseIFollowAndTheirPostsResolver } from "../modules/posts/GetThoseIFollowAndTheirPostsResolver";
 import { FollowUser } from "../modules/user/FollowUser";
 import { GetMyMessagesFromUserResolver } from "../modules/messages/GetMyMessagesFromUser";
@@ -54,6 +55,7 @@ export const createSchema = () =>
       CreateMessageThreadResolver,
       AddCommentToPost,
       CreateUserResolver,
+      EditUserInfoResolver,
       FollowUser,
       ForgotPasswordResolver,
       GetMyFollowingPostById,
