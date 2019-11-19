@@ -42,6 +42,9 @@ export class UploadProfilePictureInput {
 export class UploadProfilePictueReturnType {
   @Field(() => String)
   message: string;
+
+  @Field(() => String)
+  profileImgUrl: string;
 }
 
 @Resolver()
@@ -83,8 +86,11 @@ export class ProfilePictureResolver {
         );
       });
     }
-    if (savedUser) {
-      return { message: ProfileUploadStatus.Created };
+    if (savedUser && savedUser.profileImgUrl) {
+      return {
+        message: ProfileUploadStatus.Created,
+        profileImgUrl: savedUser.profileImgUrl
+      };
     } else {
       throw Error("Error uploading user profile image");
     }
