@@ -1,5 +1,4 @@
 import { Arg, Resolver, Mutation, UseMiddleware, Ctx } from "type-graphql";
-import bcrypt from "bcryptjs";
 
 import { User } from "../../entity/User";
 import { EditUserInput } from "./register/EditUserInput";
@@ -15,16 +14,14 @@ export class EditUserInfoResolver {
   @Mutation(() => User)
   async editUserInfo(
     @Arg("data")
-    { email, firstName, lastName, password }: EditUserInput,
+    { email, firstName, lastName }: EditUserInput,
     @Ctx() ctx: MyContext
   ): Promise<any> {
-    const hashedPassword = await bcrypt.hash(password, 12);
-
     // most efficient way to set records in the DB
     // returns nothing
     await User.createQueryBuilder()
       .update(User)
-      .set({ email, firstName, lastName, password: hashedPassword })
+      .set({ email, firstName, lastName })
       .where("id = :id", { id: ctx.userId })
       .execute()
       .then(data => console.log(data))
