@@ -1,9 +1,9 @@
 import { Length, IsEmail } from "class-validator";
 import { Field, InputType } from "type-graphql";
-import { PasswordInput } from "../../shared/PasswordInput";
+// import { PasswordInput } from "../../shared/PasswordInput";
 
 @InputType()
-export class EditUserInput extends PasswordInput {
+export class EditUserInput {
   @Field()
   @Length(1, 255)
   firstName: string;
