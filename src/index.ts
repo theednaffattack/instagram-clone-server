@@ -6,11 +6,10 @@ import Express from "express";
 import session from "express-session";
 import http from "http";
 import connectRedis from "connect-redis";
-// import cors from "cors";
-
-import { createSchema } from "./global-utils/createSchema";
 import { ArgumentValidationError } from "type-graphql";
 import { GraphQLFormattedError, GraphQLError } from "graphql";
+
+import { createSchema } from "./global-utils/createSchema";
 import { redis } from "./redis";
 import { redisSessionPrefix } from "./constants";
 import { devOrmconfig } from "./dev_ormconfig";
@@ -170,11 +169,17 @@ const startServer = async () => {
       }
     },
     formatError: (error: GraphQLError): GraphQLFormattedError => {
-      if (error.originalError instanceof ApolloError) {
+      console.log("INVESTIGATE ERRORS");
+      console.log({ error });
+      const { extensions = {}, locations, message, path } = error;
+
+      if (message.includes("Not authenticated")) {
         return error;
       }
 
-      const { extensions = {}, locations, message, path } = error;
+      if (error.originalError instanceof ApolloError) {
+        return error;
+      }
 
       if (error.originalError instanceof ArgumentValidationError) {
         extensions.code = "GRAPHQL_VALIDATION_FAILED";
@@ -186,9 +191,6 @@ const startServer = async () => {
           path
         };
       }
-
-      console.log(error);
-      console.log(typeof error);
 
       //   error.message = "Internal Server Error";
 
