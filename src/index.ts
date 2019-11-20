@@ -188,6 +188,7 @@ const startServer = async () => {
       }
 
       console.log(error);
+      console.log(typeof error);
 
       //   error.message = "Internal Server Error";
 
