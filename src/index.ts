@@ -4,10 +4,13 @@ import { createConnection } from "typeorm";
 import { ApolloServer, ApolloError } from "apollo-server-express";
 import Express from "express";
 import session from "express-session";
-import http from "http";
+// import http from "http";
 import connectRedis from "connect-redis";
 import { ArgumentValidationError } from "type-graphql";
 import { GraphQLFormattedError, GraphQLError } from "graphql";
+import https from "https";
+import fs from "fs";
+import path from "path";
 
 import { createSchema } from "./global-utils/createSchema";
 import { redis } from "./redis";
@@ -23,11 +26,17 @@ const devPort = "4000";
 
 const port = nodeEnvIsProd ? process.env.PORT : devPort;
 
-const devHost = "192.168.1.24";
+// const devHost = "192.168.1.24";
+const devHost = "localhost";
 
 const prodHost = "fauxgramapi.eddienaff.dev";
 
-const protocol = nodeEnvIsProd ? "https://" : "http://";
+const protocol = "https://";
+
+const certOptions = {
+  key: fs.readFileSync(path.resolve("dist/cert/server.key")),
+  cert: fs.readFileSync(path.resolve("dist/cert/server.crt"))
+};
 
 const host = nodeEnvIsProd
   ? `${protocol}${prodHost}/graphql`
@@ -37,12 +46,23 @@ let message = `\n🚀 Server is ready at:\n${host}`;
 
 const ormConnection = nodeEnvIsDev ? devOrmconfig : productionOrmConfig;
 
+let ngrokUri = "https://69952369.ngrok.io";
+
 let allowedOrigins = nodeEnvIs_NOT_Prod
   ? [
-      "http://192.168.1.24:3030",
-      "http://192.168.1.24:4000",
-      "ws://192.168.1.24:4000",
-      "ws://192.168.1.24:3000"
+      // "http://192.168.1.24:3030",
+      // "http://192.168.1.24:4000",
+      // "ws://192.168.1.24:4000",
+      // "ws://192.168.1.24:3000",
+      // "http://localhost:3030",
+
+      "https://192.168.1.24:3030",
+      "https://192.168.1.24:4000",
+      "wss://192.168.1.24:4000",
+      "wss://192.168.1.24:3000",
+      "https://localhost:4000",
+      "https://localhost:3030",
+      ngrokUri
     ]
   : [
       "https://faux-gram-client-nextjs.herokuapp.com", // prod frontend
@@ -87,7 +107,7 @@ if (nodeEnvIsProd) {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: nodeEnvIsProd,
+      secure: true,
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
       domain: "eddienaff.dev"
     }
@@ -106,8 +126,9 @@ if (nodeEnvIsDev || nodeEnvIs_NOT_Prod) {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: nodeEnvIsProd,
-      maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days,
+      secure: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
+      domain: "localhost"
     }
   });
 }
@@ -169,8 +190,6 @@ const startServer = async () => {
       }
     },
     formatError: (error: GraphQLError): GraphQLFormattedError => {
-      console.log("INVESTIGATE ERRORS");
-      console.log({ error });
       const { extensions = {}, locations, message, path } = error;
 
       if (message.includes("Not authenticated")) {
@@ -214,8 +233,8 @@ const startServer = async () => {
     cors: corsOptions
   }); // app is from an existing express app
 
-  const httpServer = http.createServer(app);
-  server.installSubscriptionHandlers(httpServer);
+  const httpsServer = https.createServer(certOptions, app);
+  server.installSubscriptionHandlers(httpsServer);
 
   // needed for heroku deployment
   app.enable("trust proxy");
@@ -232,7 +251,7 @@ const startServer = async () => {
     });
   }
 
-  httpServer.listen({ port }, () =>
+  httpsServer.listen({ port }, () =>
     console.log(
       message
       // `🚀 Server ready at http://${devHost}:${devPort}${server.graphqlPath}`
