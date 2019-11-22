@@ -4,7 +4,7 @@ import { createConnection } from "typeorm";
 import { ApolloServer, ApolloError } from "apollo-server-express";
 import Express from "express";
 import session from "express-session";
-// import http from "http";
+import http from "http";
 import connectRedis from "connect-redis";
 import { ArgumentValidationError } from "type-graphql";
 import { GraphQLFormattedError, GraphQLError } from "graphql";
@@ -60,6 +60,8 @@ let allowedOrigins = nodeEnvIs_NOT_Prod
       "https://192.168.1.24:4000",
       "wss://192.168.1.24:4000",
       "wss://192.168.1.24:3000",
+      "wss://localhost:4000",
+      "wss://localhost:3000",
       "https://localhost:4000",
       "https://localhost:3030",
       ngrokUri
@@ -233,8 +235,17 @@ const startServer = async () => {
     cors: corsOptions
   }); // app is from an existing express app
 
-  const httpsServer = https.createServer(certOptions, app);
-  server.installSubscriptionHandlers(httpsServer);
+  let httpServer;
+
+  let httpsServer;
+
+  if (nodeEnvIsProd) {
+    httpServer = http.createServer(app);
+    server.installSubscriptionHandlers(httpServer);
+  } else {
+    httpsServer = https.createServer(certOptions, app);
+    server.installSubscriptionHandlers(httpsServer);
+  }
 
   // needed for heroku deployment
   app.enable("trust proxy");
@@ -251,12 +262,21 @@ const startServer = async () => {
     });
   }
 
-  httpsServer.listen({ port }, () =>
-    console.log(
-      message
-      // `🚀 Server ready at http://${devHost}:${devPort}${server.graphqlPath}`
-    )
-  );
+  if (nodeEnvIsProd && httpServer) {
+    httpServer.listen({ port }, () =>
+      console.log(
+        message
+        // `🚀 Server ready at http://${devHost}:${devPort}${server.graphqlPath}`
+      )
+    );
+  } else if (nodeEnvIs_NOT_Prod && httpsServer) {
+    httpsServer.listen({ port }, () =>
+      console.log(
+        message
+        // `🚀 Server ready at http://${devHost}:${devPort}${server.graphqlPath}`
+      )
+    );
+  }
 };
 
 startServer();
