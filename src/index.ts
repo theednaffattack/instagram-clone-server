@@ -18,6 +18,11 @@ import { redisSessionPrefix } from "./constants";
 import { devOrmconfig } from "./dev_ormconfig";
 import { productionOrmConfig } from "./production_ormconfig";
 
+interface CertType {
+  key: Buffer;
+  cert: Buffer;
+}
+
 const nodeEnvIsDev = process.env.NODE_ENV === "development";
 const nodeEnvIsProd = process.env.NODE_ENV === "production";
 const nodeEnvIs_NOT_Prod = process.env.NODE_ENV !== "production";
@@ -33,10 +38,14 @@ const prodHost = "fauxgramapi.eddienaff.dev";
 
 const protocol = "https://";
 
-const certOptions = {
-  key: fs.readFileSync(path.resolve("dist/cert/server.key")),
-  cert: fs.readFileSync(path.resolve("dist/cert/server.crt"))
-};
+let certOptions: CertType;
+
+if (nodeEnvIs_NOT_Prod) {
+  certOptions = {
+    key: fs.readFileSync(path.resolve("dist/cert/server.key")),
+    cert: fs.readFileSync(path.resolve("dist/cert/server.crt"))
+  };
+}
 
 const host = nodeEnvIsProd
   ? `${protocol}${prodHost}/graphql`
