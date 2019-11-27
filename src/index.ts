@@ -55,7 +55,7 @@ let message = `\n🚀 Server is ready at:\n${host}`;
 
 const ormConnection = nodeEnvIsDev ? devOrmconfig : productionOrmConfig;
 
-let ngrokUri = "https://69952369.ngrok.io";
+let ngrokUri = "http://e7dd14a8.ngrok.io";
 
 let allowedOrigins = nodeEnvIs_NOT_Prod
   ? [
