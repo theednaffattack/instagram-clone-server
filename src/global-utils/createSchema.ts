@@ -21,6 +21,8 @@ import { FollowUser } from "../modules/user/FollowUser";
 import { GetMyMessagesFromUserResolver } from "../modules/messages/GetMyMessagesFromUser";
 import { SendMessageResolver } from "../modules/messages/SendMessages";
 import { GetGlobalPostsResolver } from "../modules/posts/GetGlobalFeed";
+import { GetGlobalPostById } from "../modules/posts/GetGlobalPostById";
+
 import { UnFollowUser } from "../modules/user/UnFollowUser";
 import { MeAndAllFollowers } from "../modules/user/GetMyFollowers";
 import { MyFollowingPostsResolver } from "../modules/posts/GetMyPosts";
@@ -59,6 +61,7 @@ export const createSchema = () =>
       FollowUser,
       ForgotPasswordResolver,
       GetMyFollowingPostById,
+      GetGlobalPostById,
       GetGlobalPostsResolver,
       GetAllMessagesResolver,
       GetOnlyThreads,
