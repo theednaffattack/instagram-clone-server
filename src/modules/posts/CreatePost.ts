@@ -204,10 +204,6 @@ export class CreatePost {
             .includes(user.id)
         };
 
-        console.log("VIEW myPostPayload", {
-          myPostPayload
-        });
-
         await publish(myPostPayload);
         await publishGlbl(myPostPayload);
         // return true;
