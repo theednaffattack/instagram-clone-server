@@ -21,7 +21,7 @@ import { FollowingPostReturnType } from "../../types/PostReturnTypes";
 @Resolver()
 export class GetGlobalPostsResolver {
   // @ts-ignore
-  @Subscription(type => Post, {
+  @Subscription(type => FollowingPostReturnType, {
     // the `payload` and `args` are available in the destructured
     // object below `{args, context, payload}`
     nullable: true,
