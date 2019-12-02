@@ -46,7 +46,7 @@ export class GetGlobalPostsResolver {
   // works besides accessing the root query to add a
   // resolver method. For now I don't transform
   // anything here
-  globalPosts(@Root() postPayload: Post) {
+  globalPosts(@Root() postPayload: FollowingPostReturnType) {
     return { ...postPayload };
   }
 
