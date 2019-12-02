@@ -66,6 +66,11 @@ export interface PostPayload {
   text: string;
   images: Image[];
   user: User;
+
+  likes_count?: number;
+  comments_count?: number;
+  currently_liked?: boolean;
+  isCtxUserIdAFollowerOfPostUser?: boolean;
 }
 
 @InputType()
@@ -189,7 +194,19 @@ export class CreatePost {
         await user.save();
 
         // we use myPostPayload because of the subscription
-        let myPostPayload: PostPayload = { ...newPost };
+        let myPostPayload: PostPayload = {
+          ...newPost,
+          likes_count: 0,
+          comments_count: 0,
+          currently_liked: false,
+          isCtxUserIdAFollowerOfPostUser: newPost.user.followers
+            .map(follower => follower.id)
+            .includes(user.id)
+        };
+
+        console.log("VIEW myPostPayload", {
+          myPostPayload
+        });
 
         await publish(myPostPayload);
         await publishGlbl(myPostPayload);
