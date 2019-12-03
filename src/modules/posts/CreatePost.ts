@@ -25,9 +25,6 @@ import { MyContext } from "../../types/MyContext";
 
 /**
  * Post type for returns to client
- * @typedef {Class} PostSubType
- * @property {string} id - The Entity ID
- * @property {string} title - The Post title
  */
 @ObjectType()
 export class PostSubType {
