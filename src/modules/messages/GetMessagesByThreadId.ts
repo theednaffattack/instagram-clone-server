@@ -33,14 +33,14 @@ export class GetMessagesByThreadIdInput {
   @Field(() => String)
   threadId: string;
 
-  @Field(() => Int, { defaultValue: 0 })
+  @Field(() => Int, { defaultValue: 0, nullable: true })
   @Min(0)
-  skip: number;
+  skip?: number;
 
-  @Field(() => Int, { defaultValue: 10 })
+  @Field(() => Int, { defaultValue: 15, nullable: true })
   @Min(1)
   @Max(25)
-  take: number;
+  take?: number;
 
   // // helpers - index calculations
   // startIndex = this.skip;
