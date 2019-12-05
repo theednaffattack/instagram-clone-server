@@ -8,7 +8,7 @@ import {
   Ctx,
   PubSub,
   Publisher,
-  Arg
+  Args
 } from "type-graphql";
 import { format, parseISO } from "date-fns";
 
@@ -78,8 +78,8 @@ export class GetGlobalPostsResolver {
   async getGlobalPosts(
     @Ctx() ctx: MyContext,
 
-    @Arg("input", () => GetGlobalPostsInput)
-    input: GetGlobalPostsInput,
+    @Args()
+    { cursor, take }: GetGlobalPostsInput,
 
     @PubSub("GLOBAL_POSTS") publish: Publisher<any>
     // @PubSub("POSTS_GLOBAL") publishGlbl: Publisher<PostPayload>,
@@ -94,16 +94,17 @@ export class GetGlobalPostsResolver {
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("user.followers", "followers")
       .leftJoinAndSelect("post.likes", "likes")
+      .leftJoinAndSelect("likes.user", "likeUser")
       .where("post.created_at <= :cursor::timestamp", {
-        cursor: formatDate(input.cursor ? parseISO(input.cursor) : new Date())
+        cursor: formatDate(cursor ? parseISO(cursor) : new Date())
       })
       .orderBy("post.created_at", "DESC")
-      .take(input.take)
+      .take(take)
       .getMany();
 
     const flippedPosts = findPosts.reverse();
 
-    const startCursor = input.cursor ? input.cursor : new Date().toISOString();
+    const startCursor = cursor ? cursor : new Date().toISOString();
 
     const cursorNoRecordsErrorMessage =
       "no 'created_at' record present to create new cursor";
@@ -122,12 +123,12 @@ export class GetGlobalPostsResolver {
             .leftJoinAndSelect("post.user", "user")
             .leftJoinAndSelect("user.followers", "followers")
             .leftJoinAndSelect("post.likes", "likes")
-            // .where("user.id = :user_id", { user_id: context.userId })
-            .andWhere("post.created_at <= :cursor::timestamp", {
+            .leftJoinAndSelect("likes.user", "likeUser")
+            .where("post.created_at <= :cursor::timestamp", {
               cursor: formatDate(parseISO(newCursor))
             })
             .orderBy("post.created_at", "DESC")
-            .take(input.take)
+            .take(take)
             .getMany();
 
     const afterMessages = await Post.createQueryBuilder("post")
@@ -136,14 +137,16 @@ export class GetGlobalPostsResolver {
       .leftJoinAndSelect("post.user", "user")
       .leftJoinAndSelect("user.followers", "followers")
       .leftJoinAndSelect("post.likes", "likes")
-      .andWhere("post.created_at >= :cursor::timestamp", {
-        cursor: formatDate(input.cursor ? parseISO(startCursor) : new Date())
+      .leftJoinAndSelect("likes.user", "likeUser")
+      .where("post.created_at >= :cursor::timestamp", {
+        cursor: formatDate(cursor ? parseISO(startCursor) : new Date())
       })
       .orderBy("post.created_at", "DESC")
-      .take(input.take)
+      .take(take)
       .getMany();
 
     let addFollowerStatusToGlobalPosts = flippedPosts.map(post => {
+      console.log("VIEW POST", post);
       currentlyLiked =
         post && post.likes.length >= 1
           ? post.likes.filter(likeRecord => {

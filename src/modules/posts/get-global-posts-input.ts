@@ -1,7 +1,7 @@
-import { InputType, Field, Int } from "type-graphql";
+import { Field, Int, ArgsType } from "type-graphql";
 import { Min, Max } from "class-validator";
 
-@InputType()
+@ArgsType()
 export class GetGlobalPostsInput {
   @Field(() => String, { nullable: true })
   cursor?: string;
