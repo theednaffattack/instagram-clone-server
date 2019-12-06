@@ -25,9 +25,6 @@ export class GlobalPostReturnType {
   @Field(() => [Comment], { nullable: true })
   comments: Comment[];
 
-  @Field(() => Boolean, { nullable: true })
-  isCtxUserIdAFollowerOfPostUser: boolean;
-
   @Field(() => User, { nullable: true })
   user: User;
 
@@ -37,6 +34,9 @@ export class GlobalPostReturnType {
   @Field(() => Date, { nullable: true })
   updated_at?: Date;
 
+  @Field(() => Boolean, { nullable: true })
+  isCtxUserIdAFollowerOfPostUser: boolean;
+
   @Field(() => Int, { nullable: false })
   comments_count: number;
 
@@ -45,6 +45,12 @@ export class GlobalPostReturnType {
 
   @Field(() => Boolean, { nullable: false })
   currently_liked: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  success?: boolean;
+
+  @Field(() => String, { nullable: true })
+  action?: string;
 }
 
 @ObjectType()

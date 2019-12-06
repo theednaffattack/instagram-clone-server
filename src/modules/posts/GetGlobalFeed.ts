@@ -6,8 +6,6 @@ import {
   ResolverFilterData,
   Root,
   Ctx,
-  PubSub,
-  Publisher,
   Args
 } from "type-graphql";
 import { format, parseISO } from "date-fns";
@@ -17,16 +15,15 @@ import { logger } from "../middleware/logger";
 import { Post } from "../../entity/Post";
 import { PostInput } from "./createPost/CreatePostInput";
 import { MyContext } from "../../types/MyContext";
-import { FollowingPostReturnType } from "../../types/PostReturnTypes";
 import { GetGlobalPostsInput } from "./get-global-posts-input";
-import { PaginatedPostResponse } from "./paginated-post-response";
+import { GlobalPostReturnType } from "../../types/PostReturnTypes";
 
 const formatDate = (date: any) => format(date, "yyyy-MM-dd HH:mm:ss");
 
 @Resolver()
 export class GetGlobalPostsResolver {
   // @ts-ignore
-  @Subscription(type => PaginatedPostResponse, {
+  @Subscription(type => GlobalPostReturnType, {
     // the `payload` and `args` are available in the destructured
     // object below `{args, context, payload}`
     nullable: true,
@@ -41,36 +38,17 @@ export class GetGlobalPostsResolver {
     filter: ({
       payload,
       context
-    }: ResolverFilterData<PaginatedPostResponse, PostInput>) => {
+    }: ResolverFilterData<GlobalPostReturnType, PostInput>) => {
       return true;
     }
   })
   // this is the actual class method that activates?
   // the subscribe.
-  globalPosts(
-    @Root() postPayload: FollowingPostReturnType
-  ): PaginatedPostResponse {
-    let node = postPayload;
-
-    // Because the GetGlobalPosts query feed expects a paginated
-    // but the CreatePost mutation is in a different format
-    // we convert the subscription here
-    let convertReturnType: PaginatedPostResponse = {
-      edges: [{ node }],
-      pageInfo: {
-        startCursor: postPayload.created_at.toString(),
-        endCursor: postPayload.created_at.toString(),
-        hasNextPage: false,
-        hasPreviousPage: false
-      }
-    };
-
-    console.log("VIEW THE CONVERSION", convertReturnType);
-
-    return convertReturnType;
+  globalPosts(@Root() postPayload: GlobalPostReturnType): GlobalPostReturnType {
+    return postPayload;
   }
 
-  @Query(() => PaginatedPostResponse, {
+  @Query(() => [GlobalPostReturnType], {
     name: "getGlobalPosts",
     nullable: true
   })
@@ -79,11 +57,9 @@ export class GetGlobalPostsResolver {
     @Ctx() ctx: MyContext,
 
     @Args()
-    { cursor, take }: GetGlobalPostsInput,
-
-    @PubSub("GLOBAL_POSTS") publish: Publisher<any>
-    // @PubSub("POSTS_GLOBAL") publishGlbl: Publisher<PostPayload>,
-  ): Promise<PaginatedPostResponse> {
+    { cursor, skip, take }: GetGlobalPostsInput
+  ): // @PubSub("GLOBAL_POSTS") publish: Publisher<GlobalPostReturnType>
+  Promise<GlobalPostReturnType[]> {
     // NEW STUFF BELOW
 
     let currentlyLiked;
@@ -99,62 +75,25 @@ export class GetGlobalPostsResolver {
         cursor: formatDate(cursor ? parseISO(cursor) : new Date())
       })
       .orderBy("post.created_at", "DESC")
+      .skip(skip)
       .take(take)
       .getMany();
 
     const flippedPosts = findPosts.reverse();
 
-    const startCursor = cursor ? cursor : new Date().toISOString();
-
-    const cursorNoRecordsErrorMessage =
-      "no 'created_at' record present to create new cursor";
-
-    const newCursor =
-      flippedPosts[0] && flippedPosts[0].created_at
-        ? flippedPosts[0].created_at.toISOString()
-        : cursorNoRecordsErrorMessage;
-
-    const beforeMessages =
-      newCursor === cursorNoRecordsErrorMessage
-        ? false
-        : await Post.createQueryBuilder("post")
-            .leftJoinAndSelect("post.images", "images")
-            .leftJoinAndSelect("post.comments", "comments")
-            .leftJoinAndSelect("post.user", "user")
-            .leftJoinAndSelect("user.followers", "followers")
-            .leftJoinAndSelect("post.likes", "likes")
-            .leftJoinAndSelect("likes.user", "likeUser")
-            .where("post.created_at <= :cursor::timestamp", {
-              cursor: formatDate(parseISO(newCursor))
-            })
-            .orderBy("post.created_at", "DESC")
-            .take(take)
-            .getMany();
-
-    const afterMessages = await Post.createQueryBuilder("post")
-      .leftJoinAndSelect("post.images", "images")
-      .leftJoinAndSelect("post.comments", "comments")
-      .leftJoinAndSelect("post.user", "user")
-      .leftJoinAndSelect("user.followers", "followers")
-      .leftJoinAndSelect("post.likes", "likes")
-      .leftJoinAndSelect("likes.user", "likeUser")
-      .where("post.created_at >= :cursor::timestamp", {
-        cursor: formatDate(cursor ? parseISO(startCursor) : new Date())
-      })
-      .orderBy("post.created_at", "DESC")
-      .take(take)
-      .getMany();
-
     let addFollowerStatusToGlobalPosts = flippedPosts.map(post => {
-      console.log("VIEW POST", post);
       currentlyLiked =
         post && post.likes.length >= 1
           ? post.likes.filter(likeRecord => {
+              console.log("IS THIS WORKING? CURRENTLYLIKED", {
+                user: ctx.userId,
+                check: likeRecord.user.id === ctx.userId
+              });
               return likeRecord.user.id === ctx.userId;
             }).length > 0
           : false;
 
-      return {
+      let returnThing: GlobalPostReturnType = {
         isCtxUserIdAFollowerOfPostUser: post.user.followers
           .map(follower => follower.id)
           .includes(ctx.userId),
@@ -165,73 +104,20 @@ export class GetGlobalPostsResolver {
         success: true,
         action: "CREATE"
       };
+
+      return returnThing;
     });
 
     console.log({ addFollowerStatusToGlobalPosts });
 
-    let response: PaginatedPostResponse = {
-      edges: addFollowerStatusToGlobalPosts.map(post => {
-        return { node: post };
-      }),
-      pageInfo: {
-        startCursor,
-        endCursor: newCursor,
-        hasNextPage: afterMessages.length > 0 ? true : false,
-        hasPreviousPage:
-          beforeMessages && beforeMessages.length > 0 ? true : false
-      }
-    };
-
-    await publish(addFollowerStatusToGlobalPosts).catch((error: Error) => {
-      throw new Error(error.message);
-    });
-    return response;
-
-    // OLD STUFF BELOW
-
-    // const findOptions = {
-    //   where: {},
-    //   relations: [
-    //     "images",
-    //     "comments",
-    //     "user",
-    //     "user.followers",
-    //     "likes",
-    //     "likes.user"
-    //   ]
-    // };
-
-    // let globalPosts = await Post.find(findOptions);
-
-    // let addFollowerStatusToGlobalPosts = globalPosts.map(post => {
-    //   currentlyLiked =
-    //     post && post.likes.length >= 1
-    //       ? post.likes.filter(likeRecord => {
-    //           return likeRecord.user.id === ctx.userId;
-    //         }).length > 0
-    //       : false;
-
-    //   return {
-    //     isCtxUserIdAFollowerOfPostUser: post.user.followers
-    //       .map(follower => follower.id)
-    //       .includes(ctx.userId),
-    //     ...post,
-    //     likes_count: post.likes.length,
-    //     comments_count: post.comments.length,
-    //     currently_liked: currentlyLiked,
-    //     success: true,
-    //     action: "CREATE"
-    //   };
+    // await publish(addFollowerStatusToGlobalPosts).catch((error: Error) => {
+    //   throw new Error(error.message);
     // });
 
-    // if (addFollowerStatusToGlobalPosts) {
-    //   await publish(addFollowerStatusToGlobalPosts).catch((error: Error) => {
-    //     throw new Error(error.message);
-    //   });
+    console.log("addFollowerStatusToGlobalPosts".toUpperCase(), {
+      addFollowerStatusToGlobalPosts
+    });
 
-    //   return addFollowerStatusToGlobalPosts;
-    // } else {
-    //   throw Error("cannot find global posts");
-    // }
+    return addFollowerStatusToGlobalPosts;
   }
 }
