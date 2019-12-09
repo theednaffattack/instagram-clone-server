@@ -85,10 +85,6 @@ export class GetGlobalPostsResolver {
       currentlyLiked =
         post && post.likes.length >= 1
           ? post.likes.filter(likeRecord => {
-              console.log("IS THIS WORKING? CURRENTLYLIKED", {
-                user: ctx.userId,
-                check: likeRecord.user.id === ctx.userId
-              });
               return likeRecord.user.id === ctx.userId;
             }).length > 0
           : false;
@@ -108,15 +104,9 @@ export class GetGlobalPostsResolver {
       return returnThing;
     });
 
-    console.log({ addFollowerStatusToGlobalPosts });
-
     // await publish(addFollowerStatusToGlobalPosts).catch((error: Error) => {
     //   throw new Error(error.message);
     // });
-
-    console.log("addFollowerStatusToGlobalPosts".toUpperCase(), {
-      addFollowerStatusToGlobalPosts
-    });
 
     return addFollowerStatusToGlobalPosts;
   }
