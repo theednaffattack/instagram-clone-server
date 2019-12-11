@@ -11,6 +11,7 @@ import { GraphQLFormattedError, GraphQLError } from "graphql";
 import https from "https";
 import fs from "fs";
 import path from "path";
+import logger from "pino";
 // import logger from "express-pino-logger";
 
 import { createSchema } from "./global-utils/createSchema";
@@ -169,6 +170,8 @@ const startServer = async () => {
 
   const app = Express();
 
+  // app.use(logger);
+
   // const sessionMiddleware = session({
   //   secret: "asdjlfkaasdfkjlads",
   //   resave: false,
@@ -177,24 +180,23 @@ const startServer = async () => {
 
   app.use(sessionMiddleware);
 
-  // app.use(logger);
-
-  // app.use("/graphql", (req, res, next) => {
-  //   const startHrTime = process.hrtime();
-  //   res.on("finish", () => {
-  //     if (req.body && req.body.operationName) {
-  //       const elapsedHrTime = process.hrtime(startHrTime);
-  //       const elapsedTimeInMs =
-  //         elapsedHrTime[0] * 1000 + elapsedHrTime[1] / 1e6;
-  //       req.log.info({
-  //         type: "timing",
-  //         name: req.body.operationName,
-  //         ms: elapsedTimeInMs
-  //       });
-  //     }
-  //   });
-  //   next();
-  // });
+  app.use("/graphql", (req, res, next) => {
+    const startHrTime = process.hrtime();
+    res.on("finish", () => {
+      if (req.body && req.body.operationName) {
+        const elapsedHrTime = process.hrtime(startHrTime);
+        const elapsedTimeInMs =
+          elapsedHrTime[0] * 1000 + elapsedHrTime[1] / 1e6;
+        console.log(`timing ${req.body.operationName}`, elapsedTimeInMs);
+        logger().info({
+          type: "timing",
+          name: req.body.operationName,
+          ms: elapsedTimeInMs
+        });
+      }
+    });
+    next();
+  });
 
   const server = new ApolloServer({
     introspection: true,
