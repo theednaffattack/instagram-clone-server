@@ -8,22 +8,15 @@ import http from "http";
 import connectRedis from "connect-redis";
 import { ArgumentValidationError } from "type-graphql";
 import { GraphQLFormattedError, GraphQLError } from "graphql";
-import https from "https";
-import fs from "fs";
-import path from "path";
+import { v4 } from "internal-ip";
+
 import logger from "pino";
-// import logger from "express-pino-logger";
 
 import { createSchema } from "./global-utils/createSchema";
 import { redis } from "./redis";
 import { redisSessionPrefix } from "./constants";
 import { devOrmconfig } from "./dev_ormconfig";
 import { productionOrmConfig } from "./production_ormconfig";
-
-interface CertType {
-  key: Buffer;
-  cert: Buffer;
-}
 
 const nodeEnvIsDev = process.env.NODE_ENV === "development";
 const nodeEnvIsProd = process.env.NODE_ENV === "production";
@@ -33,50 +26,18 @@ const devPort = "4000";
 
 const port = nodeEnvIsProd ? process.env.PORT : devPort;
 
-// const devHost = "192.168.1.24";
-const devHost = "localhost";
+const devHost = v4.sync(); // "localhost";
 
-const prodHost = "fauxgramapi.eddienaff.dev";
-
-const protocol = "https://";
-
-let certOptions: CertType;
-
-if (nodeEnvIs_NOT_Prod) {
-  certOptions = {
-    key: fs.readFileSync(path.resolve("dist/cert/server.key")),
-    cert: fs.readFileSync(path.resolve("dist/cert/server.crt"))
-  };
-}
+const prodHost = process.env.PRODUCTION_HOST;
 
 const host = nodeEnvIsProd
-  ? `${protocol}${prodHost}/graphql`
-  : `${protocol}${devHost}:${port}/graphql`;
-
-let message = `\n🚀 Server is ready at:\n${host}`;
+  ? `https://${prodHost}/graphql`
+  : `http://${devHost}:${port}/graphql`;
 
 const ormConnection = nodeEnvIsDev ? devOrmconfig : productionOrmConfig;
 
-let ngrokUri = "http://e7dd14a8.ngrok.io";
-
 let allowedOrigins = nodeEnvIs_NOT_Prod
-  ? [
-      // "http://192.168.1.24:3030",
-      // "http://192.168.1.24:4000",
-      // "ws://192.168.1.24:4000",
-      // "ws://192.168.1.24:3000",
-      // "http://localhost:3030",
-
-      "https://192.168.1.24:3030",
-      "https://192.168.1.24:4000",
-      "wss://192.168.1.24:4000",
-      "wss://192.168.1.24:3000",
-      "wss://localhost:4000",
-      "wss://localhost:3000",
-      "https://localhost:4000",
-      "https://localhost:3030",
-      ngrokUri
-    ]
+  ? [host, `http://${devHost}:3050`, `ws://${devHost}:${port}`]
   : [
       "https://faux-gram-client-nextjs.herokuapp.com", // prod frontend
       "https://eddie-faux-gram.herokuapp.com", // prod backend
@@ -84,22 +45,18 @@ let allowedOrigins = nodeEnvIs_NOT_Prod
       "https://fauxgramapi.eddienaff.dev", // public backend
       "wss://eddie-faux-gram.herokuapp.com",
       "wss://fauxgramapp.eddienaff.dev",
-      "wss://fauxgramapi.eddienaff.dev"
-      // "wss://0.0.0.0:4000"
-      // "wss://192.168.1.24:4000",
-      // "wss://192.168.1.24:3000",
-      // "wss://192.168.1.24:3030"
+      "wss://fauxgramapi.eddienaff.dev",
     ];
 
 const corsOptions = {
   credentials: true,
-  origin: function(origin: any, callback: any) {
+  origin: function (origin: any, callback: any) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       console.error("cors error:: origin: ", origin);
     }
-  }
+  },
 };
 
 const RedisStore = connectRedis(session);
@@ -114,7 +71,7 @@ if (nodeEnvIsProd) {
     secret: process.env.SESSION_SECRET as string,
     store: new RedisStore({
       client: redis as any,
-      prefix: redisSessionPrefix
+      prefix: redisSessionPrefix,
     }),
     resave: false,
     saveUninitialized: false,
@@ -122,8 +79,8 @@ if (nodeEnvIsProd) {
       httpOnly: true,
       secure: true,
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
-      domain: "eddienaff.dev"
-    }
+      domain: "eddienaff.dev",
+    },
   });
 }
 
@@ -133,7 +90,7 @@ if (nodeEnvIsDev || nodeEnvIs_NOT_Prod) {
     secret: process.env.SESSION_SECRET as string,
     store: new RedisStore({
       client: redis as any,
-      prefix: redisSessionPrefix
+      prefix: redisSessionPrefix,
     }),
     resave: false,
     saveUninitialized: false,
@@ -141,8 +98,8 @@ if (nodeEnvIsDev || nodeEnvIs_NOT_Prod) {
       httpOnly: true,
       secure: true,
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
-      domain: "localhost"
-    }
+      domain: "localhost",
+    },
   });
 }
 
@@ -161,22 +118,14 @@ const getContextFromSubscription = (connection: any) => {
 
 const startServer = async () => {
   let schema: any = await createSchema()
-    .then(data => data)
-    .catch(error =>
+    .then((data) => data)
+    .catch((error) =>
       console.error("Error running createSchema function", error)
     );
 
   await createConnection(ormConnection);
 
   const app = Express();
-
-  // app.use(logger);
-
-  // const sessionMiddleware = session({
-  //   secret: "asdjlfkaasdfkjlads",
-  //   resave: false,
-  //   saveUninitialized: false
-  // });
 
   app.use(sessionMiddleware);
 
@@ -191,7 +140,7 @@ const startServer = async () => {
         logger().info({
           type: "timing",
           name: req.body.operationName,
-          ms: elapsedTimeInMs
+          ms: elapsedTimeInMs,
         });
       }
     });
@@ -215,12 +164,12 @@ const startServer = async () => {
     subscriptions: {
       path: "/subscriptions",
       onConnect: (_, ws: any) => {
-        return new Promise(res =>
+        return new Promise((res) =>
           sessionMiddleware(ws.upgradeReq, {} as any, () => {
             res({ req: ws.upgradeReq });
           })
         );
-      }
+      },
     },
     formatError: (error: GraphQLError): GraphQLFormattedError => {
       const { extensions = {}, locations, message, path } = error;
@@ -240,7 +189,7 @@ const startServer = async () => {
           extensions,
           locations,
           message,
-          path
+          path,
         };
       }
 
@@ -253,30 +202,21 @@ const startServer = async () => {
       return {
         message: getStacktrace,
         path,
-        locations
+        locations,
         // extensions
       };
-    }
+    },
   });
 
   // app.use(cors(corsOptions))
 
   server.applyMiddleware({
     app,
-    cors: corsOptions
+    cors: corsOptions,
   }); // app is from an existing express app
 
-  let httpServer;
-
-  let httpsServer;
-
-  if (nodeEnvIsProd) {
-    httpServer = http.createServer(app);
-    server.installSubscriptionHandlers(httpServer);
-  } else {
-    httpsServer = https.createServer(certOptions, app);
-    server.installSubscriptionHandlers(httpsServer);
-  }
+  const httpServer = http.createServer(app);
+  server.installSubscriptionHandlers(httpServer);
 
   // needed for heroku deployment
   app.enable("trust proxy");
@@ -284,7 +224,7 @@ const startServer = async () => {
   // needed for heroku deployment
   // they set the "x-forwarded-proto" header???
   if (nodeEnvIsProd) {
-    app.use(function(req, res, next) {
+    app.use(function (req, res, next) {
       if (req.header("x-forwarded-proto") !== "https") {
         res.redirect("https://" + req.header("host") + req.url);
       } else {
@@ -293,21 +233,12 @@ const startServer = async () => {
     });
   }
 
-  if (nodeEnvIsProd && httpServer) {
-    httpServer.listen({ port }, () =>
-      console.log(
-        message
-        // `🚀 Server ready at http://${devHost}:${devPort}${server.graphqlPath}`
-      )
-    );
-  } else if (nodeEnvIs_NOT_Prod && httpsServer) {
-    httpsServer.listen({ port }, () =>
-      console.log(
-        message
-        // `🚀 Server ready at http://${devHost}:${devPort}${server.graphqlPath}`
-      )
-    );
-  }
+  httpServer.listen({ port }, () =>
+    console.log(
+      // message
+      `\n\n 🚀 Server ready at ${host}.\n\n`
+    )
+  );
 };
 
 startServer();
