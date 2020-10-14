@@ -37,15 +37,20 @@ const host = nodeEnvIsProd
 const ormConnection = nodeEnvIsDev ? devOrmconfig : productionOrmConfig;
 
 let allowedOrigins = nodeEnvIs_NOT_Prod
-  ? [host, `http://${devHost}:3050`, `ws://${devHost}:${port}`]
+  ? [
+      host,
+      `http://${devHost}:3050`, // FRONT END
+      `ws://${devHost}:${port}`, // GQL SERVER WS
+      `http://${devHost}:4000`, // GQL SERVER
+    ]
   : [
-      "https://faux-gram-client-nextjs.herokuapp.com", // prod frontend
-      "https://eddie-faux-gram.herokuapp.com", // prod backend
-      "https://fauxgramapp.eddienaff.dev", // public frontend
-      "https://fauxgramapi.eddienaff.dev", // public backend
-      "wss://eddie-faux-gram.herokuapp.com",
-      "wss://fauxgramapp.eddienaff.dev",
-      "wss://fauxgramapi.eddienaff.dev",
+      // "https://faux-gram-client-nextjs.herokuapp.com", // prod frontend
+      // "https://eddie-faux-gram.herokuapp.com", // prod backend
+      // "https://fauxgramapp.eddienaff.dev", // public frontend
+      // "https://fauxgramapi.eddienaff.dev", // public backend
+      // "wss://eddie-faux-gram.herokuapp.com",
+      // "wss://fauxgramapp.eddienaff.dev",
+      // "wss://fauxgramapi.eddienaff.dev",
     ];
 
 const corsOptions = {
@@ -96,9 +101,9 @@ if (nodeEnvIsDev || nodeEnvIs_NOT_Prod) {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: false,
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
-      domain: "localhost",
+      domain: "10.0.0.188", // devHost,
     },
   });
 }
