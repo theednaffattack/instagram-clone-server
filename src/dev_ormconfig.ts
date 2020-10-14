@@ -11,12 +11,12 @@ export const devOrmconfig: PostgresConnectionOptions = {
   database: "instagram_clone",
   logging: false,
   synchronize: true,
-  entities: ["dist/entity/**/*.*"],
+  entities: ["src/entity/**/*.ts"],
   migrations: ["src/migration/**/*.ts"],
   subscribers: ["src/subscriber/**/*.ts"],
   cli: {
     entitiesDir: "dist/entity",
     migrationsDir: "src/migration",
-    subscribersDir: "src/subscriber"
-  }
+    subscribersDir: "src/subscriber",
+  },
 };
