@@ -33,7 +33,7 @@ export class LoginResolver {
       return null;
     }
 
-    const valid = bcrypt.compare(password, user.password);
+    const valid = await bcrypt.compare(password, user.password);
 
     // if the supplied password is invalid return early
     if (!valid) {
@@ -47,6 +47,7 @@ export class LoginResolver {
     } else {
       // all is well return the user we found
       ctx.req.session!.userId = user.id;
+      console.log("IS IT BEING PLACED ON SESSION? ", ctx.req.session!.userId);
 
       return user;
     }
