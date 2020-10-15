@@ -1,11 +1,11 @@
 Arguments: 
-  /Users/eddienaff/.nvm/versions/node/v11.10.1/bin/node /Users/eddienaff/.yarn/bin/yarn.js add nope-validato
+  /Users/eddienaff/.nvm/versions/node/v11.10.1/bin/node /usr/local/Cellar/yarn/1.22.4/libexec/bin/yarn.js add node-argon2
 
 PATH: 
-  /Users/eddienaff/.yarn/bin:/Users/eddienaff/.config/yarn/global/node_modules/.bin:/Users/eddienaff/.nvm/versions/node/v11.10.1/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Library/Apple/bin:/Applications/Postgres.app/Contents/Versions/latest/bin
+  /Users/eddienaff/.yarn/bin:/Users/eddienaff/.config/yarn/global/node_modules/.bin:/Users/eddienaff/.nvm/versions/node/v11.10.1/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Applications/Postgres.app/Contents/Versions/latest/bin
 
 Yarn version: 
-  1.13.0
+  1.22.4
 
 Node version: 
   11.10.1
@@ -14,13 +14,13 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/nope-validato: Not found
-      at Request.params.callback [as _callback] (/Users/eddienaff/.yarn/lib/cli.js:66255:18)
-      at Request.self.callback (/Users/eddienaff/.yarn/lib/cli.js:129397:22)
+  Error: https://registry.yarnpkg.com/node-argon2: Not found
+      at Request.params.callback [as _callback] (/usr/local/Cellar/yarn/1.22.4/libexec/lib/cli.js:66987:18)
+      at Request.self.callback (/usr/local/Cellar/yarn/1.22.4/libexec/lib/cli.js:140748:22)
       at Request.emit (events.js:197:13)
-      at Request.<anonymous> (/Users/eddienaff/.yarn/lib/cli.js:130369:10)
+      at Request.<anonymous> (/usr/local/Cellar/yarn/1.22.4/libexec/lib/cli.js:141720:10)
       at Request.emit (events.js:197:13)
-      at IncomingMessage.<anonymous> (/Users/eddienaff/.yarn/lib/cli.js:130291:12)
+      at IncomingMessage.<anonymous> (/usr/local/Cellar/yarn/1.22.4/libexec/lib/cli.js:141642:12)
       at Object.onceWrapper (events.js:285:13)
       at IncomingMessage.emit (events.js:202:15)
       at endReadableNT (_stream_readable.js:1129:12)
@@ -44,6 +44,7 @@ npm manifest:
       "date-fns": "^2.0.1",
       "dotenv": "^8.0.0",
       "express": "^4.16.4",
+      "express-pino-logger": "^4.0.0",
       "express-session": "^1.15.6",
       "graphql": "^14.2.0",
       "graphql-query-complexity": "^0.2.3",
@@ -57,6 +58,7 @@ npm manifest:
       "morgan": "^1.9.1",
       "nodemailer": "^6.0.0",
       "pg": "^7.9.0",
+      "pino": "^5.14.0",
       "reflect-metadata": "^0.1.13",
       "ts-node": "^8.3.0",
       "type-graphql": "^0.17.1",
@@ -74,6 +76,7 @@ npm manifest:
       "@types/cors": "^2.8.4",
       "@types/dotenv": "^6.1.1",
       "@types/express": "^4.16.1",
+      "@types/express-pino-logger": "^4.0.2",
       "@types/express-session": "^1.15.13",
       "@types/graphql": "^14.2.0",
       "@types/ioredis": "^4.0.10",
@@ -82,6 +85,7 @@ npm manifest:
       "@types/morgan": "^1.7.35",
       "@types/node": "^11.12.2",
       "@types/nodemailer": "^4.6.7",
+      "@types/pino": "^5.14.0",
       "@types/uuid": "^3.4.4",
       "@types/winston": "^2.4.4",
       "@typescript-eslint/eslint-plugin": "^2.8.0",
@@ -574,6 +578,13 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
     integrity sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g==
   
+  "@types/express-pino-logger@^4.0.2":
+    version "4.0.2"
+    resolved "https://registry.yarnpkg.com/@types/express-pino-logger/-/express-pino-logger-4.0.2.tgz#0ac505e0e597ecb42a88e21bbe7cd6bfecfd2f42"
+    integrity sha512-pjFbznTQ/h9Dht4YP1Zqfj2+4S8K4u7K+EowklXhf0aL43KUIYo126w2h8mtwoHfa91Z3BYA8w2wfUfwNAHroA==
+    dependencies:
+      "@types/pino-http" "*"
+  
   "@types/express-serve-static-core@*":
     version "4.16.2"
     resolved "https://registry.yarnpkg.com/@types/express-serve-static-core/-/express-serve-static-core-4.16.2.tgz#5ee8a22e602005be6767df6b2cba9879df3f75aa"
@@ -748,6 +759,27 @@ Lockfile:
     dependencies:
       "@types/node" "*"
   
+  "@types/pino-http@*":
+    version "4.3.2"
+    resolved "https://registry.yarnpkg.com/@types/pino-http/-/pino-http-4.3.2.tgz#b5c367486c68e80ceed619c1b428ab8d576f4f95"
+    integrity sha512-JFjLqUz6pUXmxLGxQdY2rVH0CzjQ89iDLjKVN55r5tkB2pzCHGxIpsFMBt6wkyWEZJGHYaSQbgUL7rLk9zMyOA==
+    dependencies:
+      "@types/pino" "*"
+  
+  "@types/pino-std-serializers@*":
+    version "2.4.0"
+    resolved "https://registry.yarnpkg.com/@types/pino-std-serializers/-/pino-std-serializers-2.4.0.tgz#8cad99175cb79c2448f7455a2d32fb3fde29579c"
+    integrity sha512-eAdu+NW1IkCdmp85SnhyKha+OOREQMT9lXaoICQxa7bhSauRiLzu3WSNt9Mf2piuJvWeXF/G0hGWHr63xNpIRA==
+  
+  "@types/pino@*", "@types/pino@^5.14.0":
+    version "5.14.0"
+    resolved "https://registry.yarnpkg.com/@types/pino/-/pino-5.14.0.tgz#e5226bf6d5da52e2d6b641309abee5f30b2d7a56"
+    integrity sha512-i4jTU0G9HL/wy7WbVMqcM/5Z6cFzbcLN6/T46rqQauIoiDqcEySR7SN4FfJvtv+RoBtJkQjDneq0Ytrj95cQHg==
+    dependencies:
+      "@types/node" "*"
+      "@types/pino-std-serializers" "*"
+      "@types/sonic-boom" "*"
+  
   "@types/range-parser@*":
     version "1.2.3"
     resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.3.tgz#7ee330ba7caafb98090bece86a5ee44115904c2c"
@@ -772,6 +804,13 @@ Lockfile:
     dependencies:
       "@types/express-serve-static-core" "*"
       "@types/mime" "*"
+  
+  "@types/sonic-boom@*":
+    version "0.7.0"
+    resolved "https://registry.yarnpkg.com/@types/sonic-boom/-/sonic-boom-0.7.0.tgz#38337036293992a1df65dd3161abddf8fb9b7176"
+    integrity sha512-AfqR0fZMoUXUNwusgXKxcE9DPlHNDHQp6nKYUd4PSRpLobF5CCevSpyTEBcVZreqaWKCnGBr9KI1fHMTttoB7A==
+    dependencies:
+      "@types/node" "*"
   
   "@types/stack-utils@^1.0.1":
     version "1.0.1"
@@ -2620,6 +2659,13 @@ Lockfile:
       jest-message-util "^24.5.0"
       jest-regex-util "^24.3.0"
   
+  express-pino-logger@^4.0.0:
+    version "4.0.0"
+    resolved "https://registry.yarnpkg.com/express-pino-logger/-/express-pino-logger-4.0.0.tgz#775cf253a4e0e7ee2c24804f8a32900d6d0168ca"
+    integrity sha512-BTJwjQXMSR6tFiyvTOOr6aosJkJOuJpW0mXE+icv3ae/0WXBGnLaumINGHJvWMuDO1RSLHBLfRrJaghMjMhVrg==
+    dependencies:
+      pino-http "^4.0.0"
+  
   express-session@^1.15.6:
     version "1.15.6"
     resolved "https://registry.yarnpkg.com/express-session/-/express-session-1.15.6.tgz#47b4160c88f42ab70fe8a508e31cbff76757ab0a"
@@ -2775,10 +2821,20 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
     integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
   
+  fast-redact@^2.0.0:
+    version "2.0.0"
+    resolved "https://registry.yarnpkg.com/fast-redact/-/fast-redact-2.0.0.tgz#17bb8f5e1f56ecf4a38c8455985e5eab4c478431"
+    integrity sha512-zxpkULI9W9MNTK2sJ3BpPQrTEXFNESd2X6O1tXMFpK/XM0G5c5Rll2EVYZH2TqI3xRGK/VaJ+eEOt7pnENJpeA==
+  
   fast-safe-stringify@^2.0.4:
     version "2.0.6"
     resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.6.tgz#04b26106cc56681f51a044cfc0d76cf0008ac2c2"
     integrity sha512-q8BZ89jjc+mz08rSxROs8VsrBBcn1SIw1kq9NjolL509tkABRk9io01RAjSaEv1Xb2uFLt8VtRiZbGp5H8iDtg==
+  
+  fast-safe-stringify@^2.0.7:
+    version "2.0.7"
+    resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.7.tgz#124aa885899261f68aedb42a7c080de9da608743"
+    integrity sha512-Utm6CdzT+6xsDk2m8S6uL8VHxNwI6Jub+e9NYTcAms28T84pTa25GJQV9j0CY0N1rM8hK4x6grpF2BQf+2qwVA==
   
   fb-watchman@^2.0.0:
     version "2.0.0"
@@ -2892,6 +2948,11 @@ Lockfile:
       flatted "^2.0.0"
       rimraf "2.6.3"
       write "1.0.3"
+  
+  flatstr@^1.0.12:
+    version "1.0.12"
+    resolved "https://registry.yarnpkg.com/flatstr/-/flatstr-1.0.12.tgz#c2ba6a08173edbb6c9640e3055b95e287ceb5931"
+    integrity sha512-4zPxDyhCyiN2wIAtSLI6gc82/EjqZc1onI4Mz/l0pWrAlsSfYH/2ZIcU+e3oA2wDwbzIWNKwa23F8rh6+DRWkw==
   
   flatted@^2.0.0:
     version "2.0.1"
@@ -5482,6 +5543,31 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/pinkie/-/pinkie-2.0.4.tgz#72556b80cfa0d48a974e80e77248e80ed4f7f870"
     integrity sha1-clVrgM+g1IqXToDnckjoDtT3+HA=
   
+  pino-http@^4.0.0:
+    version "4.3.0"
+    resolved "https://registry.yarnpkg.com/pino-http/-/pino-http-4.3.0.tgz#ebe0505d871efc2f8a5e1ca57f4cbd5667708007"
+    integrity sha512-9QrA/5KykS5TLqJPzFQY08bLA3iwHrLEVeM6PYKU95VqB54X/eJKev4A6sagf5UUxeUimVDcWt5wcp5SJHHSvg==
+    dependencies:
+      pino "^5.0.0"
+      pino-std-serializers "^2.4.0"
+  
+  pino-std-serializers@^2.4.0, pino-std-serializers@^2.4.2:
+    version "2.4.2"
+    resolved "https://registry.yarnpkg.com/pino-std-serializers/-/pino-std-serializers-2.4.2.tgz#cb5e3e58c358b26f88969d7e619ae54bdfcc1ae1"
+    integrity sha512-WaL504dO8eGs+vrK+j4BuQQq6GLKeCCcHaMB2ItygzVURcL1CycwNEUHTD/lHFHs/NL5qAz2UKrjYWXKSf4aMQ==
+  
+  pino@^5.0.0, pino@^5.14.0:
+    version "5.14.0"
+    resolved "https://registry.yarnpkg.com/pino/-/pino-5.14.0.tgz#eec56c6388797528e526f969ee022592cc538d4e"
+    integrity sha512-Vj1f2wAojTGesogT0hsA/ua8ALltCOBCcA1nkEoDfnTsVWpgBu5UVSY7OdjiGmrMOKHBm24nd3nKXzyPUYJ3ig==
+    dependencies:
+      fast-redact "^2.0.0"
+      fast-safe-stringify "^2.0.7"
+      flatstr "^1.0.12"
+      pino-std-serializers "^2.4.2"
+      quick-format-unescaped "^3.0.3"
+      sonic-boom "^0.7.5"
+  
   pirates@^4.0.1:
     version "4.0.1"
     resolved "https://registry.yarnpkg.com/pirates/-/pirates-4.0.1.tgz#643a92caf894566f91b2b986d2c66950a8e2fb87"
@@ -5653,6 +5739,11 @@ Lockfile:
     version "0.2.0"
     resolved "https://registry.yarnpkg.com/querystring/-/querystring-0.2.0.tgz#b209849203bb25df820da756e747005878521620"
     integrity sha1-sgmEkgO7Jd+CDadW50cAWHhSFiA=
+  
+  quick-format-unescaped@^3.0.3:
+    version "3.0.3"
+    resolved "https://registry.yarnpkg.com/quick-format-unescaped/-/quick-format-unescaped-3.0.3.tgz#fb3e468ac64c01d22305806c39f121ddac0d1fb9"
+    integrity sha512-dy1yjycmn9blucmJLXOfZDx1ikZJUi6E8bBZLnhPG5gBrVhHXx2xVyqqgKBubVNEXmx51dBACMHpoMQK/N/AXQ==
   
   random-bytes@~1.0.0:
     version "1.0.0"
@@ -6257,6 +6348,13 @@ Lockfile:
       source-map "^0.5.6"
       source-map-resolve "^0.5.0"
       use "^3.1.0"
+  
+  sonic-boom@^0.7.5:
+    version "0.7.6"
+    resolved "https://registry.yarnpkg.com/sonic-boom/-/sonic-boom-0.7.6.tgz#c42df6df884a6a3d54fa7a45b11e4e2196818d45"
+    integrity sha512-k9E2QQ4zxuVRLDW+ZW6ISzJs3wlEorVdmM7ApDgor7wsGKSDG5YGHsGmgLY4XYh4DMlr/2ap2BWAE7yTFJtWnQ==
+    dependencies:
+      flatstr "^1.0.12"
   
   source-map-resolve@^0.5.0:
     version "0.5.2"
