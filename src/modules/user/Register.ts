@@ -6,6 +6,7 @@ import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
 import { sendEmail } from "../utils/sendEmail";
 import { createConfirmationUrl } from "../utils/createConfirmationUrl";
+import { UserResponse } from "./user-response";
 
 @Resolver()
 export class RegisterResolver {
@@ -15,24 +16,35 @@ export class RegisterResolver {
     return "Hello World";
   }
 
-  @Mutation(() => User)
-  async register(@Arg("data")
-  {
-    email,
-    firstName,
-    lastName,
-    password
-  }: RegisterInput): Promise<User> {
+  @Mutation(() => UserResponse)
+  async register(
+    @Arg("data")
+    { email, password, username }: RegisterInput
+  ): Promise<UserResponse> {
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = await User.create({
-      firstName,
-      lastName,
+      // firstName,
+      // lastName,
       email,
+      username,
       count: 0,
-      password: hashedPassword
+      password: hashedPassword,
     }).save();
 
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "username",
+            message: "That username is reserved already, please try another.",
+          },
+        ],
+      };
+    }
+
     await sendEmail(email, await createConfirmationUrl(user.id));
-    return user;
+    return {
+      user,
+    };
   }
 }
