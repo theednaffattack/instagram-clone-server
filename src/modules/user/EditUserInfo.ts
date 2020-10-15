@@ -14,18 +14,18 @@ export class EditUserInfoResolver {
   @Mutation(() => User)
   async editUserInfo(
     @Arg("data")
-    { email, firstName, lastName }: EditUserInput,
+    { email, username }: EditUserInput,
     @Ctx() ctx: MyContext
   ): Promise<any> {
     // most efficient way to set records in the DB
     // returns nothing
     await User.createQueryBuilder()
       .update(User)
-      .set({ email, firstName, lastName })
+      .set({ email, username })
       .where("id = :id", { id: ctx.userId })
       .execute()
-      .then(data => console.log(data))
-      .catch(error => console.error(error));
+      .then((data) => console.log(data))
+      .catch((error) => console.error(error));
 
     // since an error is thrown above on errors
     // it may be smarter to return the data passed in via
@@ -33,7 +33,7 @@ export class EditUserInfoResolver {
     let userToReturn = await User.createQueryBuilder()
       .where("id = :id", { id: ctx.userId })
       .getOne()
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
         throw Error(`${errorMessageBase}\n${error}`);
       });

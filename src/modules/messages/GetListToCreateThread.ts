@@ -8,11 +8,11 @@ export class TransUserReturn {
   @Field(() => ID)
   id: string;
 
-  @Field(() => String)
-  firstName: string;
+  // @Field(() => String)
+  // firstName: string;
 
-  @Field(() => String)
-  lastName: string;
+  // @Field(() => String)
+  // lastName: string;
 
   @Field(() => [User], { nullable: true })
   thoseICanMessage: any[];
@@ -27,16 +27,16 @@ export class GetListToCreateThread {
       const thoseICanMessage: any[] = [];
 
       let meWithFollowers = await User.findOne(me, {
-        relations: ["followers", "following"]
+        relations: ["followers", "following"],
       });
 
       let returnObj: any = {};
       if (meWithFollowers) {
-        meWithFollowers.followers.forEach(follower => {
+        meWithFollowers.followers.forEach((follower) => {
           thoseICanMessage.push(follower);
         });
 
-        meWithFollowers.following.forEach(Ifollow => {
+        meWithFollowers.following.forEach((Ifollow) => {
           thoseICanMessage.push(Ifollow);
         });
 
@@ -44,7 +44,7 @@ export class GetListToCreateThread {
 
         // @ts-ignore
         const finalUniqMessageList = [
-          ...new Set(thoseICanMessage.map(user => user.id))
+          ...new Set(thoseICanMessage.map((user) => user.id)),
         ];
 
         // @ts-ignore
@@ -52,8 +52,8 @@ export class GetListToCreateThread {
 
         returnObj.id = meWithFollowers.id;
 
-        returnObj.firstName = meWithFollowers.firstName;
-        returnObj.lastName = meWithFollowers.lastName;
+        // returnObj.firstName = meWithFollowers.firstName;
+        // returnObj.lastName = meWithFollowers.lastName;
       }
 
       // const array = [
@@ -68,7 +68,7 @@ export class GetListToCreateThread {
         if (!map.has(item.id)) {
           map.set(item.id, true); // set any value to Map
           result.push({
-            ...item
+            ...item,
           });
         }
       }
