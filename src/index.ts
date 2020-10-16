@@ -188,7 +188,25 @@ const startServer = async () => {
       }
 
       if (error.originalError instanceof ArgumentValidationError) {
+        // Add a custom error code
         extensions.code = "GRAPHQL_VALIDATION_FAILED";
+        // Strip off the validation erros created by
+        // decorator-style field validators.
+        const { validationErrors } = extensions.exception;
+        const valErrorsCache = [];
+
+        // Loop over the validation errors and
+        // create a custom error shape that's easier to
+        // digest later.
+        for (const error of validationErrors) {
+          valErrorsCache.push({
+            field: error.property,
+            message: Object.values(error.constraints)[0],
+          });
+        }
+
+        // Add the new error shape to extensions.
+        extensions.valErrors = valErrorsCache;
 
         return {
           extensions,
