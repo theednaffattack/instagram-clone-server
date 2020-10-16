@@ -1,13 +1,10 @@
 import { Arg, Resolver, Mutation, Ctx } from "type-graphql";
-import argon2 from "argon2";
 import bcrypt from "bcryptjs";
-// import { sign } from "jsonwebtoken";
+import logger from "pino";
 
 import { User } from "../../entity/User";
 import { MyContext } from "../../types/MyContext";
 import { UserResponse } from "./user-response";
-
-const secret = process.env.JWT_SECRET;
 
 @Resolver()
 export class LoginResolver {
@@ -18,6 +15,7 @@ export class LoginResolver {
     @Ctx() ctx: MyContext
   ): Promise<UserResponse> {
     const user = await User.findOne({ where: { username } });
+
     // if we cannot find a user return an obscure error
     if (!user) {
       return {
@@ -29,22 +27,59 @@ export class LoginResolver {
         ],
       };
     }
-    const valid = await argon2.verify(user.password, password);
 
-    // if the supplied password is invalid return early
-    if (!valid) {
+    let passwordComparison: "isValid" | "isNotValid";
+
+    try {
+      if (await bcrypt.compare(password, user.password)) {
+        // password is valid
+        passwordComparison = "isValid";
+      } else {
+        // password is NOT valid (did not match)
+        passwordComparison = "isNotValid";
+
+        return {
+          errors: [
+            {
+              field: "password",
+              message: "Invalid login.",
+            },
+          ],
+        };
+      }
+    } catch (error) {
+      logger().info({
+        type: "error",
+        name: "bcrypt-error",
+        ms: "milliseconds-placeholder",
+      });
+
+      // I should consider returning invalid password, instead.
       return {
         errors: [
           {
-            field: "login",
-            message: "Invalid login.",
+            field: "password",
+            message: `Invalid login.`,
           },
         ],
       };
     }
 
+    // if the supplied password is invalid return early
+    // if (!valid) {
+    // if (passwordComparison === "isNotValid") {
+    //   return {
+    //     errors: [
+    //       {
+    //         field: "login",
+    //         message: "Invalid login.",
+    //       },
+    //     ],
+    //   };
+    // }
+
     // if the user has not confirmed via email
-    if (!user.confirmed) {
+    if (!user.confirmed && passwordComparison === "isValid") {
       return {
         errors: [
           {
