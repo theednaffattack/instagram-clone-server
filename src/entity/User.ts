@@ -15,6 +15,7 @@ import { Image } from "./Image";
 import { Message } from "./Message";
 import { Thread } from "./Thread";
 import { Like } from "./Like";
+import { Length } from "class-validator";
 
 // import { Follower } from "./Follower";
 
@@ -64,6 +65,7 @@ export class User extends BaseEntity {
 
   @Field()
   @Column("text", { unique: true })
+  @Length(4, 20)
   username: string;
 
   @Field(() => [Thread], { nullable: true })
