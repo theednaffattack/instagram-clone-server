@@ -28,15 +28,33 @@ export class LoginResolver {
       };
     }
 
-    let passwordComparison: "isValid" | "isNotValid";
+    // if the user has not confirmed via email
+    if (!user.confirmed) {
+      return {
+        errors: [
+          {
+            field: "user_confirmed",
+            message:
+              "An email has been sent to confrim your registration. Please follow the link provided to confirm your account.",
+          },
+        ],
+      };
+      // throw new Error("Please confirm your account");
+      // return null;
+    }
 
     try {
       if (await bcrypt.compare(password, user.password)) {
         // password is valid
-        passwordComparison = "isValid";
+
+        // all is well return the user we found
+        ctx.req.session!.userId = user.id;
+
+        return {
+          user,
+        };
       } else {
         // password is NOT valid (did not match)
-        passwordComparison = "isNotValid";
 
         return {
           errors: [
@@ -62,41 +80,6 @@ export class LoginResolver {
             message: `Invalid login.`,
           },
         ],
-      };
-    }
-
-    // if the supplied password is invalid return early
-    // if (!valid) {
-    // if (passwordComparison === "isNotValid") {
-    //   return {
-    //     errors: [
-    //       {
-    //         field: "login",
-    //         message: "Invalid login.",
-    //       },
-    //     ],
-    //   };
-    // }
-
-    // if the user has not confirmed via email
-    if (!user.confirmed && passwordComparison === "isValid") {
-      return {
-        errors: [
-          {
-            field: "user.confirmed",
-            message:
-              "An email has been sent to confrim your registration. Please follow the provided link to confirm your account.",
-          },
-        ],
-      };
-      // throw new Error("Please confirm your account");
-      // return null;
-    } else {
-      // all is well return the user we found
-      ctx.req.session!.userId = user.id;
-
-      return {
-        user,
       };
     }
   }
