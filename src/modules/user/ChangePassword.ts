@@ -6,26 +6,41 @@ import { User } from "../../entity/User";
 import { forgotPasswordPrefix } from "../constants/redisPrefixes";
 import { ChangePasswordInput } from "./changePassword/ChangePasswordInput";
 import { MyContext } from "src/types/MyContext";
+import { UserResponse } from "./user-response";
 
 @Resolver()
 export class ChangePasswordResolver {
-  @Mutation(() => User, { nullable: true })
+  @Mutation(() => UserResponse, { nullable: true })
   async changePassword(
     @Arg("data")
     { token, password }: ChangePasswordInput,
     @Ctx() ctx: MyContext
-  ): Promise<User | null> {
+  ): Promise<UserResponse> {
     const userId = await redis.get(forgotPasswordPrefix + token);
     // token expired in redis, possibly bad token
     if (!userId) {
-      return null;
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "invalid token",
+          },
+        ],
+      };
     }
 
     const user = await User.findOne(userId);
 
     // can't find a user in the db
     if (!user) {
-      return null;
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "user no longer exists",
+          },
+        ],
+      };
     }
 
     // don't allow this token to be used to change
@@ -38,9 +53,11 @@ export class ChangePasswordResolver {
     // save updated password
     await user.save();
 
-    // login in the user
+    // optional - login in the user
     ctx.req.session!.userId = user.id;
 
-    return user;
+    return {
+      user,
+    };
   }
 }
