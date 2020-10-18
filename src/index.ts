@@ -14,7 +14,7 @@ import logger from "pino";
 
 import { createSchema } from "./global-utils/createSchema";
 import { redis } from "./redis";
-import { redisSessionPrefix } from "./constants";
+import { COOKIE_NAME, redisSessionPrefix } from "./constants";
 import { devOrmconfig } from "./dev_ormconfig";
 import { productionOrmConfig } from "./production_ormconfig";
 
@@ -72,7 +72,7 @@ let sessionMiddleware: Express.RequestHandler;
 // in non-production environments
 if (nodeEnvIsProd) {
   sessionMiddleware = session({
-    name: "mfg",
+    name: COOKIE_NAME,
     secret: process.env.SESSION_SECRET as string,
     store: new RedisStore({
       client: redis as any,
@@ -91,7 +91,7 @@ if (nodeEnvIsProd) {
 
 if (nodeEnvIsDev || nodeEnvIs_NOT_Prod) {
   sessionMiddleware = session({
-    name: "mfg",
+    name: COOKIE_NAME,
     secret: process.env.SESSION_SECRET as string,
     store: new RedisStore({
       client: redis as any,
