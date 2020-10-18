@@ -9,7 +9,7 @@ import { MeResolver } from "../modules/user/Me";
 import { RegisterResolver } from "../modules/user/Register";
 import {
   CreateUserResolver,
-  CreateProductResolver
+  CreateProductResolver,
 } from "../modules/user/CreateUser";
 import { ProfilePictureResolver } from "../modules/user/ProfilePictureUpload";
 import { CreatePost } from "../modules/posts/CreatePost";
@@ -43,6 +43,7 @@ import { AddCommentToPost } from "../modules/posts/comments/createNewComment.res
 import { CommentCountResolver } from "../modules/posts/comments/commentCount.subscription.resolver";
 import { LikesCountResolver } from "../modules/posts/likes/likesCount.subscription.resolver";
 import { pubSub } from "../redis";
+import { ResendConfirmationEmailResolver } from "../modules/user/resend-confirmation-email";
 
 export const createSchema = () =>
   buildSchema({
@@ -80,9 +81,10 @@ export const createSchema = () =>
       NewMessageByThreadIdResolver,
       ProfilePictureResolver,
       RegisterResolver,
+      ResendConfirmationEmailResolver,
       SendMessageResolver,
       SignS3,
-      UnFollowUser
+      UnFollowUser,
     ],
     pubSub,
     authChecker: ({ context: { req } }) => {
@@ -90,5 +92,5 @@ export const createSchema = () =>
       // cehck permission vs what's in the db "roles" argument
       // that comes from `@Authorized`, eg,. ["ADMIN", "MODERATOR"]
       return !!req.session.userId;
-    }
+    },
   });
