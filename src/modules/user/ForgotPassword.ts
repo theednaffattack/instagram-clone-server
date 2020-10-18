@@ -5,6 +5,7 @@ import { redis } from "../../redis";
 import { User } from "../../entity/User";
 import { sendEmail } from "../utils/sendEmail";
 import { forgotPasswordPrefix } from "../constants/redisPrefixes";
+import { DEVELOPMENT_HOST } from "../../constants";
 
 @Resolver()
 export class ForgotPasswordResolver {
@@ -21,7 +22,7 @@ export class ForgotPasswordResolver {
 
     await sendEmail(
       email,
-      `http://localhost:3000/user/change-password/${token}`
+      `http://${DEVELOPMENT_HOST}/change-password/${token}`
     );
 
     return true;
