@@ -1,4 +1,6 @@
 import { Resolver, Mutation, Ctx } from "type-graphql";
+
+import { COOKIE_NAME } from "../../constants";
 import { MyContext } from "../../types/MyContext";
 
 @Resolver()
@@ -8,14 +10,14 @@ export class LogoutResolver {
     @Ctx()
     ctx: MyContext
   ): Promise<Boolean> {
-    return new Promise((resolve, reject) => {
-      return ctx.req.session!.destroy(err => {
+    return new Promise((resolve) => {
+      return ctx.req.session!.destroy((err) => {
         if (err) {
           console.error(err);
-          return reject(false);
+          return resolve(false);
         }
 
-        ctx.res.clearCookie("mfg");
+        ctx.res.clearCookie(COOKIE_NAME);
         return resolve(true);
       });
     });
