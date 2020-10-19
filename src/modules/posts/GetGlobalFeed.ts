@@ -6,7 +6,7 @@ import {
   ResolverFilterData,
   Root,
   Ctx,
-  Args
+  Args,
 } from "type-graphql";
 import { format, parseISO } from "date-fns";
 
@@ -23,7 +23,7 @@ const formatDate = (date: any) => format(date, "yyyy-MM-dd HH:mm:ss");
 @Resolver()
 export class GetGlobalPostsResolver {
   // @ts-ignore
-  @Subscription(type => GlobalPostReturnType, {
+  @Subscription((type) => GlobalPostReturnType, {
     // the `payload` and `args` are available in the destructured
     // object below `{args, context, payload}`
     nullable: true,
@@ -37,10 +37,10 @@ export class GetGlobalPostsResolver {
     // @ts-ignore
     filter: ({
       payload,
-      context
+      context,
     }: ResolverFilterData<GlobalPostReturnType, PostInput>) => {
       return true;
-    }
+    },
   })
   // this is the actual class method that activates?
   // the subscribe.
@@ -50,7 +50,7 @@ export class GetGlobalPostsResolver {
 
   @Query(() => [GlobalPostReturnType], {
     name: "getGlobalPosts",
-    nullable: true
+    nullable: true,
   })
   @UseMiddleware(isAuth, logger)
   async getGlobalPosts(
@@ -60,7 +60,7 @@ export class GetGlobalPostsResolver {
     { cursor, skip, take }: GetGlobalPostsInput
   ): // @PubSub("GLOBAL_POSTS") publish: Publisher<GlobalPostReturnType>
   Promise<GlobalPostReturnType[]> {
-    // NEW STUFF BELOW
+    const realLimit = Math.min(50, take || 50);
 
     let currentlyLiked;
 
@@ -72,33 +72,33 @@ export class GetGlobalPostsResolver {
       .leftJoinAndSelect("post.likes", "likes")
       .leftJoinAndSelect("likes.user", "likeUser")
       .where("post.created_at <= :cursor::timestamp", {
-        cursor: formatDate(cursor ? parseISO(cursor) : new Date())
+        cursor: formatDate(cursor ? parseISO(cursor) : new Date()),
       })
       .orderBy("post.created_at", "DESC")
       .skip(skip)
-      .take(take)
+      .take(realLimit)
       .getMany();
 
     const flippedPosts = findPosts.reverse();
 
-    let addFollowerStatusToGlobalPosts = flippedPosts.map(post => {
+    let addFollowerStatusToGlobalPosts = flippedPosts.map((post) => {
       currentlyLiked =
         post && post.likes.length >= 1
-          ? post.likes.filter(likeRecord => {
+          ? post.likes.filter((likeRecord) => {
               return likeRecord.user.id === ctx.userId;
             }).length > 0
           : false;
 
       let returnThing: GlobalPostReturnType = {
-        isCtxUserIdAFollowerOfPostUser: post.user.followers
-          .map(follower => follower.id)
-          .includes(ctx.userId),
         ...post,
+        isCtxUserIdAFollowerOfPostUser: post.user.followers
+          .map((follower) => follower.id)
+          .includes(ctx.userId),
         likes_count: post.likes.length,
         comments_count: post.comments.length,
         currently_liked: currentlyLiked,
         success: true,
-        action: "CREATE"
+        action: "CREATE",
       };
 
       return returnThing;
