@@ -11,8 +11,8 @@ export class PostInput {
   @Length(1, 255)
   title?: string;
 
-  @Field(() => ID)
-  user: string;
+  // @Field(() => ID)
+  // user: string;
 
   @Field(() => [String], { nullable: "itemsAndList" })
   images: string[];
