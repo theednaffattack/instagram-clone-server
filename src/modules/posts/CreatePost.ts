@@ -12,7 +12,7 @@ import {
   UseMiddleware,
   Ctx,
   ObjectType,
-  ID
+  ID,
 } from "type-graphql";
 
 import { PostInput } from "./createPost/CreatePostInput";
@@ -29,31 +29,31 @@ import { MyContext } from "../../types/MyContext";
 @ObjectType()
 export class PostSubType {
   // @ts-ignore
-  @Field(type => ID)
+  @Field((type) => ID)
   id: string;
 
   // @ts-ignore
-  @Field(type => String)
+  @Field((type) => String)
   title: string;
 
   // @ts-ignore
-  @Field(type => String)
+  @Field((type) => String)
   text: string;
 
   // @ts-ignore
-  @Field(type => [Image])
+  @Field((type) => [Image])
   images: Image[];
 
   // @ts-ignore
-  @Field(type => User)
+  @Field((type) => User)
   user: User;
 
   // @ts-ignore
-  @Field(type => Date)
+  @Field((type) => Date)
   created_at: Date;
 
   // @ts-ignore
-  @Field(type => Date)
+  @Field((type) => Date)
   updated_at?: Date;
 }
 
@@ -73,17 +73,17 @@ export interface PostPayload {
 @InputType()
 export class PostSubInput {
   // @ts-ignore
-  @Field(type => String)
+  @Field((type) => String)
   sentBy: string;
   // @ts-ignore
-  @Field(type => String)
+  @Field((type) => String)
   message: string;
 }
 
 @Resolver()
 export class CreatePost {
   // @ts-ignore
-  @Subscription(type => PostSubType, {
+  @Subscription((type) => PostSubType, {
     topics: ({ context }) => {
       if (!context.userId) {
         throw new Error("Not authorized");
@@ -96,18 +96,18 @@ export class CreatePost {
     filter: ({
       payload,
       // args,
-      context
+      context,
     }: ResolverFilterData<Post, PostInput, MyContext>) => {
       if (!payload) return false;
       // filter for followers;
       if (
-        payload.user.followers.map(user => user.id).includes(context.userId)
+        payload.user.followers.map((user) => user.id).includes(context.userId)
       ) {
         return true;
       } else {
         return false;
       }
-    }
+    },
     // filter: ({ payload, args }) => args.priorities.includes(payload.priority),
   })
   followingPosts(
@@ -129,31 +129,31 @@ export class CreatePost {
   async createPost(
     @Ctx() context: MyContext,
 
-    // @ts-ignore
     @PubSub("POSTS_FOLLOWERS") publish: Publisher<PostPayload>,
     @PubSub("POSTS_GLOBAL") publishGlbl: Publisher<PostPayload>,
     @Arg("data", () => PostInput)
-    { text, title, images, user: userId }: PostInput
+    { text, title, images }: PostInput
   ): Promise<PostSubType> {
-    if (!context) {
-      throw new Error("not authed");
-    }
+    // The commented code below should be useless...
+    // if (!context) {
+    //   throw new Error("not authenticated");
+    // }
 
-    let user = await User.findOne(userId, {
-      relations: ["images", "posts", "followers"]
+    let user = await User.findOne(context.userId, {
+      relations: ["images", "posts", "followers"],
     });
 
     if (user) {
-      const newImageData: Image[] = images.map(image =>
+      const newImageData: Image[] = images.map((image) =>
         Image.create({
           uri: `${image}`,
-          user: user
+          user: user,
         })
       );
 
       // save that image to the database
       let newImages = await Promise.all(
-        newImageData.map(async newImage => await newImage.save())
+        newImageData.map(async (newImage) => await newImage.save())
       );
 
       // add the images to the user.images
@@ -164,7 +164,7 @@ export class CreatePost {
 
       // save the user completing the many-to-one images-to-user
       // relation loop
-      let savedUser = await user.save().catch(error => {
+      let savedUser = await user.save().catch((error) => {
         new Error(
           `Error updating user images\n${JSON.stringify(error, null, 2)}`
         );
@@ -177,11 +177,11 @@ export class CreatePost {
           text,
           title,
           user,
-          images: [...newImages]
+          images: [...newImages],
         };
         let newPost = await Post.create(postData).save();
 
-        newImages.forEach(async newSavedImage => {
+        newImages.forEach(async (newSavedImage) => {
           newSavedImage.post = newPost;
           await newSavedImage.save();
         });
@@ -197,8 +197,8 @@ export class CreatePost {
           comments_count: 0,
           currently_liked: false,
           isCtxUserIdAFollowerOfPostUser: newPost.user.followers
-            .map(follower => follower.id)
-            .includes(user.id)
+            .map((follower) => follower.id)
+            .includes(user.id),
         };
 
         await publish(myPostPayload);
