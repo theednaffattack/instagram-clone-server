@@ -4,7 +4,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   CreateDateColumn,
-  Column
+  Column,
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 
@@ -18,14 +18,26 @@ export class Comment extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // @ts-ignore
-  @Field(type => Post)
-  @ManyToOne(() => Post, post => post.comments)
+  @Field(() => ID)
+  @Column()
+  postId: string;
+
+  @Field(() => Post)
+  @ManyToOne(
+    () => Post,
+    (post) => post.comments
+  )
   post: Post;
 
-  // @ts-ignore
-  @Field(type => User)
-  @ManyToOne(() => User, user => user.likes)
+  @Field(() => ID)
+  @Column()
+  userId: string;
+
+  @Field(() => User)
+  @ManyToOne(
+    () => User,
+    (user) => user.likes
+  )
   user: User;
 
   @Field(() => Date, { nullable: true })

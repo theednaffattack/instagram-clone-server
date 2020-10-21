@@ -1,4 +1,10 @@
-import { BaseEntity, Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import {
+  BaseEntity,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Column,
+} from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 
 import { Post } from "./Post";
@@ -11,14 +17,26 @@ export class Like extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // @ts-ignore
-  @Field(type => Post)
-  @ManyToOne(() => Post, post => post.likes)
+  @Field(() => ID)
+  @Column()
+  postId: string;
+
+  @Field(() => Post)
+  @ManyToOne(
+    () => Post,
+    (post) => post.likes
+  )
   post: Post;
 
-  // @ts-ignore
-  @Field(type => User)
-  @ManyToOne(() => User, user => user.likes)
+  @Field(() => ID)
+  @Column()
+  userId: string;
+
+  @Field(() => User)
+  @ManyToOne(
+    () => User,
+    (user) => user.likes
+  )
   user: User;
 
   @Field(() => Int, { nullable: false })
