@@ -46,7 +46,7 @@ export class PostSubType {
 
   // @ts-ignore
   @Field((type) => User)
-  user: User;
+  user?: User;
 
   // @ts-ignore
   @Field((type) => Date)
