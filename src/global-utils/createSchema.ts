@@ -44,6 +44,8 @@ import { CommentCountResolver } from "../modules/posts/comments/commentCount.sub
 import { LikesCountResolver } from "../modules/posts/likes/likesCount.subscription.resolver";
 import { pubSub } from "../redis";
 import { ResendConfirmationEmailResolver } from "../modules/user/resend-confirmation-email";
+import { GetGlobalPostsRelayResolver } from "../modules/posts/GetGlobalFeedRelay";
+import { GetGlobalPostsSimplePaginationResolver } from "../modules/posts/get-global-feed-simple-pagination";
 
 export const createSchema = () =>
   buildSchema({
@@ -64,6 +66,8 @@ export const createSchema = () =>
       GetMyFollowingPostById,
       GetGlobalPostById,
       GetGlobalPostsResolver,
+      GetGlobalPostsRelayResolver,
+      GetGlobalPostsSimplePaginationResolver,
       GetAllMessagesResolver,
       GetOnlyThreads,
       GetMessageThreadsResolver,

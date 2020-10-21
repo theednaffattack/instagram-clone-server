@@ -6,7 +6,7 @@ import {
   OneToMany,
   ManyToOne,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from "typeorm";
 import { Field, ID, ObjectType, Int } from "type-graphql";
 import { Image } from "./Image";
@@ -30,22 +30,26 @@ export class Post extends BaseEntity {
   text: string;
 
   @Field(() => [Image], { nullable: true })
-  @OneToMany(() => Image, image => image.post)
+  @OneToMany(() => Image, (image) => image.post)
   images: Image[];
 
   @Field(() => [Like], { nullable: true })
-  @OneToMany(() => Like, like => like.post)
+  @OneToMany(() => Like, (like) => like.post)
   likes: Like[];
 
   @Field(() => [Comment], { nullable: true })
-  @OneToMany(() => Comment, comment => comment.post)
+  @OneToMany(() => Comment, (comment) => comment.post)
   comments: Comment[];
 
   @Field(() => Boolean, { nullable: true })
   isCtxUserIdAFollowerOfPostUser: boolean;
 
+  @Field(() => ID, { nullable: true })
+  @Column({ name: "userId" })
+  userId: string;
+
   @Field(() => User, { nullable: true })
-  @ManyToOne(() => User, user => user.posts)
+  @ManyToOne(() => User, (user) => user.posts)
   user: User;
 
   @Field(() => Date, { nullable: true })

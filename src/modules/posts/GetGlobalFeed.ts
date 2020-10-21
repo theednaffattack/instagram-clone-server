@@ -6,11 +6,10 @@ import {
   ResolverFilterData,
   Root,
   Ctx,
-  Args
+  Args,
 } from "type-graphql";
 import { format, parseISO } from "date-fns";
 
-import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
 import { Post } from "../../entity/Post";
 import { PostInput } from "./createPost/CreatePostInput";
@@ -23,7 +22,7 @@ const formatDate = (date: any) => format(date, "yyyy-MM-dd HH:mm:ss");
 @Resolver()
 export class GetGlobalPostsResolver {
   // @ts-ignore
-  @Subscription(type => GlobalPostReturnType, {
+  @Subscription((type) => GlobalPostReturnType, {
     // the `payload` and `args` are available in the destructured
     // object below `{args, context, payload}`
     nullable: true,
@@ -37,10 +36,10 @@ export class GetGlobalPostsResolver {
     // @ts-ignore
     filter: ({
       payload,
-      context
+      context,
     }: ResolverFilterData<GlobalPostReturnType, PostInput>) => {
       return true;
-    }
+    },
   })
   // this is the actual class method that activates?
   // the subscribe.
@@ -50,9 +49,9 @@ export class GetGlobalPostsResolver {
 
   @Query(() => [GlobalPostReturnType], {
     name: "getGlobalPosts",
-    nullable: true
+    nullable: true,
   })
-  @UseMiddleware(isAuth, logger)
+  @UseMiddleware(logger)
   async getGlobalPosts(
     @Ctx() ctx: MyContext,
 
@@ -60,7 +59,7 @@ export class GetGlobalPostsResolver {
     { cursor, skip, take }: GetGlobalPostsInput
   ): // @PubSub("GLOBAL_POSTS") publish: Publisher<GlobalPostReturnType>
   Promise<GlobalPostReturnType[]> {
-    // NEW STUFF BELOW
+    const realLimit = Math.min(50, take || 50);
 
     let currentlyLiked;
 
@@ -72,37 +71,114 @@ export class GetGlobalPostsResolver {
       .leftJoinAndSelect("post.likes", "likes")
       .leftJoinAndSelect("likes.user", "likeUser")
       .where("post.created_at <= :cursor::timestamp", {
-        cursor: formatDate(cursor ? parseISO(cursor) : new Date())
+        cursor: formatDate(cursor ? parseISO(cursor) : new Date()),
       })
       .orderBy("post.created_at", "DESC")
       .skip(skip)
-      .take(take)
+      .take(realLimit)
       .getMany();
 
     const flippedPosts = findPosts.reverse();
 
-    let addFollowerStatusToGlobalPosts = flippedPosts.map(post => {
+    let addFollowerStatusToGlobalPosts = flippedPosts.map((post) => {
       currentlyLiked =
         post && post.likes.length >= 1
-          ? post.likes.filter(likeRecord => {
+          ? post.likes.filter((likeRecord) => {
               return likeRecord.user.id === ctx.userId;
             }).length > 0
           : false;
 
       let returnThing: GlobalPostReturnType = {
-        isCtxUserIdAFollowerOfPostUser: post.user.followers
-          .map(follower => follower.id)
-          .includes(ctx.userId),
         ...post,
+        isCtxUserIdAFollowerOfPostUser: post.user.followers
+          .map((follower) => follower.id)
+          .includes(ctx.userId),
         likes_count: post.likes.length,
         comments_count: post.comments.length,
         currently_liked: currentlyLiked,
         success: true,
-        action: "CREATE"
+        action: "CREATE",
       };
 
       return returnThing;
     });
+
+    // const startCursor = formatDate(cursor ? parseISO(cursor) : new Date());
+
+    // const cursorNoRecordsErrorMessage =
+    //   "no 'created_at' record present to create new cursor";
+
+    // const newCursor =
+    //   flippedPosts[0] && flippedPosts[0].created_at
+    //     ? flippedPosts[0].created_at.toISOString()
+    //     : cursorNoRecordsErrorMessage;
+
+    // // get messages before cursor position
+    // const postsBeforeCursor =
+    //   newCursor === cursorNoRecordsErrorMessage
+    //     ? false
+    //     : await Post.createQueryBuilder("post")
+    //         .leftJoinAndSelect("post.images", "images")
+    //         .leftJoinAndSelect("post.comments", "comments")
+    //         .leftJoinAndSelect("post.user", "user")
+    //         .leftJoinAndSelect("user.followers", "followers")
+    //         .leftJoinAndSelect("post.likes", "likes")
+    //         .leftJoinAndSelect("likes.user", "likeUser")
+    //         .where("post.created_at <= :cursor::timestamp", {
+    //           cursor: formatDate(cursor ? parseISO(cursor) : new Date()),
+    //         })
+    //         .orderBy("post.created_at", "DESC")
+    //         .skip(skip)
+    //         .take(realLimit)
+    //         .getMany();
+
+    // // get messages AFTER cursor position
+    // const postsAfterCursor = await Post.createQueryBuilder("post")
+    //   .leftJoinAndSelect("post.images", "images")
+    //   .leftJoinAndSelect("post.comments", "comments")
+    //   .leftJoinAndSelect("post.user", "user")
+    //   .leftJoinAndSelect("user.followers", "followers")
+    //   .leftJoinAndSelect("post.likes", "likes")
+    //   .leftJoinAndSelect("likes.user", "likeUser")
+    //   .where("post.created_at >= :cursor::timestamp", {
+    //     cursor: formatDate(cursor ? parseISO(cursor) : new Date()),
+    //   })
+    //   .orderBy("post.created_at", "DESC")
+    //   .skip(skip)
+    //   .take(realLimit)
+    //   .getMany();
+
+    // let relayCompatibleResponse = {
+    //   edges: flippedPosts.map((post) => {
+    //     const myCurrentlyLiked =
+    //       post && post.likes.length >= 1
+    //         ? post.likes.filter((likeRecord) => {
+    //             return likeRecord.user.id === ctx.userId;
+    //           }).length > 0
+    //         : false;
+
+    //     return {
+    //       node: {
+    //         ...post,
+    //         isCtxUserIdAFollowerOfPostUser: post.user.followers
+    //           .map((follower) => follower.id)
+    //           .includes(ctx.userId),
+    //         likes_count: post.likes.length,
+    //         comments_count: post.comments.length,
+    //         currently_liked: myCurrentlyLiked,
+    //         success: true,
+    //         action: "CREATE",
+    //       },
+    //     };
+    //   }),
+    //   pageInfo: {
+    //     startCursor, // return inside 'edges'?
+    //     endCursor: newCursor, // return inside 'edges'?
+    //     hasNextPage: postsAfterCursor.length > 0 ? true : false,
+    //     hasPreviousPage:
+    //       postsBeforeCursor && postsBeforeCursor.length > 0 ? true : false,
+    //   },
+    // };
 
     // await publish(addFollowerStatusToGlobalPosts).catch((error: Error) => {
     //   throw new Error(error.message);
