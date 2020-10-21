@@ -149,8 +149,6 @@ export class GetGlobalPostsRelayResolver {
       },
     };
 
-    console.log("RELAY RESPONSE", { relayCompatibleResponse, findPosts });
-
     // await publish(addFollowerStatusToGlobalPosts).catch((error: Error) => {
     //   throw new Error(error.message);
     // });
