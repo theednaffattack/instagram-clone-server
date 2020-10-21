@@ -10,7 +10,6 @@ import {
 } from "type-graphql";
 import { format, parseISO } from "date-fns";
 
-import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
 import { Post } from "../../entity/Post";
 import { PostInput } from "./createPost/CreatePostInput";
@@ -52,7 +51,7 @@ export class GetGlobalPostsResolver {
     name: "getGlobalPosts",
     nullable: true,
   })
-  @UseMiddleware(isAuth, logger)
+  @UseMiddleware(logger)
   async getGlobalPosts(
     @Ctx() ctx: MyContext,
 
@@ -103,6 +102,83 @@ export class GetGlobalPostsResolver {
 
       return returnThing;
     });
+
+    // const startCursor = formatDate(cursor ? parseISO(cursor) : new Date());
+
+    // const cursorNoRecordsErrorMessage =
+    //   "no 'created_at' record present to create new cursor";
+
+    // const newCursor =
+    //   flippedPosts[0] && flippedPosts[0].created_at
+    //     ? flippedPosts[0].created_at.toISOString()
+    //     : cursorNoRecordsErrorMessage;
+
+    // // get messages before cursor position
+    // const postsBeforeCursor =
+    //   newCursor === cursorNoRecordsErrorMessage
+    //     ? false
+    //     : await Post.createQueryBuilder("post")
+    //         .leftJoinAndSelect("post.images", "images")
+    //         .leftJoinAndSelect("post.comments", "comments")
+    //         .leftJoinAndSelect("post.user", "user")
+    //         .leftJoinAndSelect("user.followers", "followers")
+    //         .leftJoinAndSelect("post.likes", "likes")
+    //         .leftJoinAndSelect("likes.user", "likeUser")
+    //         .where("post.created_at <= :cursor::timestamp", {
+    //           cursor: formatDate(cursor ? parseISO(cursor) : new Date()),
+    //         })
+    //         .orderBy("post.created_at", "DESC")
+    //         .skip(skip)
+    //         .take(realLimit)
+    //         .getMany();
+
+    // // get messages AFTER cursor position
+    // const postsAfterCursor = await Post.createQueryBuilder("post")
+    //   .leftJoinAndSelect("post.images", "images")
+    //   .leftJoinAndSelect("post.comments", "comments")
+    //   .leftJoinAndSelect("post.user", "user")
+    //   .leftJoinAndSelect("user.followers", "followers")
+    //   .leftJoinAndSelect("post.likes", "likes")
+    //   .leftJoinAndSelect("likes.user", "likeUser")
+    //   .where("post.created_at >= :cursor::timestamp", {
+    //     cursor: formatDate(cursor ? parseISO(cursor) : new Date()),
+    //   })
+    //   .orderBy("post.created_at", "DESC")
+    //   .skip(skip)
+    //   .take(realLimit)
+    //   .getMany();
+
+    // let relayCompatibleResponse = {
+    //   edges: flippedPosts.map((post) => {
+    //     const myCurrentlyLiked =
+    //       post && post.likes.length >= 1
+    //         ? post.likes.filter((likeRecord) => {
+    //             return likeRecord.user.id === ctx.userId;
+    //           }).length > 0
+    //         : false;
+
+    //     return {
+    //       node: {
+    //         ...post,
+    //         isCtxUserIdAFollowerOfPostUser: post.user.followers
+    //           .map((follower) => follower.id)
+    //           .includes(ctx.userId),
+    //         likes_count: post.likes.length,
+    //         comments_count: post.comments.length,
+    //         currently_liked: myCurrentlyLiked,
+    //         success: true,
+    //         action: "CREATE",
+    //       },
+    //     };
+    //   }),
+    //   pageInfo: {
+    //     startCursor, // return inside 'edges'?
+    //     endCursor: newCursor, // return inside 'edges'?
+    //     hasNextPage: postsAfterCursor.length > 0 ? true : false,
+    //     hasPreviousPage:
+    //       postsBeforeCursor && postsBeforeCursor.length > 0 ? true : false,
+    //   },
+    // };
 
     // await publish(addFollowerStatusToGlobalPosts).catch((error: Error) => {
     //   throw new Error(error.message);
