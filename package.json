@@ -40,7 +40,7 @@
     "winston": "^3.2.1"
   },
   "engines": {
-    "node": "11.10.x"
+    "node": "12.16.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
