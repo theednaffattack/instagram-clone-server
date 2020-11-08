@@ -12,3 +12,4 @@ docs/private/
 server.key
 server.crt
 copy-server-keys.sh
+deploy.sh
