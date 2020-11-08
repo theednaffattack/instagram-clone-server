@@ -7,21 +7,20 @@ import { User } from "../../../entity/User";
 
 let conn: Connection;
 
-beforeAll(async done => {
+beforeAll(async (done) => {
   conn = await testConn();
   done();
 });
 
-afterAll(async done => {
+afterAll(async (done) => {
   await conn.close();
   done();
 });
 
 const mockUser = {
-  firstName: casual.first_name,
-  lastName: casual.last_name,
+  username: casual.last_name,
   email: casual.email,
-  password: casual.password
+  password: casual.password,
 };
 
 // const mockUser2 = {
@@ -46,23 +45,22 @@ mutation Register($data: RegisterInput!) {
 `;
 
 describe("Register", () => {
-  it("create user", async done => {
+  it("create user", async (done) => {
     // call resolver
     const response = await gCall({
       source: registerMutation,
       variableValues: {
-        data: mockUser
-      }
+        data: mockUser,
+      },
     });
 
     expect(response).toMatchObject({
       data: {
         register: {
-          firstName: mockUser.firstName,
-          lastName: mockUser.lastName,
-          email: mockUser.email
-        }
-      }
+          username: mockUser.username,
+          email: mockUser.email,
+        },
+      },
     });
 
     const dbUser = await User.findOne({ where: { email: mockUser.email } });
@@ -75,8 +73,7 @@ describe("Register", () => {
 
     // the user in the db should match our mocked up
     // data exactly
-    expect(dbUser!.firstName).toBe(mockUser.firstName);
-    expect(dbUser!.lastName).toBe(mockUser.lastName);
+    expect(dbUser!.username).toBe(mockUser.username);
 
     done();
   });

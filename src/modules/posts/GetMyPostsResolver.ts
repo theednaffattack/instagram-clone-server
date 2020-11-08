@@ -1,27 +1,31 @@
 import { createWriteStream } from "fs";
 // import { createBaseResolver } from "../type-graphql/CreateBaseResolver";
 import { PostInput } from "./createPost/CreatePostInput";
-import { Arg, Mutation, Resolver, UseMiddleware } from "type-graphql";
+import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from "type-graphql";
 
 import { logger } from "../middleware/logger";
 import { isAuth } from "../middleware/isAuth";
 import { Image } from "../../entity/Image";
 import { User } from "../../entity/User";
 import { Post } from "../../entity/Post";
+import { MyContext } from "../../types/MyContext";
 
 @Resolver()
 export class CreatePostResolver {
   @UseMiddleware(isAuth, logger)
   @Mutation(() => Post, { name: `createPost` })
-  async create(@Arg("data", () => PostInput)
-  {
-    text,
-    title,
-    images,
-    user: userId
-  }: PostInput) {
-    let user = await User.findOne(userId, {
-      relations: ["images", "posts"]
+  async create(
+    @Ctx() context: MyContext,
+    @Arg("data", () => PostInput)
+    {
+      text,
+      title,
+      images,
+    }: // user: userId
+    PostInput
+  ) {
+    let user = await User.findOne(context.userId, {
+      relations: ["images", "posts"],
     });
 
     if (user) {
@@ -49,7 +53,7 @@ export class CreatePostResolver {
 
       const newImage = await Image.create({
         uri: images[lastImage],
-        user: user
+        user: user,
       });
 
       // newImage.uri = images[lastImage];
@@ -65,7 +69,7 @@ export class CreatePostResolver {
         text,
         title,
         user,
-        images: [newImage]
+        images: [newImage],
       };
 
       let newPost = await Post.create(postData);
