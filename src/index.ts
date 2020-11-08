@@ -40,6 +40,7 @@ let allowedOrigins = nodeEnvIs_NOT_Prod
   ? [
       host,
       `http://${devHost}:3050`, // FRONT END
+      `http://${devHost}:3055`, // OLD FRONT END TEST
       `ws://${devHost}:${port}`, // GQL SERVER WS
       `http://${devHost}:4000`, // GQL SERVER
     ]
@@ -55,7 +56,7 @@ let allowedOrigins = nodeEnvIs_NOT_Prod
 
 const corsOptions = {
   credentials: true,
-  origin: function (origin: any, callback: any) {
+  origin: function(origin: any, callback: any) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -247,7 +248,7 @@ const startServer = async () => {
   // needed for heroku deployment
   // they set the "x-forwarded-proto" header???
   if (nodeEnvIsProd) {
-    app.use(function (req, res, next) {
+    app.use(function(req, res, next) {
       if (req.header("x-forwarded-proto") !== "https") {
         res.redirect("https://" + req.header("host") + req.url);
       } else {
