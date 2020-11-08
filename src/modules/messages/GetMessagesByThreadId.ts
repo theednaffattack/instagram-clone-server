@@ -7,7 +7,7 @@ import {
   Field,
   Int,
   Subscription,
-  ObjectType
+  ObjectType,
 } from "type-graphql";
 
 import { format, parseISO } from "date-fns";
@@ -61,7 +61,7 @@ export class GetMessagesByThreadId {
       } else {
         return false;
       }
-    }
+    },
   })
   async getMessagesByThreadId(
     @Arg("input", () => GetMessagesByThreadIdInput)
@@ -74,7 +74,7 @@ export class GetMessagesByThreadId {
       .leftJoinAndSelect("message.thread", "thread")
       .where("thread.id = :id", { id: input.threadId })
       .andWhere("message.created_at <= :cursor::timestamp", {
-        cursor: formatDate(input.cursor ? parseISO(input.cursor) : new Date())
+        cursor: formatDate(input.cursor ? parseISO(input.cursor) : new Date()),
       })
       .orderBy("message.created_at", "DESC")
       .take(input.take)
@@ -103,7 +103,7 @@ export class GetMessagesByThreadId {
             // .where("user.id = :user_id", { user_id: context.userId })
             .where("thread.id = :id", { id: input.threadId })
             .andWhere("message.created_at <= :cursor::timestamp", {
-              cursor: formatDate(parseISO(newCursor))
+              cursor: formatDate(parseISO(newCursor)),
             })
             .orderBy("message.created_at", "DESC")
             .take(input.take)
@@ -116,23 +116,23 @@ export class GetMessagesByThreadId {
       .leftJoinAndSelect("message.thread", "thread")
       .where("thread.id = :id", { id: input.threadId })
       .andWhere("message.created_at >= :cursor::timestamp", {
-        cursor: formatDate(input.cursor ? parseISO(startCursor) : new Date())
+        cursor: formatDate(input.cursor ? parseISO(startCursor) : new Date()),
       })
       .orderBy("message.created_at", "DESC")
       .take(input.take)
       .getMany();
 
-    let response = {
-      edges: flippedMessages.map(message => {
-        return { node: message };
+    let response: MessageConnection = {
+      edges: flippedMessages.map((message) => {
+        return { cursor: message.created_at.toISOString(), node: message };
       }),
       pageInfo: {
         startCursor,
         endCursor: newCursor,
         hasNextPage: afterMessages.length > 0 ? true : false,
         hasPreviousPage:
-          beforeMessages && beforeMessages.length > 0 ? true : false
-      }
+          beforeMessages && beforeMessages.length > 0 ? true : false,
+      },
     };
 
     return response;
