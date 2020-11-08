@@ -22,7 +22,7 @@ export class ConfirmUserResolver {
 
     // Update the user to be confirmed and remove the token from redis
     try {
-      const response = await User.update({ id: userId }, { confirmed: true });
+      await User.update({ id: userId }, { confirmed: true });
     } catch (error) {
       throw Error(`User confirmation error:\n${error}`);
     }
