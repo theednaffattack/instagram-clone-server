@@ -7,9 +7,12 @@ services:
     # ports:
     #   - "6379:6379"
   fg-db:
+    build:
+      context: .
+      dockerfile: Dockerfile.pg
     container_name: ${CONTAINER_DB_NAME}
     restart: on-failure
-    image: ${FGAPI_POSTGRES_IMAGE}
+    # image: ${FGAPI_POSTGRES_IMAGE}
     environment:
       # SSL_CERT_FILE: ${SSL_CERT_FILE}
       # SSL_KEY_FILE: ${SSL_KEY_FILE}
@@ -18,8 +21,8 @@ services:
       POSTGRES_PASS: ${POSTGRES_PASS}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DBNAME: ${POSTGRES_DBNAME}
-      VIRTUAL_PORT: ${VIRTUAL_PORT}
-      POSTGRES_MULTIPLE_EXTENSIONS: postgis,hstore,postgis_topology,postgis_raster,pgrouting
+      VIRTUAL_PORT: ${FGAPI_VIRTUAL_PORT}
+      # POSTGRES_MULTIPLE_EXTENSIONS: postgis,hstore,postgis_topology,postgis_raster,pgrouting
 
     volumes:
       - ${DB_PATH}:/var/lib/postgresql/12/main
@@ -37,7 +40,7 @@ services:
       ["./wait-for-it.sh", "pg-db:5432", "--", "node", "/app/dist/index.js"]
     environment:
       VIRTUAL_PORT: ${FGAPI_VIRTUAL_PORT}
-      VIRTUAL_HOST: ${FGAPI_VIRTUAL_HOST}
+      VIRTUAL_HOST: ${PRODUCTION_HOST}
       LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       PORT: ${FGAPI_VIRTUAL_PORT}
