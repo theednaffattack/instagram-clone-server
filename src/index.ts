@@ -39,6 +39,7 @@ const ormConnection = nodeEnvIsDev ? devOrmconfig : productionOrmConfig;
 let allowedOrigins = nodeEnvIs_NOT_Prod
   ? [
       host,
+      `https://${process.env.PRODUCTION_CLIENT_ORIGIN}`, // FRONT END
       `http://${devHost}:3050`, // FRONT END
       `http://${devHost}:3055`, // OLD FRONT END TEST
       `ws://${devHost}:${port}`, // GQL SERVER WS
