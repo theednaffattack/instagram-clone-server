@@ -34,8 +34,8 @@ class ThreadEdge {
 
 @ObjectType()
 class MessageEdge {
-  // @Field(() => String)
-  // cursor: string;
+  @Field(() => String)
+  cursor: string;
 
   @Field(() => Message)
   node: Message;
