@@ -11,3 +11,4 @@ docs/private/
 # local https serving
 server.key
 server.crt
+copy-server-keys.sh
