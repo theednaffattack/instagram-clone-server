@@ -3,22 +3,18 @@ import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConne
 const loggingStatus = process.env.TYPEORM_LOGGING === "true";
 const isSynchronizeTrue = process.env.TYPEORM_SYNCHRONIZE === "true";
 
-const getPortOrSetDefault = process.env.TYPEORM_PORT
-  ? parseInt(process.env.TYPEORM_PORT)
-  : 5432;
-
 export const productionOrmConfig: PostgresConnectionOptions = {
   name: "default",
   type: "postgres",
-  host: process.env.TYPEORM_HOST,
-  port: getPortOrSetDefault,
+  host: process.env.PG_DB_HOST,
+  port: parseInt(process.env.PG_DB_PORT!, 10),
   ssl: true,
-  username: process.env.TYPEORM_USERNAME,
-  password: process.env.TYPEORM_PASSWORD,
-  database: process.env.TYPEORM_DATABASE,
+  username: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASS,
+  database: process.env.POSTGRES_DBNAME,
   logging: loggingStatus,
   synchronize: isSynchronizeTrue,
   entities: ["dist/entity/*.*"],
   migrations: ["src/migration/**/*.ts"],
-  subscribers: ["src/subscriber/**/*.ts"]
+  subscribers: ["src/subscriber/**/*.ts"],
 };
