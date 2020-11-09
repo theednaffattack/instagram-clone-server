@@ -2,6 +2,7 @@ version: "3"
 services:
   fg-redis:
     image: redis
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     volumes:
       - ${REDIS_DB_PATH}:/data
     # ports:
@@ -11,14 +12,15 @@ services:
       context: .
       dockerfile: Dockerfile.pg
     container_name: ${CONTAINER_DB_NAME}
+    command: -c ssl=on -c ssl_cert_file=/var/lib/postgresql/server.crt -c ssl_key_file=/var/lib/postgresql/server.key
     restart: on-failure
-    # image: ${FGAPI_POSTGRES_IMAGE}
+    image: ${FGAPI_POSTGRES_IMAGE}
     environment:
       # SSL_CERT_FILE: ${SSL_CERT_FILE}
       # SSL_KEY_FILE: ${SSL_KEY_FILE}
       # SSL_CA_FILE: ${SSL_CHAIN_FILE}
       ALLOW_IP_RANGE: 0.0.0.0/0
-      POSTGRES_PASS: ${POSTGRES_PASS}
+      POSTGRES_PASSWORD: ${POSTGRES_PASS}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DBNAME: ${POSTGRES_DBNAME}
       VIRTUAL_PORT: ${FGAPI_VIRTUAL_PORT}
@@ -26,6 +28,8 @@ services:
 
     volumes:
       - ${DB_PATH}:/var/lib/postgresql/12/main
+      - ${CRT_PATH}:/var/lib/postgresql/server.crt
+      - ${KEY_PATH}:/var/lib/postgresql/server.key
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
 
@@ -36,8 +40,15 @@ services:
     depends_on:
       - fg-redis
       - fg-db
-    command:
-      ["./wait-for-it.sh", "pg-db:5432", "--", "node", "/app/dist/index.js"]
+    container_name: ${API_CONTAINER_NAME}
+    # command:
+    #   [
+    #     "./wait-for-it.sh",
+    #     "fg-db:${POSTGRES_PORT}",
+    #     "--",
+    #     "node",
+    #     "/app/dist/index.js",
+    #   ]
     environment:
       VIRTUAL_PORT: ${FGAPI_VIRTUAL_PORT}
       VIRTUAL_HOST: ${PRODUCTION_HOST}
