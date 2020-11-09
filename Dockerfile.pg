@@ -1,14 +1,16 @@
 FROM postgres:12-alpine
 
 # Copy in the load-extensions script
-COPY load-extensions.sh /docker-entrypoint-initdb.d/
-# COPY startup.sql /docker-entrypoint-initdb.d/
+# COPY load-extensions.sh /docker-entrypoint-initdb.d/
+COPY ./db/schema.sql /docker-entrypoint-initdb.d/
 
 
 
 # Add the certs and change permissions
-ADD cert.pem /etc/ssl/certs/cert.pem
-ADD key.pem /etc/ssl/private/key.pem
-# ADD chain.pem /etc/ssl/private/chain.pem
+ADD server.crt /var/lib/postgresql/server.crt
+ADD server.key /var/lib/postgresql/server.key
+ADD chain.pem /var/lib/postgresql/chain.pem
 
-RUN chmod 400 /etc/ssl/private/key.pem
+
+RUN chown 70:70 /var/lib/postgresql/server.key
+RUN chmod 600 /var/lib/postgresql/server.key
