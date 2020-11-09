@@ -8,8 +8,11 @@ public/tmp
 dist/
 docs/private/
 
-# local https serving
+# hide certifications
 server.key
 server.crt
+chain.pem
+
+# deploy scripts
 copy-server-keys.sh
 deploy.sh
