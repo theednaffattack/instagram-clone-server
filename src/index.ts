@@ -124,14 +124,18 @@ const getContextFromSubscription = (connection: any) => {
 };
 
 const startServer = async () => {
-  let schema: any = await createSchema()
-    .then((data) => data)
-    .catch((error) =>
-      console.error("Error running createSchema function", error)
-    );
+  let schema;
+  try {
+    schema = await createSchema();
+  } catch (error) {
+    console.warn("ERROR CREATING SCHEMA", error);
+  }
 
-  await createConnection(ormConnection);
-
+  try {
+    await createConnection(ormConnection);
+  } catch (error) {
+    console.warn("ERROR CREATING DB CONNECTION", error);
+  }
   const app = Express();
 
   app.use(sessionMiddleware);
