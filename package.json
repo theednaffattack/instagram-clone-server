@@ -3,6 +3,17 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "local-start": "tsc && node -r dotenv/config dist/index.js",
+    "dev": "nodemon --exec ts-node -r dotenv/config src/index.ts",
+    "odev": "ts-node-dev --respawn -r dotenv/config src/index.ts",
+    "tsndev": "ts-node-dev --respawn src/index.ts",
+    "db:setup": "ts-node ./src/test-utils/setup.ts",
+    "test": "npm run db:setup && TERM=dumb jest --detectOpenHandles",
+    "tdev": "npm run db:setup && TERM=dumb jest --watch --detectOpenHandles"
+  },
   "dependencies": {
     "apollo-boost": "^0.4.4",
     "apollo-server-express": "2.9.9",
@@ -72,17 +83,5 @@
     "ts-jest": "^24.0.1",
     "ts-node-dev": "^1.0.0-pre.40",
     "typescript": "^3.4.1"
-  },
-  "scripts": {
-    "start": "node dist/index.js",
-    "build": "tsc",
-    "local-start": "tsc && node -r dotenv/config dist/index.js",
-    "dev": "nodemon --exec ts-node -r dotenv/config src/index.ts",
-    "odev": "ts-node-dev --respawn -r dotenv/config src/index.ts",
-    "tsndev": "ts-node-dev --respawn src/index.ts",
-    "db:setup": "ts-node ./src/test-utils/setup.ts",
-    "test": "npm run db:setup && TERM=dumb jest --detectOpenHandles",
-    "tdev": "npm run db:setup && TERM=dumb jest --watch --detectOpenHandles",
-    "engine-push": "npx apollo service:push \\  --endpoint="
   }
 }
