@@ -8,28 +8,29 @@ services:
     # ports:
     #   - "6379:6379"
   fg-db:
-    build:
-      context: .
-      dockerfile: Dockerfile.pg
-    container_name: ${CONTAINER_DB_NAME}
+    # build:
+    #   context: .
+    #   dockerfile: db/Dockerfile
+    container_name: ${DB_CONTAINER_NAME}
     command: -c ssl=on -c ssl_cert_file=/var/lib/postgresql/server.crt -c ssl_key_file=/var/lib/postgresql/server.key
     restart: on-failure
     image: ${FGAPI_POSTGRES_IMAGE}
     environment:
-      # SSL_CERT_FILE: ${SSL_CERT_FILE}
-      # SSL_KEY_FILE: ${SSL_KEY_FILE}
-      # SSL_CA_FILE: ${SSL_CHAIN_FILE}
       ALLOW_IP_RANGE: 0.0.0.0/0
       POSTGRES_PASSWORD: ${POSTGRES_PASS}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DBNAME: ${POSTGRES_DBNAME}
+      POSTGRES_DB: ${POSTGRES_DBNAME}
       VIRTUAL_PORT: ${FGAPI_VIRTUAL_PORT}
+      # SSL_CERT_FILE: ${SSL_CERT_FILE}
+      # SSL_KEY_FILE: ${SSL_KEY_FILE}
+      # SSL_CA_FILE: ${SSL_CHAIN_FILE}
       # POSTGRES_MULTIPLE_EXTENSIONS: postgis,hstore,postgis_topology,postgis_raster,pgrouting
 
     volumes:
       - ${DB_PATH}:/var/lib/postgresql/12/main
-      - ${CRT_PATH}:/var/lib/postgresql/server.crt
-      - ${KEY_PATH}:/var/lib/postgresql/server.key
+      # - ${CRT_PATH}:/var/lib/postgresql/server.crt
+      # - ${KEY_PATH}:/var/lib/postgresql/server.key
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
 
