@@ -17,7 +17,8 @@ export class FollowUser {
     { userIDToFollow }: FollowUserInput,
     @Ctx() ctx: MyContext
   ): Promise<boolean> {
-    let me = ctx.req && ctx.req.session ? ctx.req.session.userId : null;
+    let me = ctx.userId;
+    //  ctx.req && ctx.req.session ? ctx.req.session.userId : null;
 
     // guard: you can't follow yourself
     if (me === userIDToFollow) return false;
@@ -30,10 +31,10 @@ export class FollowUser {
     const isMeAFollower = await User.createQueryBuilder("user")
       .where({ id: userIDToFollow })
       .leftJoinAndSelect("user.followers", "follower", "follower.id = :id", {
-        id: me
+        id: me,
       })
       .getOne()
-      .catch(error => {
+      .catch((error) => {
         console.error("ERROR", util.inspect(error, true, 3, true));
       });
 
@@ -60,13 +61,13 @@ export class FollowUser {
         .relation(User, "followers")
         .of(userIDToFollow)
         .add(me)
-        .then(data =>
+        .then((data) =>
           console.log(
             "DID WE FIND ANY DATA?",
             util.inspect(data, true, 2, true)
           )
         )
-        .catch(error => console.error("MY ERROR:", error)); // you can use just category id as well
+        .catch((error) => console.error("MY ERROR:", error)); // you can use just category id as well
 
       return true;
     }

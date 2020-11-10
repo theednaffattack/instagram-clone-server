@@ -11,10 +11,10 @@ export class MeResolver {
   async me(@Ctx() ctx: MyContext): Promise<User | undefined> {
     // if we can't find a userId on the current session
 
-    if (!ctx.req.session!.userId) {
+    if (!ctx.userId) {
       return undefined;
     }
 
-    return User.findOne(ctx.req.session!.userId);
+    return User.findOne(ctx.userId);
   }
 }

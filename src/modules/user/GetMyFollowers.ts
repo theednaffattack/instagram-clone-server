@@ -7,10 +7,11 @@ import { MyContext } from "../../types/MyContext";
 export class MeAndAllFollowers {
   @Query(() => User, { nullable: true })
   async meAndAllFollowers(@Ctx() ctx: MyContext): Promise<any> {
-    let me = ctx.req && ctx.req.session ? ctx.req.session.userId : null;
+    let me = ctx.userId;
+    //  ctx.req && ctx.req.session ? ctx.req.session.userId : null;
     if (me) {
       let meWithFollowers = await User.findOne(me, {
-        relations: ["followers", "following"]
+        relations: ["followers", "following"],
       });
 
       return meWithFollowers;

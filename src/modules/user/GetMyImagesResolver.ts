@@ -13,11 +13,12 @@ export class GetAllMyImagesResolver {
     // @Arg("data") { me }: MyImagesInput,
     @Ctx() ctx: MyContext
   ): Promise<any> {
-    const userId = ctx.req.session ? ctx.req.session.userId : null;
+    const userId = ctx.userId;
+    // ctx.req.session ? ctx.req.session.userId : null;
 
     let images = await Image.find({
       where: { user: userId },
-      relations: ["post"]
+      relations: ["post"],
     });
 
     if (images) {

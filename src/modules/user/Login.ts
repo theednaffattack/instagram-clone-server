@@ -48,7 +48,8 @@ export class LoginResolver {
         // password is valid
 
         // all is well return the user we found
-        ctx.req.session!.userId = user.id;
+
+        (ctx.req.session! as any).userId = user.id;
 
         return {
           user,

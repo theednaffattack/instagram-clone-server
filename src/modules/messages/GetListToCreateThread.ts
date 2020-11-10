@@ -22,7 +22,8 @@ export class TransUserReturn {
 export class GetListToCreateThread {
   @Query(() => TransUserReturn, { nullable: true })
   async getListToCreateThread(@Ctx() ctx: MyContext): Promise<any> {
-    let me = ctx.req && ctx.req.session ? ctx.req.session.userId : null;
+    let me = ctx.userId;
+    // ctx.req && ctx.req.session ? (ctx.req.session as any).userId : null;
     if (me) {
       const thoseICanMessage: any[] = [];
 

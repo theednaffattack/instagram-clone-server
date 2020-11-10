@@ -8,13 +8,13 @@ import {
   Subscription,
   ResolverFilterData,
   InputType,
-  Root
+  Root,
   // registerEnumType
 } from "type-graphql";
 
 import {
   FollowingPostReturnType,
-  HandlePostPayload
+  HandlePostPayload,
 } from "../../types/PostReturnTypes";
 import { isAuth } from "../middleware/isAuth";
 import { logger } from "../middleware/logger";
@@ -78,13 +78,13 @@ export class MyFollowingPostsResolver {
     // @ts-ignore
     filter: ({
       payload,
-      args
+      args,
     }: ResolverFilterData<HandlePostPayload, PostSubscriptionInput>) => {
       // filter for those ctx.userId is following
       // Filter based on user? Not sure yet
 
       return true;
-    }
+    },
   })
   followingPostsSub(
     @Root() feedPayload: HandlePostPayload,
@@ -102,13 +102,14 @@ export class MyFollowingPostsResolver {
 
   @Query(() => [FollowingPostReturnType], {
     name: "myFollowingPosts",
-    nullable: true
+    nullable: true,
   })
   async myFollowingPosts(
     // @Arg("data") { me }: MyImagesInput,
     @Ctx() ctx: MyContext
   ): Promise<FollowingPostReturnType[]> {
-    const userId = ctx.req.session ? ctx.req.session.userId : null;
+    const userId = ctx.userId;
+    //  ctx.req.session ? ctx.req.session.userId : null;
 
     // search for the logged in user
     // get posts of those the user follows
@@ -122,24 +123,24 @@ export class MyFollowingPostsResolver {
         "following.posts.user",
         "following.posts.comments",
         "following.posts.likes",
-        "following.posts.likes.user"
-      ]
+        "following.posts.likes.user",
+      ],
     });
 
-    const justThePosts = thoseIFollowAndTheirPosts!.following.map(person =>
-      person.posts!.map(post => post)
+    const justThePosts = thoseIFollowAndTheirPosts!.following.map((person) =>
+      person.posts!.map((post) => post)
     );
 
     let cache: any[] = [];
 
     let currentlyLiked;
 
-    justThePosts.forEach(postArr =>
+    justThePosts.forEach((postArr) =>
       cache.push(
         ...postArr.map((singlePost: Post) => {
           currentlyLiked =
             singlePost && singlePost.likes.length >= 1
-              ? singlePost.likes.filter(likeRecord => {
+              ? singlePost.likes.filter((likeRecord) => {
                   return likeRecord.user.id === ctx.userId;
                 }).length > 0
               : false;
@@ -148,7 +149,7 @@ export class MyFollowingPostsResolver {
             ...singlePost,
             comments_count: singlePost.comments.length,
             likes_count: singlePost.likes.length,
-            currently_liked: currentlyLiked
+            currently_liked: currentlyLiked,
           };
         })
       )

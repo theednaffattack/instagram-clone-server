@@ -10,13 +10,14 @@ export class GetThoseIFollowAndTheirPostsResolver {
   @UseMiddleware(isAuth, logger)
   @Query(() => User, {
     name: "getThoseIFollowAndTheirPostsResolver",
-    nullable: true
+    nullable: true,
   })
   async getThoseIFollowAndTheirPostsResolver(
     // @Arg("data") { me }: MyImagesInput,
     @Ctx() ctx: MyContext
   ): Promise<any> {
-    const userId = ctx.req.session ? ctx.req.session.userId : null;
+    const userId = ctx.userId;
+    // ctx.req.session ? ctx.req.session.userId : null;
 
     let thoseIFollowAndTheirPosts = await User.findOne({
       where: { id: userId },
@@ -24,8 +25,8 @@ export class GetThoseIFollowAndTheirPostsResolver {
         "following",
         "following.posts",
         "following.posts.user",
-        "following.posts.images"
-      ]
+        "following.posts.images",
+      ],
     });
 
     if (thoseIFollowAndTheirPosts) {
