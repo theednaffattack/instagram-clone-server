@@ -39,21 +39,19 @@ const ormConnection = nodeEnvIsDev ? devOrmconfig : productionOrmConfig;
 let allowedOrigins = nodeEnvIs_NOT_Prod
   ? [
       host,
-      `https://${process.env.PRODUCTION_CLIENT_ORIGIN}`, // FRONT END
-      `http://${devHost}:3050`, // FRONT END
+      // `https://${process.env.PRODUCTION_CLIENT_ORIGIN}`, // FRONT END - DEV
+      `http://${devHost}:3050`, // FRONT END -DEV
       `http://${devHost}:3055`, // OLD FRONT END TEST
       `ws://${devHost}:${port}`, // GQL SERVER WS
       `http://${devHost}:4000`, // GQL SERVER
     ]
   : [
-      // "https://faux-gram-client-nextjs.herokuapp.com", // prod frontend
-      // "https://eddie-faux-gram.herokuapp.com", // prod backend
-      // "https://fauxgramapp.eddienaff.dev", // public frontend
-      // "https://fauxgramapi.eddienaff.dev", // public backend
-      // "wss://eddie-faux-gram.herokuapp.com",
-      // "wss://fauxgramapp.eddienaff.dev",
-      // "wss://fauxgramapi.eddienaff.dev",
+      `https://${prodHost}`, //
+      `https://${process.env.PRODUCTION_CLIENT_ORIGIN}`, // FRONT END - PROD
+      `wss://${process.env.PRODUCTION_CLIENT_ORIGIN}`, // /subscription,
     ];
+
+console.log("\n\nALLOWED ORIGINS", allowedOrigins);
 
 const corsOptions = {
   credentials: true,
@@ -61,7 +59,7 @@ const corsOptions = {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.error("cors error:: origin: ", origin);
+      console.error("cors error:: origin: ", { origin, allowedOrigins });
     }
   },
 };
