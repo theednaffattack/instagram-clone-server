@@ -29,8 +29,10 @@ services:
 
     volumes:
       - ${DB_PATH}:/var/lib/postgresql/12/main
-      # - ${CRT_PATH}:/var/lib/postgresql/server.crt
-      # - ${KEY_PATH}:/var/lib/postgresql/server.key
+      # - ${NGINX_LETS_ENCRYPT_CERTS_VOLUME}${PRODUCTION_API_ORIGIN}/cert.pem:/var/lib/postgresql/server.crt
+      # - ${NGINX_LETS_ENCRYPT_CERTS_VOLUME}${PRODUCTION_API_ORIGIN}/key.pem:/var/lib/postgresql/server.key
+      # - ./db/docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
 
