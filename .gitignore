@@ -16,3 +16,9 @@ chain.pem
 # deploy scripts
 copy-server-keys.sh
 deploy.sh
+
+# hide sensitive files needed to deploy
+db/secret/
+
+# db/secret/cert.pem
+# db/secret/key.pem
