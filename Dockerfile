@@ -10,6 +10,7 @@ COPY package*.json ./
 COPY tsconfig*.json ./
 COPY ./src ./src
 COPY ./.env ./
+COPY ./yarn.lock ./
 RUN yarn install --frozen-lockfile && yarn build
 # RUN npm ci --quiet && npm run build
 
@@ -24,6 +25,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY package*.json ./
+COPY ./yarn.lock ./
 RUN yarn install --frozen-lockfile --production
 # RUN npm ci --quiet --only=production
 
