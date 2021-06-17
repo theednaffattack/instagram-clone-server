@@ -2,13 +2,15 @@
 import connectRedis from "connect-redis";
 import session from "express-session";
 import { v4 } from "internal-ip";
+import { Connection, createConnection } from "typeorm";
+import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
 
 import { redisSessionPrefix } from "./constants";
 import { xHeaderMiddleware } from "./middleware.x-header";
 import { redis } from "./redis";
 import { AppServerConfigProps, EnvKeyProps } from "./types/Config";
 
-const devHost = v4.sync(); // "localhost";
+const devHost = v4.sync();
 
 export async function configApp(): Promise<AppServerConfigProps> {
   const envKeys: EnvKeyProps = {
@@ -37,11 +39,45 @@ export async function configApp(): Promise<AppServerConfigProps> {
     dbUser: process.env.POSTGRES_USER || "not defined",
     dbPass: process.env.POSTGRES_PASS || "not defined",
     dbString: process.env.DEV_PG_CONNECTION_STRING || "not defined",
-    graphqlEnpoint: process.env.GQL_ENDPOINT || "not defined",
+    graphqlEndpoint: process.env.GQL_ENDPOINT || "not defined",
     nodeEnv: process.env.NODE_ENV || "not defined",
     origin: process.env.PRODUCTION_CLIENT_ORIGIN || "not defined",
     sessionSecret: process.env.SESSION_SECRET || "not defined",
     virtualPort: process.env.VIRTUAL_PORT || "not defined",
+    // Above are all string value env vars
+    ormConfig: async (obj: AppServerConfigProps): Promise<Connection> => {
+      const devOrmconfig: PostgresConnectionOptions = {
+        name: "default",
+        type: "postgres",
+        // host: "localhost",
+        // port: 5432,
+        ssl: false,
+        // username: "eddienaff",
+        url: obj.dbString,
+        // password: "eddienaff",
+        // database: "instagram_clone",
+        logging: false,
+        synchronize: true,
+        entities: ["src/entity/**/*.ts"],
+        migrations: ["src/migration/**/*.ts"],
+        subscribers: ["src/subscriber/**/*.ts"],
+        cli: {
+          entitiesDir: "dist/entity",
+          migrationsDir: "src/migration",
+          subscribersDir: "src/subscriber",
+        },
+      };
+
+      let newConnection;
+      try {
+        newConnection = await createConnection(devOrmconfig);
+      } catch (error) {
+        console.warn("ERROR CREATING DB CONNECTION", error);
+        throw Error(error);
+      }
+
+      return newConnection;
+    },
     sessionMiddleware: () => {},
     xHeaderMiddleware: xHeaderMiddleware,
   };
@@ -64,6 +100,9 @@ export async function configApp(): Promise<AppServerConfigProps> {
 
   // Throw our prepped error messages for the user.
   if (undefinedKeys.length > 0) {
+    for (const errorStatement of undefinedKeys) {
+      console.error(errorStatement);
+    }
     throw new Error(undefinedKeys[0]);
   }
 
@@ -84,11 +123,19 @@ export async function configApp(): Promise<AppServerConfigProps> {
         httpOnly: true,
         secure: config.nodeEnv === "production",
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
-        domain: config.domain, // "eddienaff.dev" in prod,
+        domain: config.domain,
       },
     });
   } else {
     config.domain = devHost;
+    // Trap errors when configging the ORM.
+    try {
+      await config.ormConfig(config);
+    } catch (error) {
+      console.error(error);
+      throw Error(error);
+    }
+
     config.sessionMiddleware = session({
       name: config.cookieName,
       secret: config.sessionSecret,
@@ -102,7 +149,7 @@ export async function configApp(): Promise<AppServerConfigProps> {
         httpOnly: true,
         secure: false,
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days,
-        domain: config.domain, // devHost,
+        domain: devHost,
       },
     });
   }
