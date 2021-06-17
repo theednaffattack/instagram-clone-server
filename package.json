@@ -51,7 +51,7 @@
     "pino": "^5.14.0",
     "postinstall-postinstall": "^2.1.0",
     "reflect-metadata": "^0.1.13",
-    "type-graphql": "^0.17.1",
+    "type-graphql": "^0.17.6",
     "typeorm": "0.2.34",
     "uuid": "^3.3.2",
     "winston": "^3.2.1"
