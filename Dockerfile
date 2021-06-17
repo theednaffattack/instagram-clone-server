@@ -40,4 +40,4 @@ COPY wait-for-it.sh .
 # EXPOSE 6000
 
 # start the app 
-CMD ["node", "/app/dist/index.js"]
+CMD ["node", "/app/dist/main.js"]
