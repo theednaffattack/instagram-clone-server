@@ -21,6 +21,7 @@ export interface AppServerConfigProps extends IIndexable {
   dbPass: string;
   dbString: string;
   graphqlEndpoint: string;
+  host: string;
   nodeEnv: string;
   origin: string;
   sessionSecret: string;

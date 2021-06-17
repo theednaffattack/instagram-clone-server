@@ -7,6 +7,7 @@ import "reflect-metadata";
 import { formatGraphQLError } from "./config.format-graphql-errors";
 import { configGraphQLSubscriptions } from "./config.subscriptions";
 import { createSchema } from "./global-utils/createSchema";
+import { serverOnListen } from "./lib.server.on-listen";
 import { timingMiddleware } from "./middleware.timing";
 import { AppServerConfigProps } from "./types/Config";
 
@@ -129,7 +130,7 @@ export async function startServer(configObj: AppServerConfigProps) {
 
   const server = new ApolloServer({
     introspection: true,
-    playground: { version: "1.7.25", endpoint: "/api" }, // 1.7.10
+    playground: { version: "1.7.25", endpoint: "/api" },
     schema,
 
     context: ({ req, res, connection }: any) => {
@@ -143,6 +144,8 @@ export async function startServer(configObj: AppServerConfigProps) {
     formatError: formatGraphQLError,
   });
 
+  // DO NOT apply cors the normal Express way (commented out below)
+  // Instead use 'server.applyMiddleware' shown below
   // app.use(cors(corsOptions))
 
   server.applyMiddleware({
@@ -163,14 +166,7 @@ export async function startServer(configObj: AppServerConfigProps) {
     app.use(configObj.xHeaderMiddleware);
   }
 
-  httpServer.listen(
-    { port: configObj.virtualPort, host: configObj.domain },
-    () =>
-      console.log(
-        // message
-        `\n\n 🚀 Server ready at ${host}.\n\n`
-      )
+  httpServer.listen(Number(configObj.virtualPort), configObj.domain, () =>
+    serverOnListen(configObj)
   );
 }
-
-// startServer();

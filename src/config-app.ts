@@ -40,6 +40,7 @@ export async function configApp(): Promise<AppServerConfigProps> {
     dbPass: process.env.POSTGRES_PASS || "not defined",
     dbString: process.env.DEV_PG_CONNECTION_STRING || "not defined",
     graphqlEndpoint: process.env.GQL_ENDPOINT || "not defined",
+    host: "" || "set later",
     nodeEnv: process.env.NODE_ENV || "not defined",
     origin: process.env.PRODUCTION_CLIENT_ORIGIN || "not defined",
     sessionSecret: process.env.SESSION_SECRET || "not defined",
@@ -114,6 +115,8 @@ export async function configApp(): Promise<AppServerConfigProps> {
     // TODO: create a reusable function to check env variables
     config.dbString = process.env.PG_CONNECTION_STRING ?? "not defined";
 
+    config.host = `https://${config.domain}`;
+
     if (config.dbString === "not defined") {
       throw Error(
         `Env variable 'PG_CONNECTION_STRING' is not set, please check your env vars.`
@@ -139,6 +142,7 @@ export async function configApp(): Promise<AppServerConfigProps> {
   } else {
     // Reset the Domain variable (maybe rename to 'host').
     config.domain = devHost;
+    config.host = `http://${config.domain}:${config.virtualPort}`;
     // Trap errors when configging the ORM.
     try {
       await config.ormConfig(config);
