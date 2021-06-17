@@ -4,8 +4,6 @@ import Express from "express";
 import http from "http";
 import { v4 } from "internal-ip";
 import "reflect-metadata";
-import { createConnection } from "typeorm";
-import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
 import { formatGraphQLError } from "./config.format-graphql-errors";
 import { configGraphQLSubscriptions } from "./config.subscriptions";
 import { createSchema } from "./global-utils/createSchema";
@@ -26,7 +24,7 @@ const prodHost = process.env.PRODUCTION_HOST;
 
 const host = nodeEnvIsProd
   ? `https://${prodHost}/graphql`
-  : `http://${devHost}:${port}/graphql`;
+  : `http://${devHost}:${port}/api`;
 
 let allowedOrigins = nodeEnvIs_NOT_Prod
   ? [
@@ -116,48 +114,22 @@ const getContextFromSubscription = (connection: any) => {
 export async function startServer(configObj: AppServerConfigProps) {
   let schema;
 
+  // create graphql schema
   try {
     schema = await createSchema();
   } catch (error) {
     console.warn("ERROR CREATING SCHEMA", error);
   }
 
-  try {
-    const devOrmconfig: PostgresConnectionOptions = {
-      name: "default",
-      type: "postgres",
-      // host: "localhost",
-      // port: 5432,
-      ssl: false,
-      // username: "eddienaff",
-      url: configObj.dbString,
-      // password: "eddienaff",
-      // database: "instagram_clone",
-      logging: false,
-      synchronize: true,
-      entities: ["src/entity/**/*.ts"],
-      migrations: ["src/migration/**/*.ts"],
-      subscribers: ["src/subscriber/**/*.ts"],
-      cli: {
-        entitiesDir: "dist/entity",
-        migrationsDir: "src/migration",
-        subscribersDir: "src/subscriber",
-      },
-    };
-
-    await createConnection(devOrmconfig);
-  } catch (error) {
-    console.warn("ERROR CREATING DB CONNECTION", error);
-  }
   const app = Express();
 
   app.use(configObj.sessionMiddleware);
 
-  app.use(configObj.graphqlEnpoint, timingMiddleware);
+  app.use(configObj.graphqlEndpoint, timingMiddleware);
 
   const server = new ApolloServer({
     introspection: true,
-    playground: { version: "1.7.25", endpoint: "/graphql" }, // 1.7.10
+    playground: { version: "1.7.25", endpoint: "/api" }, // 1.7.10
     schema,
 
     context: ({ req, res, connection }: any) => {
@@ -166,24 +138,8 @@ export async function startServer(configObj: AppServerConfigProps) {
       }
 
       return getContextFromHttpRequest(req, res);
-
-      // return { req, res, connection }
     },
     subscriptions: configGraphQLSubscriptions(configObj),
-    // {
-    //   path: "/subscriptions",
-    //   onConnect: (_, ws: any) => {
-    //     return new Promise(
-    //       (res) =>
-    //         configObj.sessionMiddleware(ws.upgradeReq, {} as any, () => {
-    //           res({ req: ws.upgradeReq });
-    //         })
-    //       // sessionMiddleware(ws.upgradeReq, {} as any, () => {
-    //       //   res({ req: ws.upgradeReq });
-    //       // })
-    //     );
-    //   },
-    // },
     formatError: formatGraphQLError,
   });
 
@@ -191,6 +147,7 @@ export async function startServer(configObj: AppServerConfigProps) {
 
   server.applyMiddleware({
     app,
+    path: configObj.graphqlEndpoint,
     cors: corsOptions,
   }); // app is from an existing express app
 
