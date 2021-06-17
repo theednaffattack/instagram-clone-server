@@ -109,7 +109,17 @@ export async function configApp(): Promise<AppServerConfigProps> {
   const RedisStore = connectRedis(session);
 
   if (config.nodeEnv === "production") {
+    // Override the default which loads the 'DEV' connection
+    // string.
+    // TODO: create a reusable function to check env variables
     config.dbString = process.env.PG_CONNECTION_STRING ?? "not defined";
+
+    if (config.dbString === "not defined") {
+      throw Error(
+        `Env variable 'PG_CONNECTION_STRING' is not set, please check your env vars.`
+      );
+    }
+
     config.sessionMiddleware = session({
       name: config.cookieName,
       secret: config.sessionSecret,
@@ -127,6 +137,7 @@ export async function configApp(): Promise<AppServerConfigProps> {
       },
     });
   } else {
+    // Reset the Domain variable (maybe rename to 'host').
     config.domain = devHost;
     // Trap errors when configging the ORM.
     try {
@@ -136,6 +147,8 @@ export async function configApp(): Promise<AppServerConfigProps> {
       throw Error(error);
     }
 
+    // Configure the session info here so that we have access to values in
+    // 'configObj', rather than setting it immediately when creating the object.
     config.sessionMiddleware = session({
       name: config.cookieName,
       secret: config.sessionSecret,
