@@ -163,11 +163,13 @@ export async function startServer(configObj: AppServerConfigProps) {
     app.use(configObj.xHeaderMiddleware);
   }
 
-  httpServer.listen({ port }, () =>
-    console.log(
-      // message
-      `\n\n 🚀 Server ready at ${host}.\n\n`
-    )
+  httpServer.listen(
+    { port: configObj.virtualPort, host: configObj.domain },
+    () =>
+      console.log(
+        // message
+        `\n\n 🚀 Server ready at ${host}.\n\n`
+      )
   );
 }
 
