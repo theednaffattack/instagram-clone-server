@@ -19,7 +19,7 @@
   "dependencies": {
     "aggregate-error": "^4.0.0",
     "apollo-boost": "^0.4.4",
-    "apollo-server-express": "2.9.9",
+    "apollo-server-express": "2.14.2",
     "argon2": "^0.27.0",
     "aws-sdk": "^2.494.0",
     "bcryptjs": "^2.4.3",
