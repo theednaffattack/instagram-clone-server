@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "yarn rimraf dist && yarn build && node dist/main.js",
-    "build": "tsc",
+    "build": "yarn rimraf dist && tsc",
     "local-start": "tsc && node -r dotenv/config dist/main.js",
     "dev": "nodemon --exec ts-node -r dotenv/config src/main.ts",
     "odev": "ts-node-dev --respawn -r dotenv/config src/main.ts",
@@ -15,6 +15,9 @@
     "db:setup": "ts-node ./src/test-utils/setup.ts",
     "test": "npm run db:setup && TERM=dumb jest --detectOpenHandles",
     "tdev": "npm run db:setup && TERM=dumb jest --watch --detectOpenHandles"
+  },
+  "engines": {
+    "node": "12.16.2"
   },
   "dependencies": {
     "aggregate-error": "^4.0.0",
@@ -53,9 +56,6 @@
     "typeorm": "0.2.34",
     "uuid": "^3.3.2",
     "winston": "^3.2.1"
-  },
-  "engines": {
-    "node": "12.16.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
