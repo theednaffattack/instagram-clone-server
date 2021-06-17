@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-export function xHeaderMiddleware(
+export const xHeaderMiddleware = function(
   req: Request,
   res: Response,
   next: NextFunction
@@ -10,4 +10,4 @@ export function xHeaderMiddleware(
   } else {
     next();
   }
-}
+};
