@@ -23,7 +23,7 @@
     "apollo-boost": "^0.4.4",
     "apollo-server-express": "^2.21.0",
     "argon2": "^0.27.0",
-    "aws-sdk": "^2.494.0",
+    "aws-sdk": "^2.814.0",
     "bcryptjs": "^2.4.3",
     "class-validator": "^0.9.1",
     "connect-redis": "^3.4.1",
